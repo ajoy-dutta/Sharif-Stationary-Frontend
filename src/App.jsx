@@ -5,7 +5,7 @@ function App() {
 
   return (
     <>
-      <div className="centered-text">Kapottkha Lions Eye Hospital</div>
+      <div className="centered-text">Sharif Stationary</div>
       </>
   )
 }
