@@ -8,12 +8,15 @@ import SignUp from "../SignUp.jsx";
 import Security from "../Pages/Security/Security.jsx";
 import Dashboard from "../Pages/DashboardPage/Dashboard.jsx";
 import Master from "../Pages/Master/Master.jsx";
-import Purchase from "./../Pages/Purchase/Purchase";
+
 import Transfer from "../Pages/Transfer/Transfer.jsx";
 import Production from "../Pages/Production/Production.jsx";
 import Sales from "../Pages/Sales/Sales.jsx";
 import Posting from "../Pages/Posting/Posting.jsx";
 import Account from "../Pages/Account/Account.jsx";
+import PurchaseReceiveForm from "../Pages/Purchase/PurchaseReceiveForm.jsx";
+import ShopkeeperProfile from "../ShopKeeper/ShopKeeperProfile.jsx";
+import UserProfile from "../Users/UserProfile.jsx";
 
 export const router = createBrowserRouter([
   {
@@ -38,7 +41,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "/purchase",
-        element: <Purchase></Purchase>,
+        element: <PurchaseReceiveForm></PurchaseReceiveForm>,
       },
       {
         path: "/transfer",
@@ -64,6 +67,14 @@ export const router = createBrowserRouter([
       {
         path: "/product",
         element: <Product></Product>,
+      },
+      {
+        path: "/shop-keeper",
+        element: <ShopkeeperProfile></ShopkeeperProfile>,
+      },
+      {
+        path: "/user-profile",
+        element: <UserProfile></UserProfile>,
       },
       {
         path: "/login",
