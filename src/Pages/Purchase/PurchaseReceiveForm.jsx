@@ -124,15 +124,7 @@ function PurchaseReceiveForm() {
   return (
     <div className="p-8 bg-gray-100">
       {/* Search Button Above the Form */}
-      <div className="mb-6">
-        <button
-          type="button"
-          className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
-          onClick={handleSearch}
-        >
-          Search
-        </button>
-      </div>
+    
 
       <h2 className="text-2xl font-semibold mb-4">Purchase Receive (Credit)</h2>
       <form onSubmit={handleSubmit}>
@@ -140,34 +132,35 @@ function PurchaseReceiveForm() {
  <div className="grid grid-cols-5 gap-6">
     {/* Product Entry Date */}
     <div>
-      <label className="block font-medium">Product Entry Date</label>
-      <input
+      <label className="block font-medium">Purchase Challan Date</label>
+      <input 
         type="date"
-        className="mt-1 p-2 w-full border border-gray-300 rounded"
+        className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
         value={date}
         onChange={(e) => setDate(e.target.value)}
       />
     </div>
     
-    {/* Purchase Voucher No. */}
-    <div>
-      <label className="block font-medium">Purchase Voucher No.</label>
-      <input
-        type="text"
-        className="mt-1 p-2 w-full border border-gray-300 rounded"
-        value={voucherNo}
-        onChange={(e) => setVoucherNo(e.target.value)}
-      />
-    </div>
-
+ 
     {/* Supplier */}
     <div>
       <label className="block font-medium">Supplier</label>
       <input
         type="text"
-        className="mt-1 p-2 w-full border border-gray-300 rounded"
+        className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
         value={supplier}
         onChange={(e) => setSupplier(e.target.value)}
+      />
+    </div>
+
+  {/* Purchase Voucher No. */}
+    <div>
+      <label className="block font-medium">Purchase Voucher No.</label>
+      <input
+        type="text"
+        className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
+        value={voucherNo}
+        onChange={(e) => setVoucherNo(e.target.value)}
       />
     </div>
 
@@ -175,7 +168,7 @@ function PurchaseReceiveForm() {
     <div>
       <label className="block font-medium">Product Type</label>
       <select
-        className="mt-1 p-2 w-full border border-gray-300 rounded"
+        className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
         value={type}
         onChange={(e) => setType(e.target.value)}
       >
@@ -186,10 +179,10 @@ function PurchaseReceiveForm() {
 
     {/* Purchase Challan Date */}
     <div>
-      <label className="block font-medium">Purchase Challan Date</label>
+      <label className="block font-medium">Product Entry Date</label>
       <input
         type="date"
-        className="mt-1 p-2 w-full border border-gray-300 rounded"
+        className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
         value={challanDate}
         onChange={(e) => setChallanDate(e.target.value)}
       />
@@ -203,7 +196,7 @@ function PurchaseReceiveForm() {
       <label className="block font-medium">Sharif Stationary Voucher No</label>
       <input
         type="text"
-        className="mt-1 p-2 w-full border border-gray-300 rounded"
+        className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
         value={voucherNo}
         onChange={(e) => setVoucherNo(e.target.value)}
       />
@@ -214,7 +207,7 @@ function PurchaseReceiveForm() {
       <label className="block font-medium">Branch</label>
       <input
         type="text"
-        className="mt-1 p-2 w-full border border-gray-300 rounded"
+        className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
         value={branch}
         onChange={(e) => setBranch(e.target.value)}
       />
@@ -224,7 +217,7 @@ function PurchaseReceiveForm() {
     <div>
       <label className="block font-medium">Remarks</label>
       <textarea
-        className="mt-1 p-2 w-full border border-gray-300 rounded"
+        className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
         value={remarks}
         onChange={(e) => setRemarks(e.target.value)}
       />
@@ -235,7 +228,7 @@ function PurchaseReceiveForm() {
       <label className="block font-medium">PO No.</label>
       <input
         type="text"
-        className="mt-1 p-2 w-full border border-gray-300 rounded"
+        className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
         value={poNo}
         onChange={(e) => setPoNo(e.target.value)}
       />
@@ -258,19 +251,19 @@ function PurchaseReceiveForm() {
 <table className="min-w-full border-collapse">
 <thead>
   <tr>
-    <th className="px-4 py-2 border">Item Code</th>
-    <th className="px-4 py-2 border">Title</th>
-    <th className="px-4 py-2 border">CY/CN</th>
-    <th className="px-4 py-2 border">RIM</th>
-    <th className="px-4 py-2 border">Shite</th>
-    <th className="px-4 py-2 border">Qty</th>
-    <th className="px-4 py-2 border">UOM</th>
-    <th className="px-4 py-2 border">Unit/Sheet Purchase Rate</th>
-    <th className="px-4 py-2 border">Conv./Rim Purchase Rate</th>
-    <th className="px-4 py-2 border">Amount</th>
-    <th className="px-4 py-2 border">Unit/Sheet Sale Rate</th>
-    <th className="px-4 py-2 border">Conv./Rim Sale Rate</th>
-    <th className="px-4 py-2 border">Actions</th>
+    <th className="px-4 py-2 border h-7">Item Code</th>
+    <th className="px-4 py-2 border h-7">Title</th>
+    {/* <th className="px-4 py-2 border h-7">CY/CN</th> */}
+    <th className="px-4 py-2 border h-7">RIM</th>
+    <th className="px-4 py-2 border h-7">Shite</th>
+    <th className="px-4 py-2 border h-7">Qty</th>
+    <th className="px-4 py-2 border h-7">UOM</th>
+    <th className="px-4 py-2 border h-7 ">Unit/Sheet Purchase Rate</th>
+    <th className="px-4 py-2 border h-7">Conv./Rim Purchase Rate</th>
+    <th className="px-4 py-2 border h-7">Amount</th>
+    <th className="px-4 py-2 border h-7">Unit/Sheet Sale Rate</th>
+    <th className="px-4 py-2 border h-7">Conv./Rim Sale Rate</th>
+    <th className="px-4 py-2 border h-7">Actions</th>
   </tr>
 </thead>
 <tbody>
@@ -395,22 +388,7 @@ function PurchaseReceiveForm() {
           Add Row
         </button>
       </div>
-      <div className="mt-6">
-        <button
-          type="button"
-          onClick={handlePDFExport}
-          className="bg-blue-500 text-white p-2 rounded mr-4"
-        >
-          Export to PDF
-        </button>
-        <button
-          type="button"
-          onClick={handleExcelExport}
-          className="bg-blue-500 text-white p-2 rounded"
-        >
-          Export to Excel
-        </button>
-      </div>
+
     </div>
 
 
@@ -418,38 +396,75 @@ function PurchaseReceiveForm() {
 <div className="mb-6">
   <h3 className="text-xl font-semibold mb-2">Payment Information</h3>
   <div className="flex flex-wrap gap-4">
-    <div className="flex-1">
-      <label className="block font-medium">Total</label>
-      <input
-        type="number"
-        className="mt-1 p-2 w-full border border-gray-300 rounded"
-        value={total}
-        onChange={(e) => setTotal(e.target.value)}
-      />
-    </div>
-    <div className="flex-1">
-      <label className="block font-medium">Paid Amount</label>
+        {/* Supplier */}
+        <div>
+      <label className="block font-medium">Supplier Name</label>
       <input
         type="text"
-        className="mt-1 p-2 w-full border border-gray-300 rounded"
-        value={paidAmount}
-        onChange={(e) => setPaidAmount(e.target.value)}
+        className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
+        value={supplier}
+        onChange={(e) => setSupplier(e.target.value)}
       />
     </div>
-    <div className="flex-1">
-      <label className="block font-medium">Due Amount</label>
+     <div className="flex-1">
+      <label className="block font-medium"> Previous Due </label>
       <input
         type="text"
-        className="mt-1 p-2 w-full border border-gray-300 rounded"
+        className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
         value={dueAmount}
         onChange={(e) => setDueAmount(e.target.value)}
       />
     </div>
+     <div className="flex-1">
+      <label className="block font-medium"> Today Bill </label>
+      <input
+        type="text"
+        className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
+        value={dueAmount}
+        onChange={(e) => setDueAmount(e.target.value)}
+      />
+    </div>
+
+        {/* Supplier */}
+        <div className="flex-1">
+      <label className="block font-medium"> Today Paid </label>
+      <input
+        type="text"
+        className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
+        value={dueAmount}
+        onChange={(e) => setDueAmount(e.target.value)}
+      />
+    </div>
+
+    <div className="flex-1">
+  <label className="block font-medium">Paid By</label>
+  <select
+    className="mt-1 p-2 w-full border border-gray-300 rounded h-9 focus:ring-2 focus:ring-blue-500"
+    // value={paidBy} // Set the default value to the state
+    // onChange={(e) => setPaidBy(e.target.value)}
+  >
+    <option value="cash">Cash</option>
+    <option value="bank">Bank</option>
+  </select>
+</div>
+
+
+
+    <div className="flex-1">
+      <label className="block font-medium">Paid Amount</label>
+      <input
+        type="text"
+        className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
+        value={paidAmount}
+        onChange={(e) => setPaidAmount(e.target.value)}
+      />
+    </div>
+
     <div className="flex-1">
       <label className="block font-medium">Paid A/C</label>
       <input
         type="text"
-        className="mt-1 p-2 w-full border border-gray-300 rounded"
+        className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
         value={paidAccount}
         onChange={(e) => setPaidAccount(e.target.value)}
       />
@@ -458,7 +473,7 @@ function PurchaseReceiveForm() {
       <label className="block font-medium">Cheque No.</label>
       <input
         type="text"
-        className="mt-1 p-2 w-full border border-gray-300 rounded"
+        className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
         value={chequeNo}
         onChange={(e) => setChequeNo(e.target.value)}
       />
@@ -467,30 +482,43 @@ function PurchaseReceiveForm() {
       <label className="block font-medium">Cheque Date</label>
       <input
         type="date"
-        className="mt-1 p-2 w-full border border-gray-300 rounded"
+        className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
         value={chequeDate}
         onChange={(e) => setChequeDate(e.target.value)}
       />
     </div>
   </div>
 </div>
+{/* Button Section */}
+<div className="mt-6 flex justify-between items-center space-x-4">
+  {/* Export to PDF Button */}
+  <button
+    type="button"
+    onClick={handlePDFExport}
+    className="bg-blue-500 text-white p-2 rounded flex-1"
+  >
+    Export to PDF
+  </button>
 
-{/* Submit and Cancel Buttons */}
-<div className="flex justify-between mt-6">
+  {/* Submit Button */}
   <button
     type="submit"
-    className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
+    className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 flex-1"
   >
     Submit
   </button>
+
+  {/* Cancel Button */}
   <button
     type="button"
-    className="bg-red-500 text-white p-2 rounded hover:bg-red-600"
+    className="bg-red-500 text-white p-2 rounded hover:bg-red-600 flex-1"
     onClick={() => alert('Form Cancelled')}
   >
     Cancel
   </button>
 </div>
+
+
 </form>
 </div>
 );

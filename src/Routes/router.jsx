@@ -17,6 +17,7 @@ import Account from "../Pages/Account/Account.jsx";
 import PurchaseReceiveForm from "../Pages/Purchase/PurchaseReceiveForm.jsx";
 import ShopkeeperProfile from "../ShopKeeper/ShopKeeperProfile.jsx";
 import UserProfile from "../Users/UserProfile.jsx";
+import AdminDashboard from "../Admin/AdminDashord/AdminDashboard.jsx";
 
 export const router = createBrowserRouter([
   {
@@ -75,6 +76,10 @@ export const router = createBrowserRouter([
       {
         path: "/user-profile",
         element: <UserProfile></UserProfile>,
+      },
+      {
+        path: "/admin",
+        element:<AdminDashboard></AdminDashboard>,
       },
       {
         path: "/login",
