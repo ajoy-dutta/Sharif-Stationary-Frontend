@@ -1,7 +1,7 @@
 import { createBrowserRouter } from "react-router-dom";
 
 import Main from "../Layout/Main";
-import Login from "../Login.jsx";
+
 import Product from "../Pages/Product/Product.jsx";
 import Home from "../Pages/HomePage/Home/Home/Home.jsx";
 import SignUp from "../SignUp.jsx";
@@ -18,6 +18,8 @@ import PurchaseReceiveForm from "../Pages/Purchase/PurchaseReceiveForm.jsx";
 import ShopkeeperProfile from "../ShopKeeper/ShopKeeperProfile.jsx";
 import UserProfile from "../Users/UserProfile.jsx";
 import AdminDashboard from "../Admin/AdminDashord/AdminDashboard.jsx";
+import SalesNew from "../Pages/Sales/SalesNew.jsx";
+import SignIn from "../SignIn.jsx";
 
 export const router = createBrowserRouter([
   {
@@ -57,6 +59,10 @@ export const router = createBrowserRouter([
         element: <Sales></Sales>,
       },
       {
+        path: "/salesNew",
+        element: <SalesNew></SalesNew>,
+      },
+      {
         path: "/posting",
         element: <Posting></Posting>,
       },
@@ -81,9 +87,10 @@ export const router = createBrowserRouter([
         path: "/admin",
         element:<AdminDashboard></AdminDashboard>,
       },
+    
       {
-        path: "/login",
-        element: <Login></Login>,
+        path: "/sign-in",
+        element: <SignIn></SignIn>,
       },
       {
         path: "/signup",

@@ -112,9 +112,9 @@ const Sales = () => {
         name="invoiceNo"
         value={formData.invoiceNo}
         onChange={handleChange}
-        className="w-full px-8 py-1 border border-gray-300 rounded"
+        className="w-full px-12 py-1 border border-gray-300 rounded"
       />
-      <button className="ml-2 px-8 py-1 bg-blue-500 text-white rounded">Search</button>
+      <button className="ml-2 px-12 py-1 bg-blue-500 text-white rounded">Search</button>
     </div>
   </div>
 
@@ -125,7 +125,7 @@ const Sales = () => {
       name="date"
       value={formData.date}
       onChange={handleChange}
-      className="w-full px-8 py-1 border border-gray-300 rounded"
+      className="w-full px-12 py-1 border border-gray-300 rounded"
     />
   </div>
 
@@ -136,7 +136,7 @@ const Sales = () => {
       name="branch"
       value={formData.branch}
       onChange={handleChange}
-      className="w-full px-8 py-1 border border-gray-300 rounded"
+      className="w-full px-12 py-1 border border-gray-300 rounded"
     />
   </div>
 
@@ -147,7 +147,7 @@ const Sales = () => {
       name="servedBy"
       value={formData.servedBy}
       onChange={handleChange}
-      className="w-full px-8 py-1 border border-gray-300 rounded"
+      className="w-full px-12 py-1 border border-gray-300 rounded"
     />
   </div>
 </div>
@@ -160,7 +160,7 @@ const Sales = () => {
       name="voucherNo"
       value={formData.voucherNo}
       onChange={handleChange}
-      className="w-full px-8 py-1 border border-gray-300 rounded"
+      className="w-full px-12 py-1 border border-gray-300 rounded"
     />
   </div>
 
@@ -170,7 +170,7 @@ const Sales = () => {
       name="payMethod"
       value={formData.payMethod}
       onChange={handleChange}
-      className="w-full px-8 py-1 border border-gray-300 rounded"
+      className="w-full px-12 py-1 border border-gray-300 rounded"
     >
       <option value="Cash">Cash</option>
       <option value="Card">Card</option>
@@ -185,7 +185,7 @@ const Sales = () => {
       name="cardDetails"
       value={formData.cardDetails}
       onChange={handleChange}
-      className="w-full px-8 py-1 border border-gray-300 rounded"
+      className="w-full px-12 py-1 border border-gray-300 rounded"
     />
   </div>
 
@@ -209,7 +209,7 @@ const Sales = () => {
       name="deliveryAddress"
       value={formData.deliveryAddress}
       onChange={handleChange}
-      className="w-full px-8 py-1 border border-gray-300 rounded"
+      className="w-full px-12 py-1 border border-gray-300 rounded"
     />
   </div>
 
@@ -220,7 +220,7 @@ const Sales = () => {
       name="customer"
       value={formData.customer}
       onChange={handleChange}
-      className="w-full px-8 py-1 border border-gray-300 rounded"
+      className="w-full px-12 py-1 border border-gray-300 rounded"
     />
   </div>
 
@@ -231,7 +231,7 @@ const Sales = () => {
       name="customerAddress"
       value={formData.customerAddress}
       onChange={handleChange}
-      className="w-full px-8 py-1 border border-gray-300 rounded"
+      className="w-full px-12 py-1 border border-gray-300 rounded"
     />
   </div>
 
@@ -241,7 +241,7 @@ const Sales = () => {
       name="remarks"
       value={formData.remarks}
       onChange={handleChange}
-      className="w-full px-8 py-1 border border-gray-300 rounded"
+      className="w-full px-12 py-1 border border-gray-300 rounded"
     />
   </div>
 </div>
@@ -250,28 +250,28 @@ const Sales = () => {
       {/* Items Section */}
       <div>
       <h2>Items</h2>
-      <table className="table-auto w-full mb-6 border">
+      <table className=" mb-6 border">
         <thead>
         <tr>
-  <th className="border px-8 py-1">Item Code</th>
-  <th className="border px-8 py-1">Title</th>
-  <th className="border px-8 py-1">CY/CN</th>
-  <th className="border px-7 py-1">RIM</th>
-  <th className="border px-8 py-1">SHEET</th>
-  <th className="border px-7 py-1">Qty</th>
-  <th className="border px-8 py-1">Balance</th>
-  <th className="border px-7 py-1">UOM</th>
-  <th className="border px-8 py-1">Sheet Rate</th>
-  <th className="border px-8 py-1">Conv./RIM</th>
-  <th className="border px-7 py-1">VAT %</th>
-  <th className="border px-8 py-1">VAT Amount</th>
-  <th className="border px-8 py-1">Item Total</th>
-  <th className="border px-8 py-1">Discount %</th>
-  <th className="border px-8 py-1">Discount Amount</th>
-  <th className="border px-8 py-1">Quantity Amount</th>
-  <th className="border px-8 py-1">Unit Quantity</th>
-  <th className="border px-8 py-1">Name</th>
-  <th className="border px-8 py-1">Action</th>
+  <th className="border px-12 py-1">Item Code</th>
+  <th className="border px-12 py-1">Title</th>
+  <th className="border px-12 py-1">CY/CN</th>
+  <th className="border px-12 py-1">RIM</th>
+  <th className="border px-12 py-1">SHEET</th>
+  <th className="border px-12 py-1">Qty</th>
+  <th className="border px-12 py-1">Balance</th>
+  <th className="border px-12 py-1">UOM</th>
+  <th className="border px-12 py-1">Sheet Rate</th>
+  <th className="border px-12 py-1">Conv./RIM</th>
+  <th className="border px-12 py-1">VAT %</th>
+  <th className="border px-12 py-1">VAT Amount</th>
+  <th className="border px-12 py-1">Item Total</th>
+  <th className="border px-12 py-1">Discount %</th>
+  <th className="border px-12 py-1">Discount Amount</th>
+  <th className="border px-12 py-1">Quantity Amount</th>
+  <th className="border px-12 py-1">Unit Quantity</th>
+  <th className="border px-12 py-1">Name</th>
+  <th className="border px-12 py-1">Action</th>
 </tr>
 
 
@@ -280,7 +280,7 @@ const Sales = () => {
           {formData.items.map((item, index) => (
             <tr key={index}>
               {Object.keys(item).map((key) => (
-                <td key={key} className="border px-8 py-1">
+                <td key={key} className="border px-12 py-1">
                   <input
                     type={typeof item[key] === "number" ? "number" : "text"}
                     name={key}
@@ -290,7 +290,7 @@ const Sales = () => {
                   />
                 </td>
               ))}
-              <td className="border px-8 py-1 text-center">
+              <td className="border px-12 py-1 text-center">
                 <button
                   onClick={() => deleteItem(index)}
                   className="px-4 py-1 bg-red-500 text-white rounded"
@@ -305,7 +305,7 @@ const Sales = () => {
 
       <button
         onClick={addItem}
-        className="px-8 py-1 bg-green-500 text-white rounded mb-4"
+        className="px-12 py-1 bg-green-500 text-white rounded mb-4"
       >
         Add Item
       </button>
@@ -319,7 +319,7 @@ const Sales = () => {
       name="cardAmount"
       value={formData.cardAmount}
       onChange={handleChange}
-      className="w-full px-8 py-1 border border-gray-300 rounded"
+      className="w-full px-12 py-1 border border-gray-300 rounded"
     />
   </div>
   <div>
@@ -329,7 +329,7 @@ const Sales = () => {
       name="paidAmount"
       value={formData.paidAmount}
       onChange={handleChange}
-      className="w-full px-8 py-1 border border-gray-300 rounded"
+      className="w-full px-12 py-1 border border-gray-300 rounded"
     />
   </div>
   <div>
@@ -339,7 +339,7 @@ const Sales = () => {
       name="dueAmount"
       value={formData.dueAmount}
       onChange={handleChange}
-      className="w-full px-8 py-1 border border-gray-300 rounded"
+      className="w-full px-12 py-1 border border-gray-300 rounded"
     />
   </div>
   <div>
@@ -349,7 +349,7 @@ const Sales = () => {
       name="discount"
       value={formData.discount}
       onChange={handleChange}
-      className="w-full px-8 py-1 border border-gray-300 rounded"
+      className="w-full px-12 py-1 border border-gray-300 rounded"
     />
   </div>
 </div>
@@ -362,7 +362,7 @@ const Sales = () => {
       name="vatTotal"
       value={formData.vatTotal}
       onChange={handleChange}
-      className="w-full px-8 py-1 border border-gray-300 rounded"
+      className="w-full px-12 py-1 border border-gray-300 rounded"
     />
   </div>
   <div>
@@ -372,7 +372,7 @@ const Sales = () => {
       name="exchangePoint"
       value={formData.exchangePoint}
       onChange={handleChange}
-      className="w-full px-8 py-1 border border-gray-300 rounded"
+      className="w-full px-12 py-1 border border-gray-300 rounded"
     />
   </div>
   <div>
@@ -382,15 +382,15 @@ const Sales = () => {
       name="netAmount"
       value={formData.netAmount}
       onChange={handleChange}
-      className="w-full px-8 py-1 border border-gray-300 rounded"
+      className="w-full px-12 py-1 border border-gray-300 rounded"
     />
   </div>
 </div>
 
 
       <div className="flex justify-between mt-4">
-        <button className="px-8 py-1 bg-blue-500 text-white rounded">Preview Invoice</button>
-        <button className="px-8 py-1 bg-red-500 text-white rounded">Chalan</button>
+        <button className="px-12 py-1 bg-blue-500 text-white rounded">Preview Invoice</button>
+        <button className="px-12 py-1 bg-red-500 text-white rounded">Chalan</button>
       </div>
     </div>
   );

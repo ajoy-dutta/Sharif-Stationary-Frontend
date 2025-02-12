@@ -54,6 +54,11 @@ const Navbar = () => {
             </Link>
           </li>
           <li>
+            <Link to="/salesNew" className="text-gray-800 hover:text-blue-500 font-medium px-3">
+              SalesNew
+            </Link>
+          </li>
+          <li>
             <Link to="/posting" className="text-gray-800 hover:text-blue-500 font-medium px-3">
               Posting
             </Link>
@@ -67,9 +72,9 @@ const Navbar = () => {
 
         {/* Authentication Buttons */}
         <div className="flex space-x-4">
-          <Link to="/login">
+          <Link to="/sign-in">
             <button className="text-white bg-blue-500 hover:bg-blue-600 font-medium px-4 py-2 rounded-md">
-              Login
+              SignIn
             </button>
           </Link>
           <Link to="/signup">
