@@ -251,20 +251,21 @@ function PurchaseReceiveForm() {
 <table className="min-w-full border-collapse">
 <thead>
   <tr>
-    <th className="px-4 py-2 border h-7">Item Code</th>
-    <th className="px-4 py-2 border h-7">Title</th>
-    {/* <th className="px-4 py-2 border h-7">CY/CN</th> */}
-    <th className="px-4 py-2 border h-7">RIM</th>
-    <th className="px-4 py-2 border h-7">Shite</th>
-    <th className="px-4 py-2 border h-7">Qty</th>
-    <th className="px-4 py-2 border h-7">UOM</th>
-    <th className="px-4 py-2 border h-7 ">Unit/Sheet Purchase Rate</th>
-    <th className="px-4 py-2 border h-7">Conv./Rim Purchase Rate</th>
-    <th className="px-4 py-2 border h-7">Amount</th>
-    <th className="px-4 py-2 border h-7">Unit/Sheet Sale Rate</th>
-    <th className="px-4 py-2 border h-7">Conv./Rim Sale Rate</th>
-    <th className="px-4 py-2 border h-7">Actions</th>
-  </tr>
+  <th className="px-4 py-2 border h-7">Item Code</th>
+  <th className="px-4 py-2 border h-7">Title</th>
+  {/* <th className="px-4 py-2 border h-7">CY/CN</th> */}
+  <th className="px-4 py-2 border h-7">RIM</th>
+  <th className="px-4 py-2 border h-7">Shite</th>
+  <th className="px-4 py-2 border h-7">Qty</th>
+  <th className="px-4 py-2 border h-7">UOM</th>
+  <th className="px-4 py-2 border h-7">Unit/Sheet Purchase Rate</th>
+  <th className="px-4 py-2 border h-7">Conv./Rim Purchase Rate</th>
+  <th className="px-4 py-2 border h-7">Amount</th>
+  <th className="px-4 py-2 border h-7">Unit/Sheet Sale Rate</th>
+  <th className="px-4 py-2 border h-7">Conv./Rim Sale Rate</th>
+  <th className="px-4 py-2 border h-7">Actions</th>
+</tr>
+
 </thead>
 <tbody>
   {items.map((item, index) => (

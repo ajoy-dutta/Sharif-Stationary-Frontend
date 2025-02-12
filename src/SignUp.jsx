@@ -7,8 +7,8 @@ import { TbFidgetSpinner } from "react-icons/tb";
 
 const SignUp = () => {
   const [formData, setFormData] = useState({
-    companyName: "",
-    ownerName: "",
+    company_name: "",  // Use snake_case as expected by backend
+    owner_name: "",
     phone1: "",
     phone2: "",
     email: "",
@@ -17,7 +17,8 @@ const SignUp = () => {
     extraField1: "",
     extraField2: "",
     extraField3: "",
-  });
+});
+
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -37,13 +38,23 @@ const SignUp = () => {
     setLoading(true);
 
     try {
-      const response = await axios.post("/api/auth/signup", formData);
+      const response = await axios.post('http://localhost:8000/api/auth/signup/', {
+        company_name: formData.company_name,
+        owner_name: formData.owner_name,
+        phone1: formData.phone1,
+        phone2: formData.phone2,
+        email: formData.email,
+        password: formData.password,
+      });
+  
+      // Assuming the response has a success key
       if (response.data.success) {
         toast.success("Sign up successful!");
-        navigate("/login");
+        navigate("/sign-in");
       }
     } catch (error) {
       toast.error("Error signing up");
+      console.error("Error: ", error);  // Optional: Log error for debugging
     } finally {
       setLoading(false);
     }
@@ -58,16 +69,17 @@ const SignUp = () => {
 
         <form onSubmit={handleSubmit}>
           {[
-            { label: "Company Name", name: "companyName" },
-            { label: "Owner Name", name: "ownerName" },
-            { label: "Phone Number 1", name: "phone1", type: "tel" },
-            { label: "Phone Number 2", name: "phone2", type: "tel" },
-            { label: "Email Address", name: "email", type: "email" },
-            { label: "Password", name: "password", type: "password" },
-            { label: "Confirm Password", name: "confirmPassword", type: "password" },
-            { label: "Extra Field 1", name: "extraField1" },
-            { label: "Extra Field 2", name: "extraField2" },
-            { label: "Extra Field 3", name: "extraField3" },
+          { label: "Company Name", name: "company_name" },
+          { label: "Owner Name", name: "owner_name" },
+          { label: "Phone Number 1", name: "phone1", type: "tel" },
+          { label: "Phone Number 2", name: "phone2", type: "tel" },
+          { label: "Email Address", name: "email", type: "email" },
+          { label: "Password", name: "password", type: "password" },
+          { label: "Confirm Password", name: "confirmPassword", type: "password" },
+          { label: "Extra Field 1", name: "extra_field1" },
+          { label: "Extra Field 2", name: "extra_field2" },
+          { label: "Extra Field 3", name: "extra_field3" },
+          
           ].map(({ label, name, type = "text" }) => (
             <div className="mb-4" key={name}>
               <label className="block text-gray-700" htmlFor={name}>
