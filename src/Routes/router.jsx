@@ -20,6 +20,7 @@ import UserProfile from "../Users/UserProfile.jsx";
 import AdminDashboard from "../Admin/AdminDashord/AdminDashboard.jsx";
 import SalesNew from "../Pages/Sales/SalesNew.jsx";
 import SignIn from "../SignIn.jsx";
+import ForgotPassword from "../Authentication/ForgotPassword.jsx";
 
 export const router = createBrowserRouter([
   {
@@ -49,6 +50,10 @@ export const router = createBrowserRouter([
       {
         path: "/transfer",
         element: <Transfer></Transfer>,
+      },
+      {
+        path: "/forgot-password",
+        element: <ForgotPassword></ForgotPassword>,
       },
       {
         path: "/production",
