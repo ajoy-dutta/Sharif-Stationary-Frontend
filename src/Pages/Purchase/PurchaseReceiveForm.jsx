@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
+// import './styles.css'; // Adjust the path if needed
+// import '..//..//..//src//Pages'
 
 import * as XLSX from 'xlsx';
 // import { jsPDF } from 'jspdf'; // Updated import
@@ -103,17 +105,9 @@ function PurchaseReceiveForm() {
     doc.save('items.pdf');
   };
 
-  const handleExcelExport = () => {
-    const ws = XLSX.utils.json_to_sheet(items);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Items');
-    XLSX.writeFile(wb, 'items.xlsx');
-  };
 
-  const handleSearch = () => {
-    // Add search functionality here
-    console.log('Search clicked');
-  };
+
+
   // Function to format date as "DD/MM/YYYY"
   const formatDate = (date) => {
     if (!date) return "";
@@ -128,9 +122,11 @@ function PurchaseReceiveForm() {
 
       <h2 className="text-2xl font-semibold mb-4">Purchase Receive (Credit)</h2>
       <form onSubmit={handleSubmit}>
- {/* First row with 5 fields */}
- <div className="grid grid-cols-5 gap-6">
-    {/* Product Entry Date */}
+{/* Wrapper div with a single border around both sections */}
+<div className="border border-gray-400 p-4 rounded-md">
+  {/* First row with 5 fields */}
+  <div className="grid grid-cols-5 gap-6">
+    {/* Purchase Challan Date */}
     <div>
       <label className="block font-medium">Purchase Challan Date</label>
       <input 
@@ -140,8 +136,7 @@ function PurchaseReceiveForm() {
         onChange={(e) => setDate(e.target.value)}
       />
     </div>
-    
- 
+
     {/* Supplier */}
     <div>
       <label className="block font-medium">Supplier</label>
@@ -153,7 +148,7 @@ function PurchaseReceiveForm() {
       />
     </div>
 
-  {/* Purchase Voucher No. */}
+    {/* Purchase Voucher No. */}
     <div>
       <label className="block font-medium">Purchase Voucher No.</label>
       <input
@@ -164,36 +159,37 @@ function PurchaseReceiveForm() {
       />
     </div>
 
-    {/* Product Type */}
-    <div>
-      <label className="block font-medium">Product Type</label>
-      <select
-        className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
-        value={type}
-        onChange={(e) => setType(e.target.value)}
-      >
-        <option value="Local">Local</option>
-        <option value="Import">Import</option>
-      </select>
-    </div>
+{/* Product Type */}
+<div>
+  <label className="block font-medium">Product Type</label>
+  <select
+    className="mt-1 p-2 w-full border border-gray-300 rounded h-9 focus:ring-2 focus:ring-blue-500"
+    value={type}
+    onChange={(e) => setType(e.target.value)}
+  >
+    {/* <option value="" disabled>Select Product Type</option>   */}
+    <option value="Local">Local</option>
+    <option value="Import">Import</option>
+  </select>
+</div>
 
-    {/* Purchase Challan Date */}
+    {/* Product Entry Date */}
     <div>
       <label className="block font-medium">Product Entry Date</label>
-      <input
+      <input 
         type="date"
         className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
-        value={challanDate}
-        onChange={(e) => setChallanDate(e.target.value)}
+        value={date}
+        onChange={(e) => setDate(e.target.value)}
       />
     </div>
   </div>
 
-  {/* Second row with 5 fields */}
+  {/* Second row with 4 fields */}
   <div className="grid grid-cols-4 gap-6 mt-4">
     {/* Sharif Stationary Voucher No */}
     <div>
-      <label className="block font-medium">Sharif Stationary Voucher No</label>
+      <label className="block font-medium">Purchase Voucher No.</label>
       <input
         type="text"
         className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
@@ -233,291 +229,294 @@ function PurchaseReceiveForm() {
         onChange={(e) => setPoNo(e.target.value)}
       />
     </div>
-
-    {/* Retrieve Button */}
-    {/* <div>
-      <button
-        type="button"
-        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 w-full"
-        onClick={() => alert("Retrieve action triggered")}
-      >
-        Retrieve
-      </button>
-    </div> */}
   </div>
+</div>
+
+
 
 <div className="p-8">
 <h3 className="text-xl font-semibold mb-4">Item Details</h3>
-<table className="min-w-full border-collapse">
-<thead>
-  <tr>
-  <th className="px-4 py-2 border h-7">Item Code</th>
-  <th className="px-4 py-2 border h-7">Title</th>
-  {/* <th className="px-4 py-2 border h-7">CY/CN</th> */}
-  <th className="px-4 py-2 border h-7">RIM</th>
-  <th className="px-4 py-2 border h-7">Shite</th>
-  <th className="px-4 py-2 border h-7">Qty</th>
-  <th className="px-4 py-2 border h-7">UOM</th>
-  <th className="px-4 py-2 border h-7">Unit/Sheet Purchase Rate</th>
-  <th className="px-4 py-2 border h-7">Conv./Rim Purchase Rate</th>
-  <th className="px-4 py-2 border h-7">Amount</th>
-  <th className="px-4 py-2 border h-7">Unit/Sheet Sale Rate</th>
-  <th className="px-4 py-2 border h-7">Conv./Rim Sale Rate</th>
-  <th className="px-4 py-2 border h-7">Actions</th>
-</tr>
+{/* Purchase Details Table with Outer Border */}
+<div className="border border-gray-400 p-4 rounded-md mt-4">
+  {/* <h3 className="text-xl font-semibold mb-2">Purchase Details</h3> */}
 
-</thead>
-<tbody>
-  {items.map((item, index) => (
-    <tr key={index}>
-      <td className="px-4 py-2 border">
-        <input
-          type="text"
-          className="w-full p-2 border border-gray-300 rounded"
-          value={item.itemCode}
-          onChange={(e) => handleChange(e, index, 'itemCode')}
-        />
-      </td>
-      <td className="px-4 py-2 border">
-        <input
-          type="text"
-          className="w-full p-2 border border-gray-300 rounded"
-          value={item.title}
-          onChange={(e) => handleChange(e, index, 'title')}
-        />
-      </td>
-      <td className="px-4 py-2 border">
-        <input
-          type="text"
-          className="w-full p-2 border border-gray-300 rounded"
-          value={item.cyCn}
-          onChange={(e) => handleChange(e, index, 'cyCn')}
-        />
-      </td>
-      <td className="px-4 py-2 border">
-        <input
-          type="text"
-          className="w-full p-2 border border-gray-300 rounded"
-          value={item.rim}
-          onChange={(e) => handleChange(e, index, 'rim')}
-        />
-      </td>
-      <td className="px-4 py-2 border">
-        <input
-          type="text"
-          className="w-full p-2 border border-gray-300 rounded"
-          value={item.shite}
-          onChange={(e) => handleChange(e, index, 'shite')}
-        />
-      </td>
-      <td className="px-4 py-2 border">
-        <input
-          type="number"
-          className="w-full p-2 border border-gray-300 rounded"
-          value={item.qty}
-          onChange={(e) => handleChange(e, index, 'qty')}
-        />
-      </td>
-      <td className="px-4 py-2 border">
-        <input
-          type="text"
-          className="w-full p-2 border border-gray-300 rounded"
-          value={item.uom}
-          onChange={(e) => handleChange(e, index, 'uom')}
-        />
-      </td>
-      <td className="px-4 py-2 border">
-        <input
-          type="text"
-          className="w-full p-2 border border-gray-300 rounded"
-          value={item.unitSheetPurchaseRate}
-          onChange={(e) => handleChange(e, index, 'unitSheetPurchaseRate')}
-        />
-      </td>
-      <td className="px-4 py-2 border">
-        <input
-          type="text"
-          className="w-full p-2 border border-gray-300 rounded"
-          value={item.convSheetPurchaseRate}
-          onChange={(e) => handleChange(e, index, 'convSheetPurchaseRate')}
-        />
-      </td>
-      <td className="px-4 py-2 border">
-        <input
-                  type="text"
-                  className="w-full p-2 border border-gray-300 rounded"
-                  value={item.amount}
-                  onChange={(e) => handleChange(e, index, 'amount')}
-                  readOnly
-                />
-              </td>
-              <td className="px-4 py-2 border">
-                <input
-                  type="text"
-                  className="w-full p-2 border border-gray-300 rounded"
-                  value={item.unitSheetSaleRate}
-                  onChange={(e) => handleChange(e, index, 'unitSheetSaleRate')}
-                />
-              </td>
-              <td className="px-4 py-2 border">
-                <input
-                  type="text"
-                  className="w-full p-2 border border-gray-300 rounded"
-                  value={item.convSheetSaleRate}
-                  onChange={(e) => handleChange(e, index, 'convSheetSaleRate')}
-                />
-              </td>
-              <td className="px-4 py-2 border">
-                <button
-                  type="button"
-                  onClick={() => removeRow(index)}
-                  className="bg-red-500 text-white p-2 rounded"
-                >
-                  Remove
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      <div className="mt-4">
-        <button
-          type="button"
-          onClick={addRow}
-          className="bg-green-500 text-white p-2 rounded"
-        >
-          Add Row
-        </button>
-      </div>
+  <table className="min-w-full border-collapse">
+    <thead>
+      <tr>
+        <th className="px-4 py-2 border h-7">Item Code</th>
+        <th className="px-4 py-2 border h-7">Title</th>
+        <th className="px-4 py-2 border h-7">RIM</th>
+        <th className="px-4 py-2 border h-7">Shite</th>
+        <th className="px-4 py-2 border h-7">Qty</th>
+        <th className="px-4 py-2 border h-7">UOM</th>
+        <th className="px-4 py-2 border h-7">Unit/Sheet Purchase Rate</th>
+        <th className="px-4 py-2 border h-7">Conv./Rim Purchase Rate</th>
+        <th className="px-4 py-2 border h-7">Amount</th>
+        <th className="px-4 py-2 border h-7">Unit/Sheet Sale Rate</th>
+        <th className="px-4 py-2 border h-7">Conv./Rim Sale Rate</th>
+        <th className="px-4 py-2 border h-7">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {items.map((item, index) => (
+        <tr key={index}>
+          <td className="px-4 py-2 border">
+            <input
+              type="text"
+              className="w-full p-2 border border-gray-300 rounded"
+              value={item.itemCode}
+              onChange={(e) => handleChange(e, index, 'itemCode')}
+            />
+          </td>
+          <td className="px-4 py-2 border">
+            <input
+              type="text"
+              className="w-full p-2 border border-gray-300 rounded"
+              value={item.title}
+              onChange={(e) => handleChange(e, index, 'title')}
+            />
+          </td>
+          <td className="px-4 py-2 border">
+            <input
+              type="text"
+              className="w-full p-2 border border-gray-300 rounded"
+              value={item.rim}
+              onChange={(e) => handleChange(e, index, 'rim')}
+            />
+          </td>
+          <td className="px-4 py-2 border">
+            <input
+              type="text"
+              className="w-full p-2 border border-gray-300 rounded"
+              value={item.shite}
+              onChange={(e) => handleChange(e, index, 'shite')}
+            />
+          </td>
+          <td className="px-4 py-2 border">
+            <input
+              type="number"
+              className="w-full p-2 border border-gray-300 rounded"
+              value={item.qty}
+              onChange={(e) => handleChange(e, index, 'qty')}
+            />
+          </td>
+          <td className="px-4 py-2 border">
+            <input
+              type="text"
+              className="w-full p-2 border border-gray-300 rounded"
+              value={item.uom}
+              onChange={(e) => handleChange(e, index, 'uom')}
+            />
+          </td>
+          <td className="px-4 py-2 border">
+            <input
+              type="text"
+              className="w-full p-2 border border-gray-300 rounded"
+              value={item.unitSheetPurchaseRate}
+              onChange={(e) => handleChange(e, index, 'unitSheetPurchaseRate')}
+            />
+          </td>
+          <td className="px-4 py-2 border">
+            <input
+              type="text"
+              className="w-full p-2 border border-gray-300 rounded"
+              value={item.convSheetPurchaseRate}
+              onChange={(e) => handleChange(e, index, 'convSheetPurchaseRate')}
+            />
+          </td>
+          <td className="px-4 py-2 border">
+            <input
+              type="text"
+              className="w-full p-2 border border-gray-300 rounded"
+              value={item.amount}
+              readOnly
+            />
+          </td>
+          <td className="px-4 py-2 border">
+            <input
+              type="text"
+              className="w-full p-2 border border-gray-300 rounded"
+              value={item.unitSheetSaleRate}
+              onChange={(e) => handleChange(e, index, 'unitSheetSaleRate')}
+            />
+          </td>
+          <td className="px-4 py-2 border">
+            <input
+              type="text"
+              className="w-full p-2 border border-gray-300 rounded"
+              value={item.convSheetSaleRate}
+              onChange={(e) => handleChange(e, index, 'convSheetSaleRate')}
+            />
+          </td>
+          <td className="px-4 py-2 border">
+            <button
+              type="button"
+              onClick={() => removeRow(index)}
+              className="bg-red-500 text-white p-2 rounded"
+            >
+              Remove
+            </button>
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
 
-    </div>
-
-
-      {/* Payment Section */}
-<div className="mb-6">
-  <h3 className="text-xl font-semibold mb-2">Payment Information</h3>
-  <div className="flex flex-wrap gap-4">
-        {/* Supplier */}
-        <div>
-      <label className="block font-medium">Supplier Name</label>
-      <input
-        type="text"
-        className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
-        value={supplier}
-        onChange={(e) => setSupplier(e.target.value)}
-      />
-    </div>
-     <div className="flex-1">
-      <label className="block font-medium"> Previous Due </label>
-      <input
-        type="text"
-        className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
-        value={dueAmount}
-        onChange={(e) => setDueAmount(e.target.value)}
-      />
-    </div>
-     <div className="flex-1">
-      <label className="block font-medium"> Today Bill </label>
-      <input
-        type="text"
-        className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
-        value={dueAmount}
-        onChange={(e) => setDueAmount(e.target.value)}
-      />
-    </div>
-
-        {/* Supplier */}
-        <div className="flex-1">
-      <label className="block font-medium"> Today Paid </label>
-      <input
-        type="text"
-        className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
-        value={dueAmount}
-        onChange={(e) => setDueAmount(e.target.value)}
-      />
-    </div>
-
-    <div className="flex-1">
-  <label className="block font-medium">Paid By</label>
-  <select
-    className="mt-1 p-2 w-full border border-gray-300 rounded h-9 focus:ring-2 focus:ring-blue-500"
-    // value={paidBy} // Set the default value to the state
-    // onChange={(e) => setPaidBy(e.target.value)}
-  >
-    <option value="cash">Cash</option>
-    <option value="bank">Bank</option>
-  </select>
-</div>
-
-
-
-    <div className="flex-1">
-      <label className="block font-medium">Paid Amount</label>
-      <input
-        type="text"
-        className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
-        value={paidAmount}
-        onChange={(e) => setPaidAmount(e.target.value)}
-      />
-    </div>
-
-    <div className="flex-1">
-      <label className="block font-medium">Paid A/C</label>
-      <input
-        type="text"
-        className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
-        value={paidAccount}
-        onChange={(e) => setPaidAccount(e.target.value)}
-      />
-    </div>
-    <div className="flex-1">
-      <label className="block font-medium">Cheque No.</label>
-      <input
-        type="text"
-        className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
-        value={chequeNo}
-        onChange={(e) => setChequeNo(e.target.value)}
-      />
-    </div>
-    <div className="flex-1">
-      <label className="block font-medium">Cheque Date</label>
-      <input
-        type="date"
-        className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
-        value={chequeDate}
-        onChange={(e) => setChequeDate(e.target.value)}
-      />
-    </div>
+  {/* Add Row Button */}
+  <div className="mt-4">
+    <button
+      type="button"
+      onClick={addRow}
+      className="bg-green-500 text-white p-2 rounded"
+    >
+      Add Row
+    </button>
   </div>
 </div>
-{/* Button Section */}
-<div className="mt-6 flex justify-between items-center space-x-4">
-  {/* Export to PDF Button */}
-  <button
-    type="button"
-    onClick={handlePDFExport}
-    className="bg-blue-500 text-white p-2 rounded flex-1"
-  >
-    Export to PDF
-  </button>
 
-  {/* Submit Button */}
-  <button
-    type="submit"
-    className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 flex-1"
-  >
-    Submit
-  </button>
+    </div>
 
-  {/* Cancel Button */}
-  <button
-    type="button"
-    className="bg-red-500 text-white p-2 rounded hover:bg-red-600 flex-1"
-    onClick={() => alert('Form Cancelled')}
-  >
-    Cancel
-  </button>
+
+{/* Payment Section with Border */}
+<h3 className="text-xl font-semibold mb-2">Payment Information</h3>
+<div className="border border-gray-400 p-4 rounded-md mt-4">
+  {/* Payment Section */}
+  <div className="mb-6">
+    {/* <h3 className="text-xl font-semibold mb-2">Payment Information</h3> */}
+    <div className="flex flex-wrap gap-4">
+           {/* Supplier Name */}
+            <div className="flex-1">
+        <label className="block font-medium">Supplier</label>
+        <input
+          type="text"
+          className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
+          value={supplier}
+          onChange={(e) => setSupplier(e.target.value)}
+        />
+      </div>
+
+      {/* Previous Due */}
+      <div className="flex-1">
+        <label className="block font-medium">Previous Due</label>
+        <input
+          type="text"
+          className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
+          value={dueAmount}
+          onChange={(e) => setDueAmount(e.target.value)}
+        />
+      </div>
+
+      {/* Today Bill */}
+      <div className="flex-1">
+        <label className="block font-medium">Today Bill</label>
+        <input
+          type="text"
+          className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
+          // value={todayBill}
+          // onChange={(e) => setTodayBill(e.target.value)}
+        />
+      </div>
+
+      {/* Today Paid */}
+      <div className="flex-1">
+        <label className="block font-medium">Today Paid</label>
+        <input
+          type="text"
+          className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
+          // value={todayPaid}
+          // onChange={(e) => setTodayPaid(e.target.value)}
+        />
+      </div>
+
+      {/* Paid By */}
+      <div className="flex-1">
+        <label className="block font-medium">Paid By</label>
+        <select
+          className="mt-1 p-2 w-full border border-gray-300 rounded h-9 focus:ring-2 focus:ring-blue-500"
+          // value={paidBy}
+          // onChange={(e) => setPaidBy(e.target.value)}
+        >
+          <option value="cash">Cash</option>
+          <option value="bank">Bank</option>
+        </select>
+      </div>
+
+      {/* Paid Amount */}
+      <div className="flex-1">
+        <label className="block font-medium">Paid Amount</label>
+        <input
+          type="text"
+          className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
+          value={paidAmount}
+          onChange={(e) => setPaidAmount(e.target.value)}
+        />
+      </div>
+
+      {/* Paid A/C */}
+      <div className="flex-1">
+        <label className="block font-medium">Paid A/C</label>
+        <input
+          type="text"
+          className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
+          value={paidAccount}
+          onChange={(e) => setPaidAccount(e.target.value)}
+        />
+      </div>
+
+      {/* Cheque No */}
+      <div className="flex-1">
+        <label className="block font-medium">Cheque No.</label>
+        <input
+          type="text"
+          className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
+          value={chequeNo}
+          onChange={(e) => setChequeNo(e.target.value)}
+        />
+      </div>
+
+      {/* Cheque Date */}
+      <div className="flex-1">
+        <label className="block font-medium">Cheque Date</label>
+        <input
+          type="date"
+          className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
+          value={chequeDate}
+          onChange={(e) => setChequeDate(e.target.value)}
+        />
+      </div>
+    </div>
+  </div>
+
+  {/* Button Section */}
+  <div className="mt-6 flex justify-between items-center space-x-4">
+    {/* Export to PDF Button */}
+    <button
+      type="button"
+      onClick={handlePDFExport}
+      className="bg-blue-500 text-white p-2 rounded flex-1"
+    >
+      Export to PDF
+    </button>
+
+    {/* Submit Button */}
+    <button
+      type="submit"
+      className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 flex-1"
+    >
+      Submit
+    </button>
+
+    {/* Cancel Button */}
+    <button
+      type="button"
+      className="bg-red-500 text-white p-2 rounded hover:bg-red-600 flex-1"
+      onClick={() => alert('Form Cancelled')}
+    >
+      Cancel
+    </button>
+  </div>
 </div>
+
 
 
 </form>
