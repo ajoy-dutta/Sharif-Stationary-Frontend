@@ -21,6 +21,7 @@ import AdminDashboard from "../Admin/AdminDashord/AdminDashboard.jsx";
 import SalesNew from "../Pages/Sales/SalesNew.jsx";
 import SignIn from "../SignIn.jsx";
 import ForgotPassword from "../Authentication/ForgotPassword.jsx";
+import Stock from "../Pages/Stock/Stock.jsx";
 
 export const router = createBrowserRouter([
   {
@@ -75,6 +76,11 @@ export const router = createBrowserRouter([
       {
         path: "/account",
         element: <Account></Account>,
+      },
+      
+      {
+        path: "/stock",
+        element: <Stock></Stock>
       },
       {
         path: "/product",
