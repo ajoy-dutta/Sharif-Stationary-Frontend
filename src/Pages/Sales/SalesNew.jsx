@@ -109,14 +109,14 @@ const SalesNew = () => {
         <div>
           <label className="block text-sm font-medium">Date</label>
           <input
-            type="date"
+            type="text" // Changed to text input for dd/mm/yy format
             name="date"
             value={formData.date}
             onChange={handleChange}
+            placeholder="dd/mm/yy"
             className="w-full px-4 py-1 border border-gray-300 rounded"
           />
         </div>
-
         <div>
           <label className="block text-sm font-medium">Voucher Number</label>
           <input
@@ -175,147 +175,116 @@ const SalesNew = () => {
 
       {/* Product Details Section */}
       <div className="max-w-6xl mx-auto p-6">
-        <h2 className="text-lg font-semibold mb-4">Product Details</h2>
+  <h2 className="text-lg font-semibold mb-4">Product Details</h2>
 
-        {products.map((product, index) => (
-          <div
-            key={index}
-            className="grid grid-cols-4 gap-4 mb-4 border p-4 rounded-lg shadow"
-          >
-            <div>
-              <label className="block text-sm font-medium">Product Code</label>
-              <input
-                type="text"
-                name="productCode"
-                value={product.productCode}
-                onChange={(e) => handleChange(e, index)}
-                className="w-full px-4 py-1 border border-gray-300 rounded"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium">Product Title</label>
-              <input
-                type="text"
-                name="productTitle"
-                value={product.productTitle}
-                onChange={(e) => handleChange(e, index)}
-                className="w-full px-4 py-1 border border-gray-300 rounded"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium">RIM</label>
-              <input
-                type="text"
-                name="rim"
-                value={product.rim}
-                onChange={(e) => handleChange(e, index)}
-                className="w-full px-4 py-1 border border-gray-300 rounded"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium">Sheet</label>
-              <input
-                type="text"
-                name="sheet"
-                value={product.sheet}
-                onChange={(e) => handleChange(e, index)}
-                className="w-full px-4 py-1 border border-gray-300 rounded"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium">Balance</label>
-              <input
-                type="text"
-                name="balance"
-                value={product.balance}
-                onChange={(e) => handleChange(e, index)}
-                className="w-full px-4 py-1 border border-gray-300 rounded"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium">Item Total</label>
-              <input
-                type="text"
-                name="itemTotal"
-                value={product.itemTotal}
-                onChange={(e) => handleChange(e, index)}
-                className="w-full px-4 py-1 border border-gray-300 rounded"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium">Discount</label>
-              <input
-                type="text"
-                name="discount"
-                value={product.discount}
-                onChange={(e) => handleChange(e, index)}
-                className="w-full px-4 py-1 border border-gray-300 rounded"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium">VAT</label>
-              <input
-                type="text"
-                name="vat"
-                value={product.vat}
-                onChange={(e) => handleChange(e, index)}
-                className="w-full px-4 py-1 border border-gray-300 rounded"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium">VAT Amount</label>
-              <input
-                type="text"
-                name="vatAmount"
-                value={product.vatAmount}
-                onChange={(e) => handleChange(e, index)}
-                className="w-full px-4 py-1 border border-gray-300 rounded"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium">Total</label>
-              <input
-                type="text"
-                name="total"
-                value={product.total}
-                onChange={(e) => handleChange(e, index)}
-                className="w-full px-4 py-1 border border-gray-300 rounded"
-              />
-            </div>
-
-            {/* Delete Button next to each product field */}
-            <div className="col-span-4">
-              <button
-                type="button"
-                onClick={() => handleDelete(index)}
-                className="px-4 py-1 bg-red-500 text-white rounded"
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        ))}
-
-        {/* Add New Button */}
-        <div className="text-center">
-          <button
-            type="button"
-            onClick={handleAddProduct}
-            className="px-6 py-1 bg-green-500 text-white rounded-lg"
-          >
-            Add New Product
-          </button>
-        </div>
+  {products.map((product, index) => (
+    <div
+      key={index}
+      className="flex items-center gap-4 mb-4 border p-4 rounded-lg shadow"
+    >
+      <div className="flex-1">
+        <label className="block text-sm font-medium">Product's Company</label>
+        <input
+          type="text"
+          name="balance"
+          value={product.balance}
+          onChange={(e) => handleChange(e, index)}
+          className="w-full px-4 py-1 border border-gray-300 rounded"
+        />
       </div>
+      <div className="flex-1">
+        <label className="block text-sm font-medium">Product Code</label>
+        <input
+          type="text"
+          name="productCode"
+          value={product.productCode}
+          onChange={(e) => handleChange(e, index)}
+          className="w-full px-4 py-1 border border-gray-300 rounded"
+        />
+      </div>
+      <div className="flex-1">
+        <label className="block text-sm font-medium">Product Title / Name</label>
+        <input
+          type="text"
+          name="productTitle"
+          value={product.productTitle}
+          onChange={(e) => handleChange(e, index)}
+          className="w-full px-4 py-1 border border-gray-300 rounded"
+        />
+      </div>
+      <div className="flex-1">
+        <label className="block text-sm font-medium">Rim's Quantity</label>
+        <input
+          type="text"
+          name="rim"
+          value={product.rim}
+          onChange={(e) => handleChange(e, index)}
+          className="w-full px-4 py-1 border border-gray-300 rounded"
+        />
+      </div>
+      <div className="flex-1">
+        <label className="block text-sm font-medium">Sheet's Quantity</label>
+        <input
+          type="text"
+          name="sheet"
+          value={product.sheet}
+          onChange={(e) => handleChange(e, index)}
+          className="w-full px-4 py-1 border border-gray-300 rounded"
+        />
+      </div>
+      <div className="flex-1">
+        <label className="block text-sm font-medium">Num of Product</label>
+        <input
+          type="text"
+          name="itemTotal"
+          value={product.itemTotal}
+          onChange={(e) => handleChange(e, index)}
+          className="w-full px-4 py-1 border border-gray-300 rounded"
+        />
+      </div>
+      <div className="flex-1">
+        <label className="block text-sm font-medium">VAT</label>
+        <input
+          type="text"
+          name="vat"
+          value={product.vat}
+          onChange={(e) => handleChange(e, index)}
+          className="w-full px-4 py-1 border border-gray-300 rounded"
+        />
+      </div>
+      <div className="flex-1">
+        <label className="block text-sm font-medium">Product Size</label>
+        <input
+          type="text"
+          name="vatAmount"
+          value={product.vatAmount}
+          onChange={(e) => handleChange(e, index)}
+          className="w-full px-4 py-1 border border-gray-300 rounded"
+        />
+      </div>
+      <div className="w-24">
+        <button
+          type="button"
+          onClick={() => handleDelete(index)}
+          className="px-4 py-1 bg-red-500 text-white rounded"
+        >
+          Delete
+        </button>
+      </div>
+    </div>
+  ))}
+
+  <div className="text-center">
+    <button
+      type="button"
+      onClick={handleAddProduct}
+      className="px-6 py-1 bg-green-500 text-white rounded-lg"
+    >
+      Add New Product
+    </button>
+  </div>
+</div>
+
 
       {/* Payment and Summary Section */} 
       <div className="w-36 h-7 bg-green-500 text-white text-sm  flex items-center justify-center rounded-md shadow-md ml-2 mb-2">
@@ -326,7 +295,7 @@ const SalesNew = () => {
       <div className="grid grid-cols-4 gap-4 mb-6">
    
         <div>
-          <label className="block text-sm font-medium">Card/bKash Amount</label>
+          <label className="block text-sm font-medium">Due Amount</label>
           <input
             type="number"
             name="cardAmount"
@@ -336,7 +305,7 @@ const SalesNew = () => {
           />
         </div>
         <div>
-          <label className="block text-sm font-medium">Paid Amount</label>
+          <label className="block text-sm font-medium">Today Bill</label>
           <input
             type="number"
             name="paidAmount"
@@ -346,7 +315,7 @@ const SalesNew = () => {
           />
         </div>
         <div>
-          <label className="block text-sm font-medium">Due Amount</label>
+          <label className="block text-sm font-medium">Total Amount</label>
           <input
             type="number"
             name="dueAmount"
@@ -369,7 +338,7 @@ const SalesNew = () => {
 
       <div className="grid grid-cols-4 gap-4 mb-6">
         <div>
-          <label className="block text-sm font-medium">VAT</label>
+          <label className="block text-sm font-medium">Paid Amount</label>
           <input
             type="number"
             name="vatTotal"
@@ -379,7 +348,7 @@ const SalesNew = () => {
           />
         </div>
         <div>
-          <label className="block text-sm font-medium">Exchange Point</label>
+          <label className="block text-sm font-medium">VAT</label>
           <input
             type="number"
             name="exchangePoint"
