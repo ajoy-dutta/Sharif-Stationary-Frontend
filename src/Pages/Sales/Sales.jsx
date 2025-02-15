@@ -100,7 +100,7 @@ const Sales = () => {
 
   return (
     <div className="max-w-6xl mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-4 text-center">Sales Form</h1>
+      <h1 className="text-2xl font-bold mb-4 text-center">পাইকারি বিক্রয়</h1>
 
       {/* Invoice Details Section */}
       <div className="grid grid-cols-4 gap-4 mb-6">

@@ -4,6 +4,7 @@ import { FcGoogle } from "react-icons/fc";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { TbFidgetSpinner } from "react-icons/tb";
+import { FaEye, FaEyeSlash } from "react-icons/fa"; // Import eye icons
 
 const SignIn = () => {
   const [formData, setFormData] = useState({
@@ -11,6 +12,8 @@ const SignIn = () => {
     password: "",
   });
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false); // Track password visibility
+
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -22,7 +25,12 @@ const SignIn = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      const response = await axios.post("/api/auth/signin", formData);
+      const response = await axios.post("http://localhost:8000/api/auth/signin", formData, {
+        headers: {
+          "Content-Type": "application/json",
+        }
+      });
+      
       if (response.data.success) {
         toast.success("Sign in successful!");
         navigate("/dashboard");
@@ -58,20 +66,29 @@ const SignIn = () => {
             />
           </div>
 
-          <div className="mb-4">
+          {/* Password Field with Show/Hide Button */}
+          <div className="mb-4 relative">
             <label className="block text-gray-700" htmlFor="password">
               Password
             </label>
             <input
-              type="password"
+              type={showPassword ? "text" : "password"} // Toggle input type
               id="password"
               name="password"
               value={formData.password}
               onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10"
               placeholder="Enter your password"
               required
             />
+            {/* Eye Icon to Toggle Password Visibility */}
+            <button
+              type="button"
+              className="absolute top-9 right-3 text-gray-600"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? <FaEyeSlash /> : <FaEye />}
+            </button>
           </div>
 
           <button
@@ -87,6 +104,12 @@ const SignIn = () => {
           <span className="text-gray-700">Don't have an account? </span>
           <Link to="/signup" className="text-blue-950 font-semibold">
             Sign Up
+          </Link>
+        </div>
+
+        <div className="text-center mt-4">
+          <Link to="/forgot-password" className="text-blue-950 font-semibold">
+            Forgot Password?
           </Link>
         </div>
 

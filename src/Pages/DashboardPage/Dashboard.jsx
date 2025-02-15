@@ -59,7 +59,7 @@ const Dashboard = () => {
                   }
                 >
                   <MdOutlineShoppingCart className="text-lg" />
-                  Sales
+                  Wholesales
                 </NavLink>
               </li>
 
