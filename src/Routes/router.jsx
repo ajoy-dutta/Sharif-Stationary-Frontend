@@ -22,6 +22,7 @@ import SalesNew from "../Pages/Sales/SalesNew.jsx";
 import SignIn from "../SignIn.jsx";
 import ForgotPassword from "../Authentication/ForgotPassword.jsx";
 import Stock from "../Pages/Stock/Stock.jsx";
+import Bill from "../Pages/Bill/Bill.jsx";
 
 export const router = createBrowserRouter([
   {
@@ -67,6 +68,10 @@ export const router = createBrowserRouter([
       {
         path: "/salesNew",
         element: <SalesNew></SalesNew>,
+      },
+      {
+        path: "/bill",
+        element: <Bill></Bill>,
       },
       {
         path: "/posting",

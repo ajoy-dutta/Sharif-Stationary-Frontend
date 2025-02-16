@@ -72,7 +72,7 @@ const Navbar = () => {
               to="/sales"
               className="text-gray-800 hover:text-blue-500 font-medium px-3"
             >
-              Wholesales
+              Wholesale
             </Link>
           </li>
           <li>
@@ -80,7 +80,15 @@ const Navbar = () => {
               to="/salesNew"
               className="text-gray-800 hover:text-blue-500 font-medium px-3"
             >
-              SalesNew
+              RetailSale
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/bill"
+              className="text-gray-800 hover:text-blue-500 font-medium px-3"
+            >
+              Bill
             </Link>
           </li>
           <li>
