@@ -101,10 +101,10 @@ const Navbar = () => {
           </li>
           <li>
             <Link
-              to="/account"
+              to="/report"
               className="text-gray-800 hover:text-blue-500 font-medium px-3"
             >
-              Account
+              Report
             </Link>
           </li>
           <li>

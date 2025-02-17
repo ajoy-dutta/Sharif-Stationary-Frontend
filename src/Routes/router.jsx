@@ -13,7 +13,6 @@ import Transfer from "../Pages/Transfer/Transfer.jsx";
 import Production from "../Pages/Production/Production.jsx";
 import Sales from "../Pages/Sales/Sales.jsx";
 import Posting from "../Pages/Posting/Posting.jsx";
-import Account from "../Pages/Account/Account.jsx";
 import PurchaseReceiveForm from "../Pages/Purchase/PurchaseReceiveForm.jsx";
 import ShopkeeperProfile from "../ShopKeeper/ShopKeeperProfile.jsx";
 import UserProfile from "../Users/UserProfile.jsx";
@@ -23,6 +22,7 @@ import SignIn from "../SignIn.jsx";
 import ForgotPassword from "../Authentication/ForgotPassword.jsx";
 import Stock from "../Pages/Stock/Stock.jsx";
 import Bill from "../Pages/Bill/Bill.jsx";
+import Report from "../Pages/Report/Report.jsx";
 
 export const router = createBrowserRouter([
   {
@@ -79,8 +79,8 @@ export const router = createBrowserRouter([
       },
 
       {
-        path: "/account",
-        element: <Account></Account>,
+        path: "/report",
+        element: <Report></Report>,
       },
       
       {
