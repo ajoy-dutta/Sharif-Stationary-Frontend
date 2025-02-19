@@ -41,11 +41,11 @@ function PurchaseReceiveForm() {
   const [bankName, setBankName] = useState("");
   const [accountNo, setAccountNo] = useState("");
   const [balanceAmount, setBalanceAmount] = useState("");
-// New Fields
-const [transportCost, setTransportCost] = useState(0);
-const [labourCost, setLabourCost] = useState(0);
-const [roadCost, setRoadCost] = useState(0);
-const [otherCost, setOtherCost] = useState(0);
+  // New Fields
+  const [transportCost, setTransportCost] = useState(0);
+  const [labourCost, setLabourCost] = useState(0);
+  const [roadCost, setRoadCost] = useState(0);
+  const [otherCost, setOtherCost] = useState(0);
   const [items, setItems] = useState([
     {
       no: "", // No (Row Number)
@@ -69,7 +69,7 @@ const [otherCost, setOtherCost] = useState(0);
     if (field === "rimDozenQty" || field === "rimDozenPurchaseRate") {
       updatedItems[index].totalAmount =
         updatedItems[index].rimDozenQty *
-          updatedItems[index].rimDozenPurchaseRate || 0;
+        updatedItems[index].rimDozenPurchaseRate || 0;
     }
 
     setItems(updatedItems);
@@ -146,15 +146,19 @@ const [otherCost, setOtherCost] = useState(0);
     try {
       // ✅ 1. Save Purchase Receive Data
       const purchaseData = {
-        purchase_challan_date: formData.purchase_challan_date,
-        supplier: formData.supplier,
-        kind_of_product: formData.kind_of_product,
-        name_of_product: formData.name_of_product,
-        product_type: formData.product_type,
-        product_entry_date: formData.product_entry_date,
-        remarks_1: formData.remarks_1,
-        remarks_2: formData.remarks_2,
+        company_name: companyName,
+        order_date: orderDate,
+        order_no: orderNo,
+        delivery_date: deliveryDate,
+        transport: transport,
+        vehicle_no: vehicleNo,
+        driver_name: driverName,
+        driver_mobile: driverMobile,
+        product_entry_date: productEntryDate,
+        invoice_no: invoiceNo,
+        godown_no: godownNo,
       };
+
 
       const purchaseResponse = await axios.post(
         "http://127.0.0.1:8000/api/purchase-receive/",
@@ -231,7 +235,7 @@ const [otherCost, setOtherCost] = useState(0);
         Purchase Receive (Credit)
       </h2>
       <form onSubmit={handleSubmit}>
-        <div className="border border-gray-400 p-4 rounded-md grid grid-cols-6 gap-4">
+        <div className="border border-gray-400 p-6 rounded-md grid grid-cols-6 gap-6">
           {/* 1. Company Name */}
           <div>
             <label className="block font-medium text-center">
@@ -380,28 +384,30 @@ const [otherCost, setOtherCost] = useState(0);
         </div>
 
         <div className="p-8">
+          <h3 className="text-2xl font-semibold mb-4 text-center">
+            Item Details
+          </h3>
           <div className="border border-gray-400 p-4 rounded-md mt-4">
-            <h3 className="text-2xl font-semibold mb-4 text-center">
-              Item Details
-            </h3>
+
 
             <table className="min-w-full border-collapse">
-              <thead>
+              <thead className="bg-gray-200 text-gray-700 font-semibold">
                 <tr>
-                  <th className="px-4 py-2 border h-6">No</th>
-                  <th className="px-4 py-2 border h-6">Product Description</th>
-                  <th className="px-4 py-2 border h-6">Item/Product Code</th>
-                  <th className="px-4 py-2 border h-6">Rim/Dozen</th>
-                  <th className="px-4 py-2 border h-6">Sheet/Piece</th>
-                  <th className="px-4 py-2 border h-6">Only Sheet Piece</th>
-                  <th className="px-4 py-2 border h-6">Total Sheet Piece</th>
-                  <th className="px-4 py-2 border h-6">Rim/Dozen Price</th>
-                  <th className="px-4 py-2 border h-6">Sheet/Piece Price</th>
-                  <th className="px-4 py-2 border h-6">Total Amount</th>
-                  <th className="px-4 py-2 border h-6">Remarks</th>
-                  <th className="px-4 py-2 border h-6 w-40">Actions</th>
+                  <th className="p-2 text-center">No</th>
+                  <th className="p-2 text-left">Product Description</th>
+                  <th className="p-2 text-center">Item/Product Code</th>
+                  <th className="p-2 text-center">Rim/Dozen</th>
+                  <th className="p-2 text-center">Sheet/Piece</th>
+                  <th className="p-2 text-center">Only Sheet Piece</th>
+                  <th className="p-2 text-center">Total Sheet Piece</th>
+                  <th className="p-2 text-center">Rim/Dozen Price</th>
+                  <th className="p-2 text-center">Sheet/Piece Price</th>
+                  <th className="p-2 text-center">Total Amount</th>
+                  <th className="p-2 text-left">Remarks</th>
+                  <th className="p-2 text-center">Actions</th>
                 </tr>
               </thead>
+
               <tbody>
                 {items.map((item, index) => (
                   <tr key={index}>
@@ -557,107 +563,174 @@ const [otherCost, setOtherCost] = useState(0);
             </div>
           </div>
         </div>
+        <h3 className="text-xl font-semibold mb-4 text-center">Additional Costs</h3>
+        <div className="border border-gray-400 p-4 rounded-md mt-4">
+
+
+  <table className="w-full border-collapse border border-gray-300">
+    <thead className="bg-gray-200">
+      <tr>
+        <th className="border border-gray-300 p-2 text-center">Cost Type</th>
+        <th className="border border-gray-300 p-2 text-center">Amount</th>
+      </tr>
+    </thead>
+    <tbody>
+      {/* Transport Cost */}
+      <tr>
+        <td className="border border-gray-300 p-2 text-center">Transport Cost</td>
+        <td className="border border-gray-300 p-2 text-center">
+          <input
+            type="number"
+            className="p-2 w-full border border-gray-300 rounded h-7"
+            value={transportCost}
+            onChange={(e) => setTransportCost(e.target.value)}
+          />
+        </td>
+      </tr>
+
+      {/* Labour Cost */}
+      <tr>
+        <td className="border border-gray-300 p-2 text-center">Labour Cost</td>
+        <td className="border border-gray-300 p-2 text-center">
+          <input
+            type="number"
+            className="p-2 w-full border border-gray-300 rounded h-7"
+            value={labourCost}
+            onChange={(e) => setLabourCost(e.target.value)}
+          />
+        </td>
+      </tr>
+
+      {/* Road Cost */}
+      <tr>
+        <td className="border border-gray-300 p-2 text-center">Road Cost</td>
+        <td className="border border-gray-300 p-2 text-center">
+          <input
+            type="number"
+            className="p-2 w-full border border-gray-300 rounded h-7"
+            value={roadCost}
+            onChange={(e) => setRoadCost(e.target.value)}
+          />
+        </td>
+      </tr>
+
+      {/* Other Cost */}
+      <tr>
+        <td className="border border-gray-300 p-2 text-center">Other Cost</td>
+        <td className="border border-gray-300 p-2 text-center">
+          <input
+            type="number"
+            className="p-2 w-full border border-gray-300 rounded h-7"
+            value={otherCost}
+            onChange={(e) => setOtherCost(e.target.value)}
+          />
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
 
         <h3 className="text-2xl font-semibold mb-4 text-center">Payment Information</h3>
 
-{/* Payment Section Wrapper */}
-<div className="border border-gray-400 p-4 rounded-md mt-4">
+        {/* Payment Section Wrapper */}
+        <div className="border border-gray-400 p-4 rounded-md mt-4">
 
-  {/* Grid Layout for Payment Inputs */}
-  <div className="grid grid-cols-10 gap-4">
+          {/* Grid Layout for Payment Inputs */}
+          <div className="grid grid-cols-10 gap-4">
 
-    {/* Supplier */}
-    <div>
-      <label className="block font-medium text-center">Company</label>
-      <input type="text" className="mt-1 p-2 w-full border border-gray-300 rounded h-7" value={supplier} onChange={(e) => setSupplier(e.target.value)} />
-    </div>
+            {/* Supplier */}
+            <div>
+              <label className="block font-medium text-center">Company</label>
+              <input type="text" className="mt-1 p-2 w-full border border-gray-300 rounded h-7" value={supplier} onChange={(e) => setSupplier(e.target.value)} />
+            </div>
 
-    {/* Previous Due */}
-    <div>
-      <label className="block font-medium text-center">Previous Due</label>
-      <input type="number" className="mt-1 p-2 w-full border border-gray-300 rounded h-7 bg-gray-100" value={previousDue} readOnly />
-    </div>
+            {/* Previous Due */}
+            <div>
+              <label className="block font-medium text-center">Previous Due</label>
+              <input type="number" className="mt-1 p-2 w-full border border-gray-300 rounded h-7 bg-gray-100" value={previousDue} readOnly />
+            </div>
 
-    {/* Today Bill */}
-    <div>
-      <label className="block font-medium text-center">Invoice/Challan Amt.</label>
-      <input type="number" className="mt-1 p-2 w-full border border-gray-300 rounded h-7" value={todayBill} onChange={(e) => setTodayBill(e.target.value)} />
-    </div>
+            {/* Today Bill */}
+            <div>
+              <label className="block font-medium text-center">Invoice/Challan Amt.</label>
+              <input type="number" className="mt-1 p-2 w-full border border-gray-300 rounded h-7" value={todayBill} onChange={(e) => setTodayBill(e.target.value)} />
+            </div>
 
-    {/* Today Paid */}
-    <div>
-      <label className="block font-medium text-center">Today Paid Amount</label>
-      <input type="number" className="mt-1 p-2 w-full border border-gray-300 rounded h-7" value={todayPaid} onChange={(e) => setTodayPaid(e.target.value)} />
-    </div>
+            {/* Today Paid */}
+            <div>
+              <label className="block font-medium text-center">Today Paid Amount</label>
+              <input type="number" className="mt-1 p-2 w-full border border-gray-300 rounded h-7" value={todayPaid} onChange={(e) => setTodayPaid(e.target.value)} />
+            </div>
 
-    {/* Paid By (Dropdown) */}
-    <div>
-      <label className="block font-medium text-center">Paid By</label>
-      <select className="mt-1 p-2 w-full border border-gray-300 rounded h-9 focus:ring-2 focus:ring-blue-500" value={paidBy} onChange={(e) => setPaidBy(e.target.value)}>
-        <option value="Cash">Cash</option>
-        <option value="Bank">Bank</option>
-      </select>
-    </div>
+            {/* Paid By (Dropdown) */}
+            <div>
+              <label className="block font-medium text-center">Paid By</label>
+              <select className="mt-1 p-2 w-full border border-gray-300 rounded h-9 focus:ring-2 focus:ring-blue-500" value={paidBy} onChange={(e) => setPaidBy(e.target.value)}>
+                <option value="Cash">Cash</option>
+                <option value="Bank">Bank</option>
+              </select>
+            </div>
 
-    {/* Bank Name */}
-    <div>
-      <label className="block font-medium text-center">Bank Name</label>
-      <input type="text" className="mt-1 p-2 w-full border border-gray-300 rounded h-7" value={bankName} onChange={(e) => setBankName(e.target.value)} />
-    </div>
+            {/* Bank Name */}
+            <div>
+              <label className="block font-medium text-center">Bank Name</label>
+              <input type="text" className="mt-1 p-2 w-full border border-gray-300 rounded h-7" value={bankName} onChange={(e) => setBankName(e.target.value)} />
+            </div>
 
-    {/* Account No */}
-    <div>
-      <label className="block font-medium text-center">Account No.</label>
-      <input type="text" className="mt-1 p-2 w-full border border-gray-300 rounded h-7" value={accountNo} onChange={(e) => setAccountNo(e.target.value)} />
-    </div>
+            {/* Account No */}
+            <div>
+              <label className="block font-medium text-center">Account No.</label>
+              <input type="text" className="mt-1 p-2 w-full border border-gray-300 rounded h-7" value={accountNo} onChange={(e) => setAccountNo(e.target.value)} />
+            </div>
 
-    {/* Cheque No */}
-    <div>
-      <label className="block font-medium text-center">Cheque No</label>
-      <input type="text" className="mt-1 p-2 w-full border border-gray-300 rounded h-7" value={chequeNo} onChange={(e) => setChequeNo(e.target.value)} />
-    </div>
+            {/* Cheque No */}
+            <div>
+              <label className="block font-medium text-center">Cheque No</label>
+              <input type="text" className="mt-1 p-2 w-full border border-gray-300 rounded h-7" value={chequeNo} onChange={(e) => setChequeNo(e.target.value)} />
+            </div>
 
-    {/* Cheque Date */}
-    <div>
-      <label className="block font-medium text-center">Cheque Date</label>
-      <input type="date" className="mt-1 p-2 w-full border border-gray-300 rounded h-7" value={chequeDate} onChange={(e) => setChequeDate(e.target.value)} />
-    </div>
+            {/* Cheque Date */}
+            <div>
+              <label className="block font-medium text-center">Cheque Date</label>
+              <input type="date" className="mt-1 p-2 w-full border border-gray-300 rounded h-7" value={chequeDate} onChange={(e) => setChequeDate(e.target.value)} />
+            </div>
 
-    {/* Balance Amount */}
-    <div>
-      <label className="block font-medium text-center">Balance Amount</label>
-      <input type="text" className="mt-1 p-2 w-full border border-gray-300 rounded h-7" value={balanceAmount} onChange={(e) => setBalanceAmount(e.target.value)} />
-    </div>
+            {/* Balance Amount */}
+            <div>
+              <label className="block font-medium text-center">Balance Amount</label>
+              <input type="text" className="mt-1 p-2 w-full border border-gray-300 rounded h-7" value={balanceAmount} onChange={(e) => setBalanceAmount(e.target.value)} />
+            </div>
 
-    {/* New Fields from Image */}
+            {/* New Fields from Image */}
 
-    {/* Transport Cost */}
-    <div>
-      <label className="block font-medium text-center">Transport Cost</label>
-      <input type="number" className="mt-1 p-2 w-full border border-gray-300 rounded h-7" value={transportCost} onChange={(e) => setTransportCost(e.target.value)} />
-    </div>
+            {/* Transport Cost */}
+            <div>
+              <label className="block font-medium text-center">Transport Cost</label>
+              <input type="number" className="mt-1 p-2 w-full border border-gray-300 rounded h-7" value={transportCost} onChange={(e) => setTransportCost(e.target.value)} />
+            </div>
 
-    {/* Labour Cost */}
-    <div>
-      <label className="block font-medium text-center">Labour Cost</label>
-      <input type="number" className="mt-1 p-2 w-full border border-gray-300 rounded h-7" value={labourCost} onChange={(e) => setLabourCost(e.target.value)} />
-    </div>
+            {/* Labour Cost */}
+            <div>
+              <label className="block font-medium text-center">Labour Cost</label>
+              <input type="number" className="mt-1 p-2 w-full border border-gray-300 rounded h-7" value={labourCost} onChange={(e) => setLabourCost(e.target.value)} />
+            </div>
 
-    {/* Road Cost */}
-    <div>
-      <label className="block font-medium text-center">Road Cost</label>
-      <input type="number" className="mt-1 p-2 w-full border border-gray-300 rounded h-7" value={roadCost} onChange={(e) => setRoadCost(e.target.value)} />
-    </div>
+            {/* Road Cost */}
+            <div>
+              <label className="block font-medium text-center">Road Cost</label>
+              <input type="number" className="mt-1 p-2 w-full border border-gray-300 rounded h-7" value={roadCost} onChange={(e) => setRoadCost(e.target.value)} />
+            </div>
 
-    {/* Other Cost */}
-    <div>
-      <label className="block font-medium text-center">Other Cost</label>
-      <input type="number" className="mt-1 p-2 w-full border border-gray-300 rounded h-7" value={otherCost} onChange={(e) => setOtherCost(e.target.value)} />
-    </div>
+            {/* Other Cost */}
+            <div>
+              <label className="block font-medium text-center">Other Cost</label>
+              <input type="number" className="mt-1 p-2 w-full border border-gray-300 rounded h-7" value={otherCost} onChange={(e) => setOtherCost(e.target.value)} />
+            </div>
 
-  </div>
+          </div>
 
-</div>
+        </div>
 
 
 
