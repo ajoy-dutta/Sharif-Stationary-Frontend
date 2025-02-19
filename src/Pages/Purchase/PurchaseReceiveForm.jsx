@@ -1,30 +1,32 @@
-import  { useState } from 'react';
-import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import { useState } from "react";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
 
 function PurchaseReceiveForm() {
-  const [voucherNo, setVoucherNo] = useState('');
-  const [PurchaseChallanDate, setPurchaseChallanDate] = useState('');
-  const [date, setDate] = useState('');
-  const [challanDate, setChallanDate] = useState('');
-  const [supplier, setSupplier] = useState('');
-  const [remarks, setRemarks] = useState('');
-  const [remarks_2, setRemarks_2] = useState('');
-  const [itemCode, setItemCode] = useState('');
-  const [itemTitle, setItemTitle] = useState('');
+  const [voucherNo, setVoucherNo] = useState("");
+  const [PurchaseChallanDate, setPurchaseChallanDate] = useState("");
+  const [date, setDate] = useState("");
+  const [challanDate, setChallanDate] = useState("");
+  const [supplier, setSupplier] = useState("");
+  const [remarks, setRemarks] = useState("");
+  const [remarks_2, setRemarks_2] = useState("");
+  const [itemCode, setItemCode] = useState("");
+  const [itemTitle, setItemTitle] = useState("");
   const [quantity, setQuantity] = useState(1);
-  const [amount, setAmount] = useState('');
+  const [amount, setAmount] = useState("");
   const [total, setTotal] = useState(1);
-  const [paidAmount, setPaidAmount] = useState('');
+  const [paidAmount, setPaidAmount] = useState("");
   const [dueAmount, setDueAmount] = useState(0);
-  const [paidAccount, setPaidAccount] = useState('');
-  const [chequeNo, setChequeNo] = useState('');
-  const [chequeDate, setChequeDate] = useState('');
-  const [type, setType] = useState('Local');
+  const [paidAccount, setPaidAccount] = useState("");
+  const [chequeNo, setChequeNo] = useState("");
+  const [chequeDate, setChequeDate] = useState("");
+  const [type, setType] = useState("Local");
   const [companyName, setCompanyName] = useState("");
   const [orderDate, setOrderDate] = useState("");
   const [orderNo, setOrderNo] = useState("");
-  const [deliveryDate, setDeliveryDate] = useState(new Date().toISOString().split("T")[0]);
+  const [deliveryDate, setDeliveryDate] = useState(
+    new Date().toISOString().split("T")[0]
+  );
   const [transport, setTransport] = useState("Company Transport");
   const [vehicleNo, setVehicleNo] = useState("");
   const [driverName, setDriverName] = useState("");
@@ -42,19 +44,17 @@ function PurchaseReceiveForm() {
 
   const [items, setItems] = useState([
     {
-      no: "",                     // No (Row Number)
-      productDescription: "",     // Product Description (Dropdown)
-      productCode: "",            // Item/Product Code
-      rimQuantity: "",            // Rim Quantity
-      sheetQuantity: "",          // Sheet/Piece Quantity
-      rimPrice: "",               // Rim/Dozen Price
-      sheetPrice: "",             // Sheet/Piece Price
-      totalAmount: "",            // Total Amount
-      remarks: "",                // Remarks
+      no: "", // No (Row Number)
+      productDescription: "", // Product Description (Dropdown)
+      productCode: "", // Item/Product Code
+      rimQuantity: "", // Rim Quantity
+      sheetQuantity: "", // Sheet/Piece Quantity
+      rimPrice: "", // Rim/Dozen Price
+      sheetPrice: "", // Sheet/Piece Price
+      totalAmount: "", // Total Amount
+      remarks: "", // Remarks
     },
   ]);
-  
-
 
   // Handle input change for dynamic rows
   const handleChange = (e, index, field) => {
@@ -64,31 +64,30 @@ function PurchaseReceiveForm() {
     // Auto-calculate totalAmount when related fields change
     if (field === "rimDozenQty" || field === "rimDozenPurchaseRate") {
       updatedItems[index].totalAmount =
-        (updatedItems[index].rimDozenQty * updatedItems[index].rimDozenPurchaseRate) || 0;
+        updatedItems[index].rimDozenQty *
+          updatedItems[index].rimDozenPurchaseRate || 0;
     }
 
     setItems(updatedItems);
   };
 
-
-// Add a new row
-const addRow = () => {
-  setItems([
-    ...items,
-    {
-      no: items.length + 1,      // Auto-increment row number
-      productDescription: '',    // Product Description (Dropdown)
-      productCode: '',           // Item/Product Code
-      rimQuantity: '',           // Rim Quantity
-      sheetQuantity: '',         // Sheet/Piece Quantity
-      rimPrice: '',              // Rim/Dozen Price
-      sheetPrice: '',            // Sheet/Piece Price
-      totalAmount: '',           // Total Amount
-      remarks: '',               // Remarks
-    },
-  ]);
-};
-
+  // Add a new row
+  const addRow = () => {
+    setItems([
+      ...items,
+      {
+        no: items.length + 1, // Auto-increment row number
+        productDescription: "", // Product Description (Dropdown)
+        productCode: "", // Item/Product Code
+        rimQuantity: "", // Rim Quantity
+        sheetQuantity: "", // Sheet/Piece Quantity
+        rimPrice: "", // Rim/Dozen Price
+        sheetPrice: "", // Sheet/Piece Price
+        totalAmount: "", // Total Amount
+        remarks: "", // Remarks
+      },
+    ]);
+  };
 
   // Remove a row
   const removeRow = (index) => {
@@ -98,46 +97,44 @@ const addRow = () => {
 
   const handlePDFExport = () => {
     const doc = new jsPDF();
-  
+
     // Define table columns
     const tableColumn = [
-      'No', 
-      'Product Description', 
-      'Item/Product Code', 
-      'Rim Quantity', 
-      'Sheet/Piece Quantity', 
-      'Rim/Dozen Price', 
-      'Sheet/Piece Price', 
-      'Total Amount', 
-      'Remarks'
+      "No",
+      "Product Description",
+      "Item/Product Code",
+      "Rim Quantity",
+      "Sheet/Piece Quantity",
+      "Rim/Dozen Price",
+      "Sheet/Piece Price",
+      "Total Amount",
+      "Remarks",
     ];
-  
+
     // Map table rows using correct object keys
-    const tableRows = items.map(item => [
-      item.no,                   // Auto-incremented No.
-      item.productDescription,    // Product Description (Dropdown)
-      item.productCode,           // Item/Product Code
-      item.rimQuantity,           // Rim Quantity
-      item.sheetQuantity,         // Sheet/Piece Quantity
-      item.rimPrice,              // Rim/Dozen Price
-      item.sheetPrice,            // Sheet/Piece Price
-      item.totalAmount,           // Total Amount
-      item.remarks                // Remarks
+    const tableRows = items.map((item) => [
+      item.no, // Auto-incremented No.
+      item.productDescription, // Product Description (Dropdown)
+      item.productCode, // Item/Product Code
+      item.rimQuantity, // Rim Quantity
+      item.sheetQuantity, // Sheet/Piece Quantity
+      item.rimPrice, // Rim/Dozen Price
+      item.sheetPrice, // Sheet/Piece Price
+      item.totalAmount, // Total Amount
+      item.remarks, // Remarks
     ]);
-  
+
     // Add title to PDF
-    doc.text('Purchase Items Report', 14, 15);
+    doc.text("Purchase Items Report", 14, 15);
     doc.autoTable({
       head: [tableColumn],
       body: tableRows,
-      startY: 20
+      startY: 20,
     });
-  
-    // Save the PDF
-    doc.save('purchase_items.pdf');
-  };
-  
 
+    // Save the PDF
+    doc.save("purchase_items.pdf");
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault(); // Prevent default form submission
@@ -201,9 +198,6 @@ const addRow = () => {
     }
   };
 
-
-
-
   const handleSubmitRow = (index) => {
     const submittedRow = items[index]; // Get the specific row data
 
@@ -227,19 +221,18 @@ const addRow = () => {
       });
   };
 
-
-
-
-
   return (
     <div className="p-8 bg-gray-100">
-
-      <h2 className="text-2xl font-semibold mb-4 text-center">Purchase Receive (Credit)</h2>
+      <h2 className="text-2xl font-semibold mb-4 text-center">
+        Purchase Receive (Credit)
+      </h2>
       <form onSubmit={handleSubmit}>
         <div className="border border-gray-400 p-4 rounded-md grid grid-cols-6 gap-4">
           {/* 1. Company Name */}
           <div>
-            <label className="block font-medium text-center">Company Name</label>
+            <label className="block font-medium text-center">
+              Company Name
+            </label>
             <input
               type="text"
               className="mt-1 p-2 w-full border border-gray-300 rounded h-10"
@@ -272,7 +265,9 @@ const addRow = () => {
 
           {/* 4. Delivery Date */}
           <div>
-            <label className="block font-medium text-center">Delivery Date</label>
+            <label className="block font-medium text-center">
+              Delivery Date
+            </label>
             <input
               type="date"
               className="mt-1 p-2 w-full border border-gray-300 rounded h-10"
@@ -321,7 +316,9 @@ const addRow = () => {
 
           {/* 8. Driver Mobile No */}
           <div>
-            <label className="block font-medium text-center">Driver Mobile No</label>
+            <label className="block font-medium text-center">
+              Driver Mobile No
+            </label>
             <input
               type="text"
               className="mt-1 p-2 w-full border border-gray-300 rounded h-10"
@@ -330,7 +327,9 @@ const addRow = () => {
             />
           </div>
           <div>
-            <label className="block font-medium text-center">Invoice/Challan Date</label>
+            <label className="block font-medium text-center">
+              Invoice/Challan Date
+            </label>
             <input
               type="date"
               className="mt-1 p-2 w-full border border-gray-300 rounded h-10"
@@ -340,7 +339,9 @@ const addRow = () => {
           </div>
           {/* 9. Invoice/Challan No */}
           <div>
-            <label className="block font-medium text-center">Invoice/Challan No</label>
+            <label className="block font-medium text-center">
+              Invoice/Challan No
+            </label>
             <input
               type="text"
               className="mt-1 p-2 w-full border border-gray-300 rounded h-10"
@@ -349,10 +350,11 @@ const addRow = () => {
             />
           </div>
 
-
           {/* 10. Product Entry Date */}
           <div>
-            <label className="block font-medium text-center">Product Entry Date</label>
+            <label className="block font-medium text-center">
+              Product Entry Date
+            </label>
             <input
               type="date"
               className="mt-1 p-2 w-full border border-gray-300 rounded h-10"
@@ -373,15 +375,11 @@ const addRow = () => {
           </div>
         </div>
 
-
-
-
-
-
-
         <div className="p-8">
           <div className="border border-gray-400 p-4 rounded-md mt-4">
-            <h3 className="text-2xl font-semibold mb-4 text-center">Item Details</h3>
+            <h3 className="text-2xl font-semibold mb-4 text-center">
+              Item Details
+            </h3>
 
             <table className="min-w-full border-collapse">
               <thead>
@@ -389,30 +387,33 @@ const addRow = () => {
                   <th className="px-4 py-2 border h-6">No</th>
                   <th className="px-4 py-2 border h-6">Product Description</th>
                   <th className="px-4 py-2 border h-6">Item/Product Code</th>
-                  <th className="px-4 py-2 border h-6">Rim Quantity</th>
-                  <th className="px-4 py-2 border h-6">Sheet/Piece Quantity</th>
+                  <th className="px-4 py-2 border h-6">Rim/Dozen</th>
+                  <th className="px-4 py-2 border h-6">Sheet/Piece</th>
+                  <th className="px-4 py-2 border h-6">Only Sheet Piece</th>
+                  <th className="px-4 py-2 border h-6">Total Sheet Piece</th>
                   <th className="px-4 py-2 border h-6">Rim/Dozen Price</th>
                   <th className="px-4 py-2 border h-6">Sheet/Piece Price</th>
-                  <th className="px-4 py-2 border h-6">Total  Amount</th>
+                  <th className="px-4 py-2 border h-6">Total Amount</th>
                   <th className="px-4 py-2 border h-6">Remarks</th>
-
-
-
-                  <th className="px-4 py-2 border h-6">Actions</th>
+                  <th className="px-4 py-2 border h-6 w-40">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {items.map((item, index) => (
                   <tr key={index}>
                     {/* No */}
-                    <td className="px-4 py-2 border text-center">{index + 1}</td>
+                    <td className="px-4 py-2 border text-center">
+                      {index + 1}
+                    </td>
 
                     {/* Product Description (Dropdown) */}
                     <td className="px-4 py-2 border">
                       <select
                         className="w-full p-2 border border-gray-300 rounded"
                         value={item.productDescription}
-                        onChange={(e) => handleChange(e, index, 'productDescription')}
+                        onChange={(e) =>
+                          handleChange(e, index, "productDescription")
+                        }
                       >
                         <option value="">Select Product</option>
                         <option value="Paper A4">Paper A4</option>
@@ -428,27 +429,53 @@ const addRow = () => {
                         type="text"
                         className="w-full p-2 border border-gray-300 rounded"
                         value={item.productCode}
-                        onChange={(e) => handleChange(e, index, 'productCode')}
+                        onChange={(e) => handleChange(e, index, "productCode")}
                       />
                     </td>
 
-                    {/* Rim Quantity */}
+                    {/* Rim/Dozen */}
                     <td className="px-4 py-2 border">
                       <input
                         type="number"
                         className="w-full p-2 border border-gray-300 rounded"
                         value={item.rimQuantity}
-                        onChange={(e) => handleChange(e, index, 'rimQuantity')}
+                        onChange={(e) => handleChange(e, index, "rimQuantity")}
                       />
                     </td>
 
-                    {/* Sheet/Piece Quantity */}
+                    {/* Sheet/Piece */}
                     <td className="px-4 py-2 border">
                       <input
                         type="number"
                         className="w-full p-2 border border-gray-300 rounded"
                         value={item.sheetQuantity}
-                        onChange={(e) => handleChange(e, index, 'sheetQuantity')}
+                        onChange={(e) =>
+                          handleChange(e, index, "sheetQuantity")
+                        }
+                      />
+                    </td>
+
+                    {/* Only Sheet Piece */}
+                    <td className="px-4 py-2 border">
+                      <input
+                        type="number"
+                        className="w-full p-2 border border-gray-300 rounded"
+                        value={item.onlySheetPiece}
+                        onChange={(e) =>
+                          handleChange(e, index, "onlySheetPiece")
+                        }
+                      />
+                    </td>
+
+                    {/* Total Sheet Piece */}
+                    <td className="px-4 py-2 border">
+                      <input
+                        type="number"
+                        className="w-full p-2 border border-gray-300 rounded"
+                        value={item.totalSheetPiece}
+                        onChange={(e) =>
+                          handleChange(e, index, "totalSheetPiece")
+                        }
                       />
                     </td>
 
@@ -458,7 +485,7 @@ const addRow = () => {
                         type="number"
                         className="w-full p-2 border border-gray-300 rounded"
                         value={item.rimPrice}
-                        onChange={(e) => handleChange(e, index, 'rimPrice')}
+                        onChange={(e) => handleChange(e, index, "rimPrice")}
                       />
                     </td>
 
@@ -468,11 +495,11 @@ const addRow = () => {
                         type="number"
                         className="w-full p-2 border border-gray-300 rounded"
                         value={item.sheetPrice}
-                        onChange={(e) => handleChange(e, index, 'sheetPrice')}
+                        onChange={(e) => handleChange(e, index, "sheetPrice")}
                       />
                     </td>
 
-                    {/* Total Price Amount (Read Only) */}
+                    {/* Total Amount */}
                     <td className="px-4 py-2 border">
                       <input
                         type="number"
@@ -487,16 +514,16 @@ const addRow = () => {
                       <textarea
                         className="w-full p-2 border border-gray-300 rounded"
                         value={item.remarks}
-                        onChange={(e) => handleChange(e, index, 'remarks')}
+                        onChange={(e) => handleChange(e, index, "remarks")}
                       />
                     </td>
 
                     {/* Actions (Remove & Add) */}
-                    <td className="px-4 py-2 border flex space-x-2">
+                    <td className="px-4 py-2 border flex flex-col space-y-2 items-center">
                       <button
                         type="button"
                         onClick={() => removeRow(index)}
-                        className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+                        className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 w-full"
                       >
                         Remove
                       </button>
@@ -504,7 +531,7 @@ const addRow = () => {
                       <button
                         type="button"
                         onClick={() => handleSubmitRow(index)}
-                        className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
+                        className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 w-full"
                       >
                         Add
                       </button>
@@ -513,8 +540,6 @@ const addRow = () => {
                 ))}
               </tbody>
             </table>
-
-
 
             {/* Add Row Button */}
             <div className="mt-4">
@@ -527,46 +552,74 @@ const addRow = () => {
               </button>
             </div>
           </div>
-
         </div>
 
-
-        <h3 className="text-2xl font-semibold mb-4 text-center">Payment Information</h3>
+        <h3 className="text-2xl font-semibold mb-4 text-center">
+          Payment Information
+        </h3>
 
         {/* Payment Section Wrapper */}
         <div className="border border-gray-400 p-4 rounded-md mt-4">
-
           {/* Grid Layout for Payment Inputs */}
           <div className="grid grid-cols-10 gap-4">
-
             {/* Supplier */}
             <div>
               <label className="block font-medium text-center">Company</label>
-              <input type="text" className="mt-1 p-2 w-full border border-gray-300 rounded h-7" value={supplier} onChange={(e) => setSupplier(e.target.value)} />
+              <input
+                type="text"
+                className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
+                value={supplier}
+                onChange={(e) => setSupplier(e.target.value)}
+              />
             </div>
 
             {/* Previous Due */}
             <div>
-              <label className="block font-medium text-center  ">Previous Due</label>
-              <input type="number" className="mt-1 p-2 w-full border border-gray-300 rounded h-7 bg-gray-100 " value={previousDue} readOnly />
+              <label className="block font-medium text-center  ">
+                Previous Due
+              </label>
+              <input
+                type="number"
+                className="mt-1 p-2 w-full border border-gray-300 rounded h-7 bg-gray-100 "
+                value={previousDue}
+                readOnly
+              />
             </div>
 
             {/* Today Bill */}
             <div>
-              <label className="block font-medium text-center">Invoice/Challan Amt.</label>
-              <input type="number" className="mt-1 p-2 w-full border border-gray-300 rounded h-7" value={todayBill} onChange={(e) => setTodayBill(e.target.value)} />
+              <label className="block font-medium text-center">
+                Invoice/Challan Amt.
+              </label>
+              <input
+                type="number"
+                className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
+                value={todayBill}
+                onChange={(e) => setTodayBill(e.target.value)}
+              />
             </div>
 
             {/* Today Paid */}
             <div>
-              <label className="block font-medium text-center">Today Paid Amount</label>
-              <input type="number" className="mt-1 p-2 w-full border border-gray-300 rounded h-7" value={todayPaid} onChange={(e) => setTodayPaid(e.target.value)} />
+              <label className="block font-medium text-center">
+                Today Paid Amount
+              </label>
+              <input
+                type="number"
+                className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
+                value={todayPaid}
+                onChange={(e) => setTodayPaid(e.target.value)}
+              />
             </div>
 
             {/* Paid By (Dropdown) */}
             <div>
               <label className="block font-medium text-center">Paid By</label>
-              <select className="mt-1 p-2 w-full border border-gray-300 rounded h-9 focus:ring-2 focus:ring-blue-500" value={paidBy} onChange={(e) => setPaidBy(e.target.value)}>
+              <select
+                className="mt-1 p-2 w-full border border-gray-300 rounded h-9 focus:ring-2 focus:ring-blue-500"
+                value={paidBy}
+                onChange={(e) => setPaidBy(e.target.value)}
+              >
                 <option value="Cash">Cash</option>
                 <option value="Bank">Bank</option>
               </select>
@@ -577,7 +630,7 @@ const addRow = () => {
             <div>
               <label className="block font-medium text-center">Bank Name</label>
               <input
-                type="text"  // Changed to text as Bank Name is not a number
+                type="text" // Changed to text as Bank Name is not a number
                 className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
                 value={bankName}
                 onChange={(e) => setBankName(e.target.value)}
@@ -586,7 +639,9 @@ const addRow = () => {
 
             {/* Paid A/C */}
             <div>
-              <label className="block font-medium text-center">Account No.</label>
+              <label className="block font-medium text-center">
+                Account No.
+              </label>
               <input
                 type="text"
                 className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
@@ -608,9 +663,11 @@ const addRow = () => {
 
             {/* Cheque Date */}
             <div>
-              <label className="block font-medium text-center">Cheque Date</label>
+              <label className="block font-medium text-center">
+                Cheque Date
+              </label>
               <input
-                type="date"  // Using type="date" for better date selection
+                type="date" // Using type="date" for better date selection
                 className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
                 value={chequeDate}
                 onChange={(e) => setChequeDate(e.target.value)}
@@ -619,7 +676,9 @@ const addRow = () => {
 
             {/* Balance Amount */}
             <div>
-              <label className="block font-medium text-center">Balance Amount</label>
+              <label className="block font-medium text-center">
+                Balance Amount
+              </label>
               <input
                 type="text"
                 className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
@@ -627,25 +686,33 @@ const addRow = () => {
                 onChange={(e) => setBalanceAmount(e.target.value)}
               />
             </div>
-
-
-
-
-
           </div>
-
-
         </div>
-
 
         {/* Submit Buttons */}
         <div className="mt-6 flex justify-between space-x-4">
-          <button type="button" onClick={handlePDFExport} className="bg-blue-500 text-white p-2 rounded flex-1">Export to PDF</button>
-          <button type="submit" onClick={handleSubmit} className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 flex-1">Submit</button>
-          <button type="button" onClick={() => alert('Form Cancelled')} className="bg-red-500 text-white p-2 rounded hover:bg-red-600 flex-1">Cancel</button>
+          <button
+            type="button"
+            onClick={handlePDFExport}
+            className="bg-blue-500 text-white p-2 rounded flex-1"
+          >
+            Export to PDF
+          </button>
+          <button
+            type="submit"
+            onClick={handleSubmit}
+            className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 flex-1"
+          >
+            Submit
+          </button>
+          <button
+            type="button"
+            onClick={() => alert("Form Cancelled")}
+            className="bg-red-500 text-white p-2 rounded hover:bg-red-600 flex-1"
+          >
+            Cancel
+          </button>
         </div>
-
-
       </form>
     </div>
   );
