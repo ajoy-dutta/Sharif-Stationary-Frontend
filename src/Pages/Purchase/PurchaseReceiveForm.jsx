@@ -41,7 +41,11 @@ function PurchaseReceiveForm() {
   const [bankName, setBankName] = useState("");
   const [accountNo, setAccountNo] = useState("");
   const [balanceAmount, setBalanceAmount] = useState("");
-
+// New Fields
+const [transportCost, setTransportCost] = useState(0);
+const [labourCost, setLabourCost] = useState(0);
+const [roadCost, setRoadCost] = useState(0);
+const [otherCost, setOtherCost] = useState(0);
   const [items, setItems] = useState([
     {
       no: "", // No (Row Number)
@@ -554,140 +558,108 @@ function PurchaseReceiveForm() {
           </div>
         </div>
 
-        <h3 className="text-2xl font-semibold mb-4 text-center">
-          Payment Information
-        </h3>
+        <h3 className="text-2xl font-semibold mb-4 text-center">Payment Information</h3>
 
-        {/* Payment Section Wrapper */}
-        <div className="border border-gray-400 p-4 rounded-md mt-4">
-          {/* Grid Layout for Payment Inputs */}
-          <div className="grid grid-cols-10 gap-4">
-            {/* Supplier */}
-            <div>
-              <label className="block font-medium text-center">Company</label>
-              <input
-                type="text"
-                className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
-                value={supplier}
-                onChange={(e) => setSupplier(e.target.value)}
-              />
-            </div>
+{/* Payment Section Wrapper */}
+<div className="border border-gray-400 p-4 rounded-md mt-4">
 
-            {/* Previous Due */}
-            <div>
-              <label className="block font-medium text-center  ">
-                Previous Due
-              </label>
-              <input
-                type="number"
-                className="mt-1 p-2 w-full border border-gray-300 rounded h-7 bg-gray-100 "
-                value={previousDue}
-                readOnly
-              />
-            </div>
+  {/* Grid Layout for Payment Inputs */}
+  <div className="grid grid-cols-10 gap-4">
 
-            {/* Today Bill */}
-            <div>
-              <label className="block font-medium text-center">
-                Invoice/Challan Amt.
-              </label>
-              <input
-                type="number"
-                className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
-                value={todayBill}
-                onChange={(e) => setTodayBill(e.target.value)}
-              />
-            </div>
+    {/* Supplier */}
+    <div>
+      <label className="block font-medium text-center">Company</label>
+      <input type="text" className="mt-1 p-2 w-full border border-gray-300 rounded h-7" value={supplier} onChange={(e) => setSupplier(e.target.value)} />
+    </div>
 
-            {/* Today Paid */}
-            <div>
-              <label className="block font-medium text-center">
-                Today Paid Amount
-              </label>
-              <input
-                type="number"
-                className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
-                value={todayPaid}
-                onChange={(e) => setTodayPaid(e.target.value)}
-              />
-            </div>
+    {/* Previous Due */}
+    <div>
+      <label className="block font-medium text-center">Previous Due</label>
+      <input type="number" className="mt-1 p-2 w-full border border-gray-300 rounded h-7 bg-gray-100" value={previousDue} readOnly />
+    </div>
 
-            {/* Paid By (Dropdown) */}
-            <div>
-              <label className="block font-medium text-center">Paid By</label>
-              <select
-                className="mt-1 p-2 w-full border border-gray-300 rounded h-9 focus:ring-2 focus:ring-blue-500"
-                value={paidBy}
-                onChange={(e) => setPaidBy(e.target.value)}
-              >
-                <option value="Cash">Cash</option>
-                <option value="Bank">Bank</option>
-              </select>
-            </div>
+    {/* Today Bill */}
+    <div>
+      <label className="block font-medium text-center">Invoice/Challan Amt.</label>
+      <input type="number" className="mt-1 p-2 w-full border border-gray-300 rounded h-7" value={todayBill} onChange={(e) => setTodayBill(e.target.value)} />
+    </div>
 
-            {/*Bank Name */}
-            {/* Bank Name */}
-            <div>
-              <label className="block font-medium text-center">Bank Name</label>
-              <input
-                type="text" // Changed to text as Bank Name is not a number
-                className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
-                value={bankName}
-                onChange={(e) => setBankName(e.target.value)}
-              />
-            </div>
+    {/* Today Paid */}
+    <div>
+      <label className="block font-medium text-center">Today Paid Amount</label>
+      <input type="number" className="mt-1 p-2 w-full border border-gray-300 rounded h-7" value={todayPaid} onChange={(e) => setTodayPaid(e.target.value)} />
+    </div>
 
-            {/* Paid A/C */}
-            <div>
-              <label className="block font-medium text-center">
-                Account No.
-              </label>
-              <input
-                type="text"
-                className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
-                value={accountNo}
-                onChange={(e) => setAccountNo(e.target.value)}
-              />
-            </div>
+    {/* Paid By (Dropdown) */}
+    <div>
+      <label className="block font-medium text-center">Paid By</label>
+      <select className="mt-1 p-2 w-full border border-gray-300 rounded h-9 focus:ring-2 focus:ring-blue-500" value={paidBy} onChange={(e) => setPaidBy(e.target.value)}>
+        <option value="Cash">Cash</option>
+        <option value="Bank">Bank</option>
+      </select>
+    </div>
 
-            {/* Cheque No */}
-            <div>
-              <label className="block font-medium text-center">Cheque No</label>
-              <input
-                type="text"
-                className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
-                value={chequeNo}
-                onChange={(e) => setChequeNo(e.target.value)}
-              />
-            </div>
+    {/* Bank Name */}
+    <div>
+      <label className="block font-medium text-center">Bank Name</label>
+      <input type="text" className="mt-1 p-2 w-full border border-gray-300 rounded h-7" value={bankName} onChange={(e) => setBankName(e.target.value)} />
+    </div>
 
-            {/* Cheque Date */}
-            <div>
-              <label className="block font-medium text-center">
-                Cheque Date
-              </label>
-              <input
-                type="date" // Using type="date" for better date selection
-                className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
-                value={chequeDate}
-                onChange={(e) => setChequeDate(e.target.value)}
-              />
-            </div>
+    {/* Account No */}
+    <div>
+      <label className="block font-medium text-center">Account No.</label>
+      <input type="text" className="mt-1 p-2 w-full border border-gray-300 rounded h-7" value={accountNo} onChange={(e) => setAccountNo(e.target.value)} />
+    </div>
 
-            {/* Balance Amount */}
-            <div>
-              <label className="block font-medium text-center">
-                Balance Amount
-              </label>
-              <input
-                type="text"
-                className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
-                value={balanceAmount}
-                onChange={(e) => setBalanceAmount(e.target.value)}
-              />
-            </div>
-          </div>
-        </div>
+    {/* Cheque No */}
+    <div>
+      <label className="block font-medium text-center">Cheque No</label>
+      <input type="text" className="mt-1 p-2 w-full border border-gray-300 rounded h-7" value={chequeNo} onChange={(e) => setChequeNo(e.target.value)} />
+    </div>
+
+    {/* Cheque Date */}
+    <div>
+      <label className="block font-medium text-center">Cheque Date</label>
+      <input type="date" className="mt-1 p-2 w-full border border-gray-300 rounded h-7" value={chequeDate} onChange={(e) => setChequeDate(e.target.value)} />
+    </div>
+
+    {/* Balance Amount */}
+    <div>
+      <label className="block font-medium text-center">Balance Amount</label>
+      <input type="text" className="mt-1 p-2 w-full border border-gray-300 rounded h-7" value={balanceAmount} onChange={(e) => setBalanceAmount(e.target.value)} />
+    </div>
+
+    {/* New Fields from Image */}
+
+    {/* Transport Cost */}
+    <div>
+      <label className="block font-medium text-center">Transport Cost</label>
+      <input type="number" className="mt-1 p-2 w-full border border-gray-300 rounded h-7" value={transportCost} onChange={(e) => setTransportCost(e.target.value)} />
+    </div>
+
+    {/* Labour Cost */}
+    <div>
+      <label className="block font-medium text-center">Labour Cost</label>
+      <input type="number" className="mt-1 p-2 w-full border border-gray-300 rounded h-7" value={labourCost} onChange={(e) => setLabourCost(e.target.value)} />
+    </div>
+
+    {/* Road Cost */}
+    <div>
+      <label className="block font-medium text-center">Road Cost</label>
+      <input type="number" className="mt-1 p-2 w-full border border-gray-300 rounded h-7" value={roadCost} onChange={(e) => setRoadCost(e.target.value)} />
+    </div>
+
+    {/* Other Cost */}
+    <div>
+      <label className="block font-medium text-center">Other Cost</label>
+      <input type="number" className="mt-1 p-2 w-full border border-gray-300 rounded h-7" value={otherCost} onChange={(e) => setOtherCost(e.target.value)} />
+    </div>
+
+  </div>
+
+</div>
+
+
 
         {/* Submit Buttons */}
         <div className="mt-6 flex justify-between space-x-4">
