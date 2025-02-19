@@ -6,7 +6,7 @@ import Product from "../Pages/Product/Product.jsx";
 import Home from "../Pages/HomePage/Home/Home/Home.jsx";
 import SignUp from "../SignUp.jsx";
 import Security from "../Pages/Security/Security.jsx";
-import Dashboard from "../Pages/DashboardPage/Dashboard.jsx";
+
 import Master from "../Pages/Master/Master.jsx";
 
 import Transfer from "../Pages/Transfer/Transfer.jsx";
@@ -38,10 +38,7 @@ export const router = createBrowserRouter([
         path: "/security",
         element: <Security></Security>,
       },
-      {
-        path: "/dashboard",
-        element: <Dashboard></Dashboard>,
-      },
+   
       {
         path: "/master",
         element: <Master></Master>,
