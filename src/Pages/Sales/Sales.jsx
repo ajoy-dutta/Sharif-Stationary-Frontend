@@ -100,151 +100,138 @@ const Sales = () => {
 
   return (
     <div className="max-w-6xl mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-4 text-center">পাইকারি বিক্রয়</h1>
+      <h1 className="text-md font-bold mb-4 text-center">পাইকারি বিক্রয়</h1>
 
-      {/* Invoice Details Section */}
-      <div className="grid grid-cols-4 gap-4 mb-6">
-  <div>
-    <label className="block text-sm font-medium">Invoice No.</label>
-    <div className="flex">
+      <div className="grid grid-cols-2 gap-3 mb-4 text-xs">
+  {/* First Row */}
+  <div className="grid grid-cols-4 gap-3">
+    <div>
+      <label className="block font-medium text-xs">Invoice No.</label>
+      <div className="flex">
+        <input
+          type="text"
+          name="invoiceNo"
+          value={formData.invoiceNo}
+          onChange={handleChange}
+          className="w-full px-1 py-1 border border-gray-300 rounded text-xs"
+        />
+        <button className="ml-2 px-2 py-1 bg-blue-500 text-white rounded text-xs">
+          Search
+        </button>
+      </div>
+    </div>
+    <div>
+      <label className="block font-medium text-xs">Date</label>
+      <input
+        type="date"
+        name="date"
+        value={formData.date}
+        onChange={handleChange}
+        className="w-full px-1 py-1 border border-gray-300 rounded text-xs"
+      />
+    </div>
+    <div>
+      <label className="block font-medium text-xs">Branch</label>
       <input
         type="text"
-        name="invoiceNo"
-        value={formData.invoiceNo}
+        name="branch"
+        value={formData.branch}
         onChange={handleChange}
-        className="w-full px-12 py-1 border border-gray-300 rounded"
+        className="w-full px-1 py-1 border border-gray-300 rounded text-xs"
       />
-      <button className="ml-2 px-12 py-1 bg-blue-500 text-white rounded">Search</button>
+    </div>
+    <div>
+      <label className="block font-medium text-xs">Served By</label>
+      <input
+        type="text"
+        name="servedBy"
+        value={formData.servedBy}
+        onChange={handleChange}
+        className="w-full px-1 py-1 border border-gray-300 rounded text-xs"
+      />
     </div>
   </div>
 
-  <div>
-    <label className="block text-sm font-medium">Date</label>
-    <input
-      type="date"
-      name="date"
-      value={formData.date}
-      onChange={handleChange}
-      className="w-full px-12 py-1 border border-gray-300 rounded"
-    />
+  <div className="grid grid-cols-4 gap-3">
+    <div>
+      <label className="block font-medium text-xs">Voucher No.</label>
+      <input
+        type="text"
+        name="voucherNo"
+        value={formData.voucherNo}
+        onChange={handleChange}
+        className="w-full px-1 py-1 border border-gray-300 rounded text-xs"
+      />
+    </div>
+    <div>
+      <label className="block font-medium text-xs">Pay Method</label>
+      <select
+        name="payMethod"
+        value={formData.payMethod}
+        onChange={handleChange}
+        className="w-full px-1 py-1 border border-gray-300 rounded text-xs"
+      >
+        <option value="Cash">Cash</option>
+        <option value="Card">Card</option>
+        <option value="bKash">bKash</option>
+      </select>
+    </div>
+    <div>
+      <label className="block font-medium text-xs">Card Details</label>
+      <input
+        type="text"
+        name="cardDetails"
+        value={formData.cardDetails}
+        onChange={handleChange}
+        className="w-full px-1 py-1 border border-gray-300 rounded text-xs"
+      />
+    </div>
+    <div>
+      <label className="block font-medium text-xs">Delivery Address</label>
+      <input
+        type="text"
+        name="deliveryAddress"
+        value={formData.deliveryAddress}
+        onChange={handleChange}
+        className="w-full px-1 py-1 border border-gray-300 rounded text-xs"
+      />
+    </div>
   </div>
 
-  <div>
-    <label className="block text-sm font-medium">Branch</label>
-    <input
-      type="text"
-      name="branch"
-      value={formData.branch}
-      onChange={handleChange}
-      className="w-full px-12 py-1 border border-gray-300 rounded"
-    />
-  </div>
-
-  <div>
-    <label className="block text-sm font-medium">Served By</label>
-    <input
-      type="text"
-      name="servedBy"
-      value={formData.servedBy}
-      onChange={handleChange}
-      className="w-full px-12 py-1 border border-gray-300 rounded"
-    />
+  {/* Second Row */}
+  <div className="grid grid-cols-4 gap-3">
+    <div>
+      <label className="block font-medium text-xs">Customer</label>
+      <input
+        type="text"
+        name="customer"
+        value={formData.customer}
+        onChange={handleChange}
+        className="w-full px-1 py-1 border border-gray-300 rounded text-xs"
+      />
+    </div>
+    <div>
+      <label className="block font-medium text-xs">Customer Address</label>
+      <input
+        type="text"
+        name="customerAddress"
+        value={formData.customerAddress}
+        onChange={handleChange}
+        className="w-full px-1 py-1 border border-gray-300 rounded text-xs"
+      />
+    </div>
+    <div className="col-span-2">
+      <label className="block font-medium text-xs">Remarks</label>
+      <textarea
+        name="remarks"
+        value={formData.remarks}
+        onChange={handleChange}
+        className="w-full px-1 py-1 border border-gray-300 rounded text-xs"
+      />
+    </div>
   </div>
 </div>
 
-<div className="grid grid-cols-4 gap-4 mb-6">
-  <div>
-    <label className="block text-sm font-medium">Voucher No.</label>
-    <input
-      type="text"
-      name="voucherNo"
-      value={formData.voucherNo}
-      onChange={handleChange}
-      className="w-full px-12 py-1 border border-gray-300 rounded"
-    />
-  </div>
-
-  <div>
-    <label className="block text-sm font-medium">Pay Method</label>
-    <select
-      name="payMethod"
-      value={formData.payMethod}
-      onChange={handleChange}
-      className="w-full px-12 py-1 border border-gray-300 rounded"
-    >
-      <option value="Cash">Cash</option>
-      <option value="Card">Card</option>
-      <option value="bKash">bKash</option>
-    </select>
-  </div>
-
-  <div>
-    <label className="block text-sm font-medium">Card Details</label>
-    <input
-      type="text"
-      name="cardDetails"
-      value={formData.cardDetails}
-      onChange={handleChange}
-      className="w-full px-12 py-1 border border-gray-300 rounded"
-    />
-  </div>
-
-  <div className="flex items-center">
-    <input
-      type="checkbox"
-      name="temporaryCustomer"
-      checked={formData.temporaryCustomer}
-      onChange={() => setFormData({ ...formData, temporaryCustomer: !formData.temporaryCustomer })}
-      className="mr-2"
-    />
-    <label className="block text-sm font-medium">Temporary Customer</label>
-  </div>
-</div>
-
-<div className="grid grid-cols-4 gap-4 mb-6">
-  <div>
-    <label className="block text-sm font-medium">Delivery Address</label>
-    <input
-      type="text"
-      name="deliveryAddress"
-      value={formData.deliveryAddress}
-      onChange={handleChange}
-      className="w-full px-12 py-1 border border-gray-300 rounded"
-    />
-  </div>
-
-  <div>
-    <label className="block text-sm font-medium">Customer</label>
-    <input
-      type="text"
-      name="customer"
-      value={formData.customer}
-      onChange={handleChange}
-      className="w-full px-12 py-1 border border-gray-300 rounded"
-    />
-  </div>
-
-  <div>
-    <label className="block text-sm font-medium">Customer Address</label>
-    <input
-      type="text"
-      name="customerAddress"
-      value={formData.customerAddress}
-      onChange={handleChange}
-      className="w-full px-12 py-1 border border-gray-300 rounded"
-    />
-  </div>
-
-  <div>
-    <label className="block text-sm font-medium">Remarks</label>
-    <textarea
-      name="remarks"
-      value={formData.remarks}
-      onChange={handleChange}
-      className="w-full px-12 py-1 border border-gray-300 rounded"
-    />
-  </div>
-</div>
 
 
       {/* Items Section */}

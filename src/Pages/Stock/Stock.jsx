@@ -76,16 +76,16 @@ const Stock = () => {
                 Product Description
               </th>
               <th className="px-4 py-2 text-center border border-gray-300 w-[5%]">
-                Rim
+                Rim/Dozon
               </th>
               <th className="px-4 py-2 text-center border border-gray-300 w-[5%]">
-                Sheet
+                Sheet/Piece
               </th>
               <th className="px-4 py-2 text-center border border-gray-300 w-[%]">
-                Per Rim Purchase Amount
+                Rim/Dozon Purchase Amount
               </th>
               <th className="px-4 py-2 text-center border border-gray-300 w-[8%]">
-                Per Sheet Purchase Amount
+                Sheet/Piece Purchase Amount
               </th>
               <th className="px-4 py-2 text-center border border-gray-300 w-[8%]">
                 Total Purchase Amount
