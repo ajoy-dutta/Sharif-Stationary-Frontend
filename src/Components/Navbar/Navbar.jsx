@@ -109,6 +109,14 @@ const Navbar = () => {
           </li>
           <li>
             <Link
+              to="/invoice"
+              className="text-gray-800 hover:text-blue-500 font-medium px-3"
+            >
+              Invoice
+            </Link>
+          </li>
+          <li>
+            <Link
               to="/stock"
               className="text-gray-800 hover:text-blue-500 font-medium px-3"
             >
