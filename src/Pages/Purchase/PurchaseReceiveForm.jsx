@@ -564,63 +564,54 @@ function PurchaseReceiveForm() {
           </div>
         </div>
         <h3 className="text-xl font-semibold mb-4 text-center">Additional Costs</h3>
-        <div className="border border-gray-400 p-4 rounded-md mt-4">
 
-
+<div className="border border-gray-400 p-4 rounded-md mt-4">
   <table className="w-full border-collapse border border-gray-300">
     <thead className="bg-gray-200">
       <tr>
-        <th className="border border-gray-300 p-2 text-center">Cost Type</th>
-        <th className="border border-gray-300 p-2 text-center">Amount</th>
+        <th className="border border-gray-300 p-2 text-center">Transport Cost</th>
+        <th className="border border-gray-300 p-2 text-center">Labour Cost</th>
+        <th className="border border-gray-300 p-2 text-center">Road Cost</th>
+        <th className="border border-gray-300 p-2 text-center">Other Cost</th>
       </tr>
     </thead>
     <tbody>
-      {/* Transport Cost */}
       <tr>
-        <td className="border border-gray-300 p-2 text-center">Transport Cost</td>
+        {/* Transport Cost */}
         <td className="border border-gray-300 p-2 text-center">
           <input
             type="number"
-            className="p-2 w-full border border-gray-300 rounded h-7"
+            className="p-1 w-24 h-8 border border-gray-300 rounded text-center text-sm"
             value={transportCost}
             onChange={(e) => setTransportCost(e.target.value)}
           />
         </td>
-      </tr>
 
-      {/* Labour Cost */}
-      <tr>
-        <td className="border border-gray-300 p-2 text-center">Labour Cost</td>
+        {/* Labour Cost */}
         <td className="border border-gray-300 p-2 text-center">
           <input
             type="number"
-            className="p-2 w-full border border-gray-300 rounded h-7"
+            className="p-1 w-24 h-8 border border-gray-300 rounded text-center text-sm"
             value={labourCost}
             onChange={(e) => setLabourCost(e.target.value)}
           />
         </td>
-      </tr>
 
-      {/* Road Cost */}
-      <tr>
-        <td className="border border-gray-300 p-2 text-center">Road Cost</td>
+        {/* Road Cost */}
         <td className="border border-gray-300 p-2 text-center">
           <input
             type="number"
-            className="p-2 w-full border border-gray-300 rounded h-7"
+            className="p-1 w-24 h-8 border border-gray-300 rounded text-center text-sm"
             value={roadCost}
             onChange={(e) => setRoadCost(e.target.value)}
           />
         </td>
-      </tr>
 
-      {/* Other Cost */}
-      <tr>
-        <td className="border border-gray-300 p-2 text-center">Other Cost</td>
+        {/* Other Cost */}
         <td className="border border-gray-300 p-2 text-center">
           <input
             type="number"
-            className="p-2 w-full border border-gray-300 rounded h-7"
+            className="p-1 w-24 h-8 border border-gray-300 rounded text-center text-sm"
             value={otherCost}
             onChange={(e) => setOtherCost(e.target.value)}
           />
@@ -629,6 +620,7 @@ function PurchaseReceiveForm() {
     </tbody>
   </table>
 </div>
+
 
 
         <h3 className="text-2xl font-semibold mb-4 text-center">Payment Information</h3>
