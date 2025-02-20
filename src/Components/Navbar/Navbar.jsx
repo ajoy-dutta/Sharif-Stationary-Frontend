@@ -4,8 +4,8 @@ const Navbar = () => {
   return (
     <>
       {/* Heading Above Navbar */}
-      <div className="bg-gray-200 text-center py-3">
-        <h1 className="text-4xl font-extrabold text-red-600">
+      <div className="bg-gray-200 text-center py-3 -mt-2">
+        <h1 className="text-3xl font-extrabold text-blue-600">
           Sharif Paper <span className="text-blue-600">& Stationery</span>
         </h1>
       </div>
@@ -16,7 +16,7 @@ const Navbar = () => {
      
 
           {/* Navigation Links */}
-          <ul className="flex space-x-6">
+          <ul className="flex space-x-2">
             <li>
               <Link to="/security" className="text-gray-800 hover:text-blue-500 font-medium px-3">
                 Security

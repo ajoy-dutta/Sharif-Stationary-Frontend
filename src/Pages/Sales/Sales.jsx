@@ -228,7 +228,7 @@ const [otherCost, setOtherCost] = useState(0);
   return (
     <div className="p-8 bg-gray-100">
       <h2 className="text-2xl font-semibold mb-4 text-center">
-        Sa Receive (Credit)
+        Sale Receive 
       </h2>
       <form onSubmit={handleSubmit}>
         <div className="border border-gray-400 p-4 rounded-md grid grid-cols-6 gap-4">
@@ -532,13 +532,20 @@ const [otherCost, setOtherCost] = useState(0);
                         Remove
                       </button>
 
-                      <button
+                      {/* <button
                         type="button"
                         onClick={() => handleSubmitRow(index)}
                         className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 w-full"
                       >
                         Add
-                      </button>
+                      </button> */}
+                      <button
+                type="button"
+                onClick={addRow}
+                className="bg-green-500 text-white p-2 rounded"
+              >
+                Add Row
+              </button>
                     </td>
                   </tr>
                 ))}
@@ -547,13 +554,7 @@ const [otherCost, setOtherCost] = useState(0);
 
             {/* Add Row Button */}
             <div className="mt-4">
-              <button
-                type="button"
-                onClick={addRow}
-                className="bg-green-500 text-white p-2 rounded"
-              >
-                Add Row
-              </button>
+              
             </div>
           </div>
         </div>
