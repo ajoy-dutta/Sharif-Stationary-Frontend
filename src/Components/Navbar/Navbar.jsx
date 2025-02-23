@@ -16,7 +16,7 @@ const Navbar = () => {
      
 
           {/* Navigation Links */}
-          <ul className="flex space-x-6">
+          <ul className="flex space-x-2">
             <li>
               <Link to="/security" className="text-gray-800 hover:text-blue-500 font-medium px-3">
                 Security
