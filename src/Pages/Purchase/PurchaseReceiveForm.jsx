@@ -92,12 +92,20 @@ function PurchaseReceiveForm() {
       },
     ]);
   };
-
-  // Remove a row
-  const removeRow = (index) => {
-    const updatedItems = items.filter((_, i) => i !== index);
-    setItems(updatedItems);
+  
+  const deleteRow = (index) => {
+    if (items.length > 1) {
+      setItems(items.filter((_, i) => i !== index)); // Removes the row at the given index
+    } else {
+      alert("At least one row is required.");
+    }
   };
+  
+  // Remove a row
+  // const removeRow = (index) => {
+  //   const updatedItems = items.filter((_, i) => i !== index);
+  //   setItems(updatedItems);
+  // };
 
   const handlePDFExport = () => {
     const doc = new jsPDF();
@@ -113,6 +121,7 @@ function PurchaseReceiveForm() {
       "Sheet/Piece Price",
       "Total Amount",
       "Remarks",
+      "Action",
     ];
 
     // Map table rows using correct object keys
@@ -231,8 +240,8 @@ function PurchaseReceiveForm() {
 
   return (
     <div className="p-8 bg-gray-100">
-      <h2 className="text-2xl font-semibold mb-4 text-center">
-        Purchase Receive (Credit)
+      <h2 className="text-2xl font-semibold mb-2 -mt-4 text-center">
+        Purchase Receive
       </h2>
       <form onSubmit={handleSubmit}>
         <div className="border border-gray-400 p-6 rounded-md grid grid-cols-6 gap-6">
@@ -243,7 +252,7 @@ function PurchaseReceiveForm() {
             </label>
             <input
               type="text"
-              className="mt-1 p-2 w-full border border-gray-300 rounded h-10"
+              className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
               value={companyName}
               onChange={(e) => setCompanyName(e.target.value)}
             />
@@ -254,7 +263,7 @@ function PurchaseReceiveForm() {
             <label className="block font-medium text-center">Order Date</label>
             <input
               type="date"
-              className="mt-1 p-2 w-full border border-gray-300 rounded h-10"
+              className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
               value={orderDate}
               onChange={(e) => setOrderDate(e.target.value)}
             />
@@ -265,7 +274,7 @@ function PurchaseReceiveForm() {
             <label className="block font-medium text-center">Order No</label>
             <input
               type="text"
-              className="mt-1 p-2 w-full border border-gray-300 rounded h-10"
+              className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
               value={orderNo}
               onChange={(e) => setOrderNo(e.target.value)}
             />
@@ -278,7 +287,7 @@ function PurchaseReceiveForm() {
             </label>
             <input
               type="date"
-              className="mt-1 p-2 w-full border border-gray-300 rounded h-10"
+              className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
               value={deliveryDate}
               readOnly
             />
@@ -288,7 +297,7 @@ function PurchaseReceiveForm() {
           <div>
             <label className="block font-medium text-center">Transport</label>
             <select
-              className="mt-1 p-2 w-full border border-gray-300 rounded h-10 text-sm"
+              className="mt-1 p-2 w-full border border-gray-300 rounded h-7 text-sm"
               value={transport}
               onChange={(e) => setTransport(e.target.value)}
             >
@@ -305,7 +314,7 @@ function PurchaseReceiveForm() {
             <label className="block font-medium text-center">Vehicle No</label>
             <input
               type="text"
-              className="mt-1 p-2 w-full border border-gray-300 rounded h-10"
+              className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
               value={vehicleNo}
               onChange={(e) => setVehicleNo(e.target.value)}
             />
@@ -316,7 +325,7 @@ function PurchaseReceiveForm() {
             <label className="block font-medium text-center">Driver Name</label>
             <input
               type="text"
-              className="mt-1 p-2 w-full border border-gray-300 rounded h-10"
+              className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
               value={driverName}
               onChange={(e) => setDriverName(e.target.value)}
             />
@@ -329,7 +338,7 @@ function PurchaseReceiveForm() {
             </label>
             <input
               type="text"
-              className="mt-1 p-2 w-full border border-gray-300 rounded h-10"
+              className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
               value={driverMobile}
               onChange={(e) => setDriverMobile(e.target.value)}
             />
@@ -340,7 +349,7 @@ function PurchaseReceiveForm() {
             </label>
             <input
               type="date"
-              className="mt-1 p-2 w-full border border-gray-300 rounded h-10"
+              className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
               value={productEntryDate}
               onChange={(e) => setProductEntryDate(e.target.value)}
             />
@@ -352,7 +361,7 @@ function PurchaseReceiveForm() {
             </label>
             <input
               type="text"
-              className="mt-1 p-2 w-full border border-gray-300 rounded h-10"
+              className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
               value={invoiceNo}
               onChange={(e) => setInvoiceNo(e.target.value)}
             />
@@ -365,7 +374,7 @@ function PurchaseReceiveForm() {
             </label>
             <input
               type="date"
-              className="mt-1 p-2 w-full border border-gray-300 rounded h-10"
+              className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
               value={productEntryDate}
               onChange={(e) => setProductEntryDate(e.target.value)}
             />
@@ -376,7 +385,7 @@ function PurchaseReceiveForm() {
             <label className="block font-medium text-center">Godown No</label>
             <input
               type="text"
-              className="mt-1 p-2 w-full border border-gray-300 rounded h-10"
+              className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
               value={godownNo}
               onChange={(e) => setGodownNo(e.target.value)}
             />
@@ -393,18 +402,18 @@ function PurchaseReceiveForm() {
             <table className="min-w-full border-collapse">
               <thead className="bg-gray-200 text-gray-700 font-semibold">
                 <tr>
-                  <th className="p-2 text-center">No</th>
-                  <th className="p-2 text-left">Product Description</th>
-                  <th className="p-2 text-center">Item/Product Code</th>
-                  <th className="p-2 text-center">Rim/Dozen</th>
-                  <th className="p-2 text-center">Sheet/Piece</th>
-                  <th className="p-2 text-center">Only Sheet Piece</th>
-                  <th className="p-2 text-center">Total Sheet Piece</th>
-                  <th className="p-2 text-center">Rim/Dozen Price</th>
-                  <th className="p-2 text-center">Sheet/Piece Price</th>
-                  <th className="p-2 text-center">Total Amount</th>
-                  <th className="p-2 text-left">Remarks</th>
-                  <th className="p-2 text-center">Actions</th>
+                  <th className="p-2 text-center h-7">No</th>
+                  <th className="p-2 text-left h-7">Product Description</th>
+                  <th className="p-2 text-center h-7">Item/Product Code</th>
+                  <th className="p-2 text-center h-7">Rim/Dozen</th>
+                  <th className="p-2 text-center h-7">Sheet/Piece</th>
+                  <th className="p-2 text-center h-7">Only Sheet Piece</th>
+                  <th className="p-2 text-center h-7">Total Sheet Piece</th>
+                  <th className="p-2 text-center h-7">Rim/Dozen Price</th>
+                  <th className="p-2 text-center h-7">Sheet/Piece Price</th>
+                  <th className="p-2 text-center h-7">Total Amount</th>
+                  <th className="p-2 text-left h-7">Remarks</th>
+                  {/* <th className="p-2 text-center h-7">Actions</th> */}
                 </tr>
               </thead>
 
@@ -412,14 +421,14 @@ function PurchaseReceiveForm() {
                 {items.map((item, index) => (
                   <tr key={index}>
                     {/* No */}
-                    <td className="px-4 py-2 border text-center">
+                    <td className="px-4 py-2 border text-center h-7">
                       {index + 1}
                     </td>
 
                     {/* Product Description (Dropdown) */}
                     <td className="px-4 py-2 border">
                       <select
-                        className="w-full p-2 border border-gray-300 rounded"
+                        className="w-full p-2 border border-gray-300 rounded h-7"
                         value={item.productDescription}
                         onChange={(e) =>
                           handleChange(e, index, "productDescription")
@@ -437,7 +446,7 @@ function PurchaseReceiveForm() {
                     <td className="px-4 py-2 border">
                       <input
                         type="text"
-                        className="w-full p-2 border border-gray-300 rounded"
+                        className="w-full p-2 border border-gray-300 rounded h-7"
                         value={item.productCode}
                         onChange={(e) => handleChange(e, index, "productCode")}
                       />
@@ -447,7 +456,7 @@ function PurchaseReceiveForm() {
                     <td className="px-4 py-2 border">
                       <input
                         type="number"
-                        className="w-full p-2 border border-gray-300 rounded"
+                        className="w-full p-2 border border-gray-300 rounded h-7"
                         value={item.rimQuantity}
                         onChange={(e) => handleChange(e, index, "rimQuantity")}
                       />
@@ -457,7 +466,7 @@ function PurchaseReceiveForm() {
                     <td className="px-4 py-2 border">
                       <input
                         type="number"
-                        className="w-full p-2 border border-gray-300 rounded"
+                        className="w-full p-2 border border-gray-300 rounded h-7"
                         value={item.sheetQuantity}
                         onChange={(e) =>
                           handleChange(e, index, "sheetQuantity")
@@ -469,7 +478,7 @@ function PurchaseReceiveForm() {
                     <td className="px-4 py-2 border">
                       <input
                         type="number"
-                        className="w-full p-2 border border-gray-300 rounded"
+                        className="w-full p-2 border border-gray-300 rounded h-7"
                         value={item.onlySheetPiece}
                         onChange={(e) =>
                           handleChange(e, index, "onlySheetPiece")
@@ -481,7 +490,7 @@ function PurchaseReceiveForm() {
                     <td className="px-4 py-2 border">
                       <input
                         type="number"
-                        className="w-full p-2 border border-gray-300 rounded"
+                        className="w-full p-2 border border-gray-300 rounded h-7"
                         value={item.totalSheetPiece}
                         onChange={(e) =>
                           handleChange(e, index, "totalSheetPiece")
@@ -493,7 +502,7 @@ function PurchaseReceiveForm() {
                     <td className="px-4 py-2 border">
                       <input
                         type="number"
-                        className="w-full p-2 border border-gray-300 rounded"
+                        className="w-full p-2 border border-gray-300 rounded h-7"
                         value={item.rimPrice}
                         onChange={(e) => handleChange(e, index, "rimPrice")}
                       />
@@ -503,7 +512,7 @@ function PurchaseReceiveForm() {
                     <td className="px-4 py-2 border">
                       <input
                         type="number"
-                        className="w-full p-2 border border-gray-300 rounded"
+                        className="w-full p-2 border border-gray-300 rounded h-7"
                         value={item.sheetPrice}
                         onChange={(e) => handleChange(e, index, "sheetPrice")}
                       />
@@ -513,7 +522,7 @@ function PurchaseReceiveForm() {
                     <td className="px-4 py-2 border">
                       <input
                         type="number"
-                        className="w-full p-2 border border-gray-300 rounded bg-gray-100"
+                        className="w-full p-2 border border-gray-300 rounded bg-gray-100 h-7"
                         value={item.totalAmount}
                         readOnly
                       />
@@ -522,14 +531,14 @@ function PurchaseReceiveForm() {
                     {/* Remarks */}
                     <td className="px-4 py-2 border">
                       <textarea
-                        className="w-full p-2 border border-gray-300 rounded"
+                        className="w-full p-2 border border-gray-300 rounded h-7"
                         value={item.remarks}
                         onChange={(e) => handleChange(e, index, "remarks")}
                       />
                     </td>
 
                     {/* Actions (Remove & Add) */}
-                    <td className="px-4 py-2 border flex flex-col space-y-2 items-center">
+                    {/* <td className="px-4 py-2 border flex flex-col space-y-2 items-center h-7">
                       <button
                         type="button"
                         onClick={() => removeRow(index)}
@@ -545,7 +554,7 @@ function PurchaseReceiveForm() {
                       >
                         Add
                       </button>
-                    </td>
+                    </td> */}
                   </tr>
                 ))}
               </tbody>
@@ -559,6 +568,15 @@ function PurchaseReceiveForm() {
                 className="bg-green-500 text-white p-2 rounded"
               >
                 Add Row
+              </button>
+            </div>
+            <div className="mt-4">
+              <button
+                type="button"
+                onClick={deleteRow}
+                className="bg-green-500 text-white p-2 rounded"
+              >
+                Delete
               </button>
             </div>
           </div>
@@ -694,31 +712,6 @@ function PurchaseReceiveForm() {
               <input type="text" className="mt-1 p-2 w-full border border-gray-300 rounded h-7" value={balanceAmount} onChange={(e) => setBalanceAmount(e.target.value)} />
             </div>
 
-            {/* New Fields from Image */}
-
-            {/* Transport Cost */}
-            <div>
-              <label className="block font-medium text-center">Transport Cost</label>
-              <input type="number" className="mt-1 p-2 w-full border border-gray-300 rounded h-7" value={transportCost} onChange={(e) => setTransportCost(e.target.value)} />
-            </div>
-
-            {/* Labour Cost */}
-            <div>
-              <label className="block font-medium text-center">Labour Cost</label>
-              <input type="number" className="mt-1 p-2 w-full border border-gray-300 rounded h-7" value={labourCost} onChange={(e) => setLabourCost(e.target.value)} />
-            </div>
-
-            {/* Road Cost */}
-            <div>
-              <label className="block font-medium text-center">Road Cost</label>
-              <input type="number" className="mt-1 p-2 w-full border border-gray-300 rounded h-7" value={roadCost} onChange={(e) => setRoadCost(e.target.value)} />
-            </div>
-
-            {/* Other Cost */}
-            <div>
-              <label className="block font-medium text-center">Other Cost</label>
-              <input type="number" className="mt-1 p-2 w-full border border-gray-300 rounded h-7" value={otherCost} onChange={(e) => setOtherCost(e.target.value)} />
-            </div>
 
           </div>
 

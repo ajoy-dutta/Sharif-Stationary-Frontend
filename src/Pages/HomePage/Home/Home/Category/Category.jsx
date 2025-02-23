@@ -5,7 +5,7 @@ import 'swiper/css/pagination';
 
 
 import slide1 from '../../../../../assets/fresh-70.jpg';
-import slide2 from '../../../../../assets/fresh-100.jpg';
+import slide2 from '../../../../../assets/fresh-70.jpg';
 import slide3 from '../../../../../assets/fresh-80.jpg';
 import slide4 from '../../../../../assets/fresh-65.jpg';
 

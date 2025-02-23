@@ -4,14 +4,14 @@ const Navbar = () => {
   return (
     <>
       {/* Heading Above Navbar */}
-      <div className="bg-gray-200 text-center py-3">
-        <h1 className="text-4xl font-extrabold text-red-600">
+      <div className="bg-gray-200 text-center py-3 -mt-2">
+        <h1 className="text-3xl font-extrabold text-blue-600">
           Sharif Paper <span className="text-blue-600">& Stationery</span>
         </h1>
       </div>
 
       {/* Navbar */}
-      <nav className="bg-white shadow-md p-4">
+      <nav className="bg-white  h-2 p-2 mb-8">
         <div className="container mx-auto flex justify-between items-center">
      
 
