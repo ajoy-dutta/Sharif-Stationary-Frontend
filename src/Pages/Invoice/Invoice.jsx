@@ -152,6 +152,6 @@ const Invoice = () => {
   </div>
   
   );
-};
+}; 
 
 export default Invoice;
