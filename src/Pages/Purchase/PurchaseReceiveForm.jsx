@@ -1,51 +1,63 @@
-import React, { useState } from 'react';
-import jsPDF from 'jspdf';
-import 'jspdf-autotable';
-// import './styles.css'; // Adjust the path if needed
-// import '..//..//..//src//Pages'
-
-import * as XLSX from 'xlsx';
-// import { jsPDF } from 'jspdf'; // Updated import
+import { useState } from "react";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
 
 function PurchaseReceiveForm() {
-  const [voucherNo, setVoucherNo] = useState('');
-  const [date, setDate] = useState('');
-  const [challanNo, setChallanNo] = useState('');
-  const [challanDate, setChallanDate] = useState('');
-  const [supplier, setSupplier] = useState('');
-  const [branch, setBranch] = useState('');
-  const [remarks, setRemarks] = useState('');
-  const [itemCode, setItemCode] = useState('');
-  const [itemTitle, setItemTitle] = useState('');
+  const [voucherNo, setVoucherNo] = useState("");
+  const [PurchaseChallanDate, setPurchaseChallanDate] = useState("");
+  const [date, setDate] = useState("");
+  const [challanDate, setChallanDate] = useState("");
+  const [supplier, setSupplier] = useState("");
+  const [remarks, setRemarks] = useState("");
+  const [remarks_2, setRemarks_2] = useState("");
+  const [itemCode, setItemCode] = useState("");
+  const [itemTitle, setItemTitle] = useState("");
   const [quantity, setQuantity] = useState(1);
-  const [unitSheetPurchaseRate, setUnitSheetPurchaseRate] = useState('');
-  const [convSheetPurchaseRate, setConvSheetPurchaseRate] = useState('');
-  const [amount, setAmount] = useState('');
-  const [unitSheetSaleRate, setUnitSheetSaleRate] = useState('');
-  const [convSheetSaleRate, setConvSheetSaleRate] = useState('');
-  const [poNo, setPoNo] = useState('');
+  const [amount, setAmount] = useState("");
   const [total, setTotal] = useState(1);
-  const [paidAmount, setPaidAmount] = useState('');
+  const [paidAmount, setPaidAmount] = useState("");
   const [dueAmount, setDueAmount] = useState(0);
-  const [paidAccount, setPaidAccount] = useState('');
-  const [chequeNo, setChequeNo] = useState('');
-  const [chequeDate, setChequeDate] = useState('');
-  const [type, setType] = useState('Local');
-  const [isNewSupplier, setIsNewSupplier] = useState(false);
+  const [paidAccount, setPaidAccount] = useState("");
+  const [chequeNo, setChequeNo] = useState("");
+  const [chequeDate, setChequeDate] = useState("");
+  const [type, setType] = useState("Local");
+  const [companyName, setCompanyName] = useState("");
+  const [orderDate, setOrderDate] = useState("");
+  const [orderNo, setOrderNo] = useState("");
+  const [deliveryDate, setDeliveryDate] = useState(
+    new Date().toISOString().split("T")[0]
+  );
+  const [transport, setTransport] = useState("Company Transport");
+  const [vehicleNo, setVehicleNo] = useState("");
+  const [driverName, setDriverName] = useState("");
+  const [driverMobile, setDriverMobile] = useState("");
+  const [invoiceNo, setInvoiceNo] = useState("");
+  const [productEntryDate, setProductEntryDate] = useState("");
+  const [godownNo, setGodownNo] = useState("");
+  const [previousDue, setPreviousDue] = useState(0);
+  const [todayBill, setTodayBill] = useState(0);
+  const [todayPaid, setTodayPaid] = useState(0);
+  const [paidBy, setPaidBy] = useState("Cash");
+  const [bankName, setBankName] = useState("");
+  const [accountNo, setAccountNo] = useState("");
+  const [balanceAmount, setBalanceAmount] = useState("");
+  // New Fields
+  const [transportCost, setTransportCost] = useState(0);
+  const [labourCost, setLabourCost] = useState(0);
+  const [roadCost, setRoadCost] = useState(0);
+  const [otherCost, setOtherCost] = useState(0);
+  const [totalCost, setTotalCost] = useState(0);
   const [items, setItems] = useState([
     {
-      itemCode: '',
-      title: '',
-      cyCn: '',
-      rim: '',
-      shite: '',
-      qty: 1,
-      uom: '',
-      unitSheetPurchaseRate: '',
-      convSheetPurchaseRate: '',
-      amount: '',
-      unitSheetSaleRate: '',
-      convSheetSaleRate: '',
+      no: "", // No (Row Number)
+      productDescription: "", // Product Description (Dropdown)
+      productCode: "", // Item/Product Code
+      rimQuantity: "", // Rim Quantity
+      sheetQuantity: "", // Sheet/Piece Quantity
+      rimPrice: "", // Rim/Dozen Price
+      sheetPrice: "", // Sheet/Piece Price
+      totalAmount: "", // Total Amount
+      remarks: "", // Remarks
     },
   ]);
 
@@ -53,9 +65,14 @@ function PurchaseReceiveForm() {
   const handleChange = (e, index, field) => {
     const updatedItems = [...items];
     updatedItems[index][field] = e.target.value;
-    if (field === 'qty' || field === 'unitSheetPurchaseRate') {
-      updatedItems[index].amount = updatedItems[index].qty * updatedItems[index].unitSheetPurchaseRate;
+
+    // Auto-calculate totalAmount when related fields change
+    if (field === "rimDozenQty" || field === "rimDozenPurchaseRate") {
+      updatedItems[index].totalAmount =
+        updatedItems[index].rimDozenQty *
+          updatedItems[index].rimDozenPurchaseRate || 0;
     }
+
     setItems(updatedItems);
   };
 
@@ -64,18 +81,15 @@ function PurchaseReceiveForm() {
     setItems([
       ...items,
       {
-        itemCode: '',
-        title: '',
-        cyCn: '',
-        rim: '',
-        shite: '',
-        qty: 1,
-        uom: '',
-        unitSheetPurchaseRate: '',
-        convSheetPurchaseRate: '',
-        amount: '',
-        unitSheetSaleRate: '',
-        convSheetSaleRate: '',
+        no: items.length + 1, // Auto-increment row number
+        productDescription: "", // Product Description (Dropdown)
+        productCode: "", // Item/Product Code
+        rimQuantity: "", // Rim Quantity
+        sheetQuantity: "", // Sheet/Piece Quantity
+        rimPrice: "", // Rim/Dozen Price
+        sheetPrice: "", // Sheet/Piece Price
+        totalAmount: "", // Total Amount
+        remarks: "", // Remarks
       },
     ]);
   };
@@ -85,276 +99,488 @@ function PurchaseReceiveForm() {
     const updatedItems = items.filter((_, i) => i !== index);
     setItems(updatedItems);
   };
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Add form submission logic here
-  };
+
   const handlePDFExport = () => {
     const doc = new jsPDF();
-    const tableColumn = ['Item Code', 'Title', 'CY/CN', 'RIM', 'Shite', 'Qty', 'UOM', 'Unit/Sheet Purchase Rate', 'Conv./Rim Purchase Rate', 'Amount', 'Unit/Sheet Sale Rate', 'Conv./Rim Sale Rate'];
-    const tableRows = items.map(item => [
-      item.itemCode, item.title, item.cyCn, item.rim, item.shite, item.qty, item.uom,
-      item.unitSheetPurchaseRate, item.convSheetPurchaseRate, item.amount, item.unitSheetSaleRate, item.convSheetSaleRate
+
+    // Define table columns
+    const tableColumn = [
+      "No",
+      "Product Description",
+      "Item/Product Code",
+      "Rim Quantity",
+      "Sheet/Piece Quantity",
+      "Rim/Dozen Price",
+      "Sheet/Piece Price",
+      "Total Amount",
+      "Remarks",
+    ];
+
+    // Map table rows using correct object keys
+    const tableRows = items.map((item) => [
+      item.no, // Auto-incremented No.
+      item.productDescription, // Product Description (Dropdown)
+      item.productCode, // Item/Product Code
+      item.rimQuantity, // Rim Quantity
+      item.sheetQuantity, // Sheet/Piece Quantity
+      item.rimPrice, // Rim/Dozen Price
+      item.sheetPrice, // Sheet/Piece Price
+      item.totalAmount, // Total Amount
+      item.remarks, // Remarks
     ]);
 
+    // Add title to PDF
+    doc.text("Purchase Items Report", 14, 15);
     doc.autoTable({
       head: [tableColumn],
       body: tableRows,
+      startY: 20,
     });
 
-    doc.save('items.pdf');
+    // Save the PDF
+    doc.save("purchase_items.pdf");
   };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault(); // Prevent default form submission
 
+    try {
+      // ✅ 1. Save Purchase Receive Data
+      const purchaseData = {
+        company_name: companyName,
+        order_date: orderDate,
+        order_no: orderNo,
+        delivery_date: deliveryDate,
+        transport: transport,
+        vehicle_no: vehicleNo,
+        driver_name: driverName,
+        driver_mobile: driverMobile,
+        product_entry_date: productEntryDate,
+        invoice_no: invoiceNo,
+        godown_no: godownNo,
+      };
 
+      const purchaseResponse = await axios.post(
+        "http://127.0.0.1:8000/api/purchase-receive/",
+        purchaseData
+      );
 
-  // Function to format date as "DD/MM/YYYY"
-  const formatDate = (date) => {
-    if (!date) return "";
-    const [year, month, day] = date.split("-");
-    return `${day}/${month}/${year}`;
+      const purchaseId = purchaseResponse.data.id; // Get the purchase ID for linking
+
+      // ✅ 2. Save Item Details (Each item linked to the purchase)
+      const itemsData = items.map((item) => ({
+        purchase_receive: purchaseId, // Link to Purchase Receive
+        item_code: item.itemCode,
+        title: item.title,
+        rim_dozen_qty: item.rimDozenQty,
+        sheet_piece_qty: item.sheetPieceQty,
+        rim_dozen_purchase_rate: item.rimDozenPurchaseRate,
+        sheet_piece_purchase_rate: item.sheetPiecePurchaseRate,
+        rim_dozen_sales_rate: item.rimDozenSalesRate,
+        sheet_piece_sales_rate: item.sheetPieceSalesRate,
+        total_amount: item.totalAmount,
+      }));
+
+      await axios.post("http://127.0.0.1:8000/api/item-details/", itemsData);
+
+      // ✅ 3. Save Payment Information
+      const paymentData = {
+        purchase_receive: purchaseId, // Link to Purchase Receive
+        supplier: formData.supplier,
+        previous_due: formData.previous_due,
+        today_bill: formData.today_bill,
+        today_paid: formData.today_paid,
+        paid_by: formData.paid_by,
+        paid_amount: formData.paid_amount,
+        paid_ac: formData.paid_ac,
+        cheque_no: formData.cheque_no,
+        cheque_date: formData.cheque_date,
+      };
+
+      await axios.post("http://127.0.0.1:8000/api/payment-info/", paymentData);
+
+      alert("Purchase, Items, and Payment Information Saved Successfully!");
+    } catch (error) {
+      console.error("Error submitting form", error);
+      alert("Error while saving data. Please try again.");
+    }
+  };
+
+  const handleSubmitRow = (index) => {
+    const submittedRow = items[index]; // Get the specific row data
+
+    console.log("Submitted Row Data:", submittedRow); // Log data (for now)
+
+    // Example: Send data to backend via API
+    fetch("http://127.0.0.1:8000/submit", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(submittedRow),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("Success:", data);
+        alert(`Row ${index + 1} submitted successfully!`);
+      })
+      .catch((error) => {
+        console.error("Error submitting row:", error);
+      });
   };
 
   return (
-    <div className="p-8 bg-gray-100">
-      {/* Search Button Above the Form */}
-    
-
-      <h2 className="text-2xl font-semibold mb-4">Purchase Receive (Credit)</h2>
+    <div className="p-4 bg-gray-100">
+      <h2 className="text-xl font-semibold mb-2 -mt-4 text-center">
+        Purchase Receive
+      </h2>
       <form onSubmit={handleSubmit}>
-{/* Wrapper div with a single border around both sections */}
-<div className="border border-gray-400 p-4 rounded-md">
-  {/* First row with 5 fields */}
-  <div className="grid grid-cols-5 gap-6">
-    {/* Purchase Challan Date */}
-    <div>
-      <label className="block font-medium">Purchase Challan Date</label>
-      <input 
-        type="date"
-        className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
-        value={date}
-        onChange={(e) => setDate(e.target.value)}
-      />
-    </div>
+        <div className="border border-gray-400 p-2 rounded-md grid grid-cols-6 gap-2 text-sm">
+          {/* 1. Company Name */}
+          <div>
+            <label className="block text-center">Company Name</label>
+            <input
+              type="text"
+              className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
+              value={companyName}
+              onChange={(e) => setCompanyName(e.target.value)}
+            />
+          </div>
+          {/* 9. Invoice/Challan Date */}
+          <div>
+            <label className="block text-center">Invoice/Challan Date</label>
+            <input
+              type="date"
+              className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
+              value={productEntryDate}
+              onChange={(e) => setProductEntryDate(e.target.value)}
+            />
+          </div>
 
-    {/* Supplier */}
-    <div>
-      <label className="block font-medium">Supplier</label>
-      <input
-        type="text"
-        className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
-        value={supplier}
-        onChange={(e) => setSupplier(e.target.value)}
-      />
-    </div>
+           {/* 10. Invoice/Challan No */}
+           <div>
+            <label className="block text-center">Invoice/Challan No</label>
+            <input
+              type="text"
+              className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
+              value={invoiceNo}
+              onChange={(e) => setInvoiceNo(e.target.value)}
+            />
+          </div>
+          {/* 5. Transport Selection */}
+          <div>
+            <label className="block text-center text-sm">Transport</label>
+            <select
+              className="mt-1 p-2 w-full border border-gray-300 rounded h-9 text-base"
+              value={transport}
+              onChange={(e) => setTransport(e.target.value)}
+            >
+              <option value="Company Transport">Company Transport</option>
+              <option value="Sharif Paper & Stationary Transport">
+                Sharif Paper & Stationary Transport
+              </option>
+              <option value="Other Transport">Other Transport</option>
+            </select>
+          </div>
 
-    {/* Purchase Voucher No. */}
-    <div>
-      <label className="block font-medium">Purchase Voucher No.</label>
-      <input
-        type="text"
-        className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
-        value={voucherNo}
-        onChange={(e) => setVoucherNo(e.target.value)}
-      />
-    </div>
+          {/* 2. Order Date */}
+          <div>
+            <label className="block text-center">Order Date</label>
+            <input
+              type="date"
+              className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
+              value={orderDate}
+              onChange={(e) => setOrderDate(e.target.value)}
+            />
+          </div>
 
-{/* Product Type */}
-<div>
-  <label className="block font-medium">Product Type</label>
-  <select
-    className="mt-1 p-2 w-full border border-gray-300 rounded h-9 focus:ring-2 focus:ring-blue-500"
-    value={type}
-    onChange={(e) => setType(e.target.value)}
-  >
-    {/* <option value="" disabled>Select Product Type</option>   */}
-    <option value="Local">Local</option>
-    <option value="Import">Import</option>
-  </select>
-</div>
+          {/* 3. Order No */}
+          <div>
+            <label className="block text-center">Order No</label>
+            <input
+              type="text"
+              className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
+              value={orderNo}
+              onChange={(e) => setOrderNo(e.target.value)}
+            />
+          </div>
 
-    {/* Product Entry Date */}
-    <div>
-      <label className="block font-medium">Product Entry Date</label>
-      <input 
-        type="date"
-        className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
-        value={date}
-        onChange={(e) => setDate(e.target.value)}
-      />
-    </div>
-  </div>
+          
 
-  {/* Second row with 4 fields */}
-  <div className="grid grid-cols-4 gap-6 mt-4">
-    {/* Sharif Stationary Voucher No */}
-    <div>
-      <label className="block font-medium">Purchase Voucher No.</label>
-      <input
-        type="text"
-        className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
-        value={voucherNo}
-        onChange={(e) => setVoucherNo(e.target.value)}
-      />
-    </div>
+          {/* 5. Transport Selection */}
+          <div>
+            <label className="block text-center text-sm">Transport</label>
+            <select
+              className="mt-1 p-2 w-full border border-gray-300 rounded h-9 text-base"
+              value={transport}
+              onChange={(e) => setTransport(e.target.value)}
+            >
+              <option value="Company Transport">Company Transport</option>
+              <option value="Sharif Paper & Stationary Transport">
+                Sharif Paper & Stationary Transport
+              </option>
+              <option value="Other Transport">Other Transport</option>
+            </select>
+          </div>
 
-    {/* Branch */}
-    <div>
-      <label className="block font-medium">Branch</label>
-      <input
-        type="text"
-        className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
-        value={branch}
-        onChange={(e) => setBranch(e.target.value)}
-      />
-    </div>
+          {/* 7. Driver Name */}
+          <div>
+            <label className="block text-center">Driver Name</label>
+            <input
+              type="text"
+              className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
+              value={driverName}
+              onChange={(e) => setDriverName(e.target.value)}
+            />
+          </div>
 
-    {/* Remarks */}
-    <div>
-      <label className="block font-medium">Remarks</label>
-      <textarea
-        className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
-        value={remarks}
-        onChange={(e) => setRemarks(e.target.value)}
-      />
-    </div>
+          {/* 8. Driver Mobile No */}
+          <div>
+            <label className="block text-center">Driver Mobile No</label>
+            <input
+              type="text"
+              className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
+              value={driverMobile}
+              onChange={(e) => setDriverMobile(e.target.value)}
+            />
+          </div>
+          {/* 4. Delivery Date */}
+          <div>
+            <label className="block text-center">Delivery Date</label>
+            <input
+              type="date"
+              className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
+              value={deliveryDate}
+              readOnly
+            />
+          </div>
 
-    {/* PO No */}
-    <div>
-      <label className="block font-medium">PO No.</label>
-      <input
-        type="text"
-        className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
-        value={poNo}
-        onChange={(e) => setPoNo(e.target.value)}
-      />
-    </div>
-  </div>
-</div>
+          {/* 4. Delivery No*/}
+          <div>
+            <label className="block text-center">Delivery No</label>
+            <input
+              type="date"
+              className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
+              value={deliveryDate}
+              readOnly
+            />
+          </div>
 
+          
 
+          {/* 6. Vehicle No */}
+          <div>
+            <label className="block text-center">Vehicle No</label>
+            <input
+              type="text"
+              className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
+              value={vehicleNo}
+              onChange={(e) => setVehicleNo(e.target.value)}
+            />
+          </div>
 
-<div className="p-8">
-<h3 className="text-xl font-semibold mb-4">Item Details</h3>
-{/* Purchase Details Table with Outer Border */}
-<div className="border border-gray-400 p-4 rounded-md mt-4">
-  {/* <h3 className="text-xl font-semibold mb-2">Purchase Details</h3> */}
+          {/* 12. Godown No */}
+          <div>
+            <label className="block text-center">Godown No</label>
+            <input
+              type="text"
+              className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
+              value={godownNo}
+              onChange={(e) => setGodownNo(e.target.value)}
+            />
+          </div>
 
-  <table className="min-w-full border-collapse">
-    <thead>
+          {/* 6. Entry by*/}
+          <div>
+            <label className="block text-center">Entry By</label>
+            <input
+              type="text"
+              className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
+              value={vehicleNo}
+              onChange={(e) => setVehicleNo(e.target.value)}
+            />
+          </div>
+          {/* 12. Remarks */}
+          <div>
+            <label className="block text-center">Remarks</label>
+            <input
+              type="text"
+              className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
+              value={godownNo}
+              onChange={(e) => setGodownNo(e.target.value)}
+            />
+          </div>
+
+          
+
+         
+
+          {/* 11. Product Entry Date */}
+          {/* <div>
+            <label className="block text-center">Product Entry Date</label>
+            <input
+              type="date"
+              className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
+              value={productEntryDate}
+              onChange={(e) => setProductEntryDate(e.target.value)}
+            />
+          </div> */}
+
+          
+        </div>
+
+        <div className="p-4">
+          <h3 className="text-xl font-semibold mb-4 text-center">
+            Item Details
+          </h3>
+          <div className="border border-gray-400 p-0 rounded-md mt-2 w-full flex justify-center">
+          <div className="overflow-x-auto w-[100%]">
+  <table className="table border-collapse w-full">
+    <thead className="bg-gray-200 text-gray-700 text-sm">
       <tr>
-        <th className="px-4 py-2 border h-7">Item Code</th>
-        <th className="px-4 py-2 border h-7">Title</th>
-        <th className="px-4 py-2 border h-7">RIM</th>
-        <th className="px-4 py-2 border h-7">Shite</th>
-        <th className="px-4 py-2 border h-7">Qty</th>
-        <th className="px-4 py-2 border h-7">UOM</th>
-        <th className="px-4 py-2 border h-7">Unit/Sheet Purchase Rate</th>
-        <th className="px-4 py-2 border h-7">Conv./Rim Purchase Rate</th>
-        <th className="px-4 py-2 border h-7">Amount</th>
-        <th className="px-4 py-2 border h-7">Unit/Sheet Sale Rate</th>
-        <th className="px-4 py-2 border h-7">Conv./Rim Sale Rate</th>
-        <th className="px-4 py-2 border h-7">Actions</th>
+        <td className="p-2 text-center w-[3%] h-8">No</td>
+        
+        <td className="p-2 text-center w-[10%] h-8">Item/Product Code</td>
+        <td className="p-2 text-center w-[12%] h-8">Product Description</td>
+        <td className="p-2 text-center w-[7%] h-8">Rim/Dozen</td>
+        <td className="p-2 text-center w-[7%] h-8">Sheet/Piece</td>
+        <td className="p-2 text-center w-[8%] h-8">Only Sheet Piece</td>
+        <td className="p-2 text-center w-[8%] h-8">Total Sheet Piece</td>
+        <td className="p-2 text-center w-[8%] h-8">Rim/Dozen Price</td>
+        <td className="p-2 text-center w-[8%] h-8">Sheet/Piece Price</td>
+        <td className="p-2 text-center w-[8%] h-8">Total Amount</td>
+        <td className="p-2 text-center w-[10%] h-8">Remarks</td>
+        <td className="p-2 text-center w-[8%] h-8">Actions</td>
       </tr>
     </thead>
+
     <tbody>
       {items.map((item, index) => (
-        <tr key={index}>
-          <td className="px-4 py-2 border">
+        <tr key={index} className="h-12">
+          {/* No */}
+          <td className="border text-center w-[3%]">{index + 1}</td>
+
+          
+
+          {/* Item/Product Code */}
+          <td className="border w-[10%]">
             <input
               type="text"
-              className="w-full p-2 border border-gray-300 rounded"
-              value={item.itemCode}
-              onChange={(e) => handleChange(e, index, 'itemCode')}
+              className="p-1 border border-gray-300 rounded w-full h-8"
+              value={item.productCode}
+              onChange={(e) => handleChange(e, index, "productCode")}
             />
           </td>
-          <td className="px-4 py-2 border">
-            <input
-              type="text"
-              className="w-full p-2 border border-gray-300 rounded"
-              value={item.title}
-              onChange={(e) => handleChange(e, index, 'title')}
-            />
+          {/* Product Description */}
+          <td className="border w-[12%]">
+            <select
+              className="p-1 border border-gray-300 rounded w-full h-8"
+              value={item.productDescription}
+              onChange={(e) => handleChange(e, index, "productDescription")}
+            >
+              <option value="">Select</option>
+              <option value="Paper A4">Paper A4</option>
+              <option value="Paper A3">Paper A3</option>
+              <option value="Notebook">Notebook</option>
+              <option value="Other">Other</option>
+            </select>
           </td>
-          <td className="px-4 py-2 border">
-            <input
-              type="text"
-              className="w-full p-2 border border-gray-300 rounded"
-              value={item.rim}
-              onChange={(e) => handleChange(e, index, 'rim')}
-            />
-          </td>
-          <td className="px-4 py-2 border">
-            <input
-              type="text"
-              className="w-full p-2 border border-gray-300 rounded"
-              value={item.shite}
-              onChange={(e) => handleChange(e, index, 'shite')}
-            />
-          </td>
-          <td className="px-4 py-2 border">
+
+          {/* Rim/Dozen */}
+          <td className="border w-[7%]">
             <input
               type="number"
-              className="w-full p-2 border border-gray-300 rounded"
-              value={item.qty}
-              onChange={(e) => handleChange(e, index, 'qty')}
+              className="p-1 border border-gray-300 rounded w-full h-8 text-center"
+              value={item.rimQuantity}
+              onChange={(e) => handleChange(e, index, "rimQuantity")}
             />
           </td>
-          <td className="px-4 py-2 border">
+
+          {/* Sheet/Piece */}
+          <td className="border w-[7%]">
             <input
-              type="text"
-              className="w-full p-2 border border-gray-300 rounded"
-              value={item.uom}
-              onChange={(e) => handleChange(e, index, 'uom')}
+              type="number"
+              className="p-1 border border-gray-300 rounded w-full h-8 text-center"
+              value={item.sheetQuantity}
+              onChange={(e) => handleChange(e, index, "sheetQuantity")}
             />
           </td>
-          <td className="px-4 py-2 border">
+
+          {/* Only Sheet Piece */}
+          <td className="border w-[8%]">
             <input
-              type="text"
-              className="w-full p-2 border border-gray-300 rounded"
-              value={item.unitSheetPurchaseRate}
-              onChange={(e) => handleChange(e, index, 'unitSheetPurchaseRate')}
+              type="number"
+              className="p-1 border border-gray-300 rounded w-full h-8 text-center"
+              value={item.onlySheetPiece}
+              onChange={(e) => handleChange(e, index, "onlySheetPiece")}
             />
           </td>
-          <td className="px-4 py-2 border">
+
+          {/* Total Sheet Piece */}
+          <td className="border w-[8%]">
             <input
-              type="text"
-              className="w-full p-2 border border-gray-300 rounded"
-              value={item.convSheetPurchaseRate}
-              onChange={(e) => handleChange(e, index, 'convSheetPurchaseRate')}
+              type="number"
+              className="p-1 border border-gray-300 rounded w-full h-8 text-center"
+              value={item.totalSheetPiece}
+              onChange={(e) => handleChange(e, index, "totalSheetPiece")}
             />
           </td>
-          <td className="px-4 py-2 border">
+
+          {/* Rim/Dozen Price */}
+          <td className="border w-[8%]">
             <input
-              type="text"
-              className="w-full p-2 border border-gray-300 rounded"
-              value={item.amount}
+              type="number"
+              className="p-1 border border-gray-300 rounded w-full h-8 text-center"
+              value={item.rimPrice}
+              onChange={(e) => handleChange(e, index, "rimPrice")}
+            />
+          </td>
+
+          {/* Sheet/Piece Price */}
+          <td className="border w-[8%]">
+            <input
+              type="number"
+              className="p-1 border border-gray-300 rounded w-full h-8 text-center"
+              value={item.sheetPrice}
+              onChange={(e) => handleChange(e, index, "sheetPrice")}
+            />
+          </td>
+
+          {/* Total Amount */}
+          <td className="border w-[8%]">
+            <input
+              type="number"
+              className="p-1 border border-gray-300 rounded bg-gray-100 w-full h-8 text-center"
+              value={item.totalAmount}
               readOnly
             />
           </td>
-          <td className="px-4 py-2 border">
-            <input
-              type="text"
-              className="w-full p-2 border border-gray-300 rounded"
-              value={item.unitSheetSaleRate}
-              onChange={(e) => handleChange(e, index, 'unitSheetSaleRate')}
+
+          {/* Remarks */}
+          <td className="border w-[10%]">
+            <textarea
+              className="p-1 border border-gray-300 rounded w-full h-8"
+              value={item.remarks}
+              onChange={(e) => handleChange(e, index, "remarks")}
             />
           </td>
-          <td className="px-4 py-2 border">
-            <input
-              type="text"
-              className="w-full p-2 border border-gray-300 rounded"
-              value={item.convSheetSaleRate}
-              onChange={(e) => handleChange(e, index, 'convSheetSaleRate')}
-            />
-          </td>
-          <td className="px-4 py-2 border">
+
+          {/* Actions */}
+          <td className="border ml-10 w-[8%] flex flex-col items-center justify-center space-y-2">
             <button
               type="button"
               onClick={() => removeRow(index)}
-              className="bg-red-500 text-white p-2 rounded"
+              className="bg-red-500 text-white px-4  rounded hover:bg-red-600 text-xs w-auto"
             >
               Remove
+            </button>
+
+            <button
+              type="button"
+              onClick={addRow}
+              className="bg-green-500 text-white px-4  rounded hover:bg-green-600 text-xs w-auto"
+            >
+              Add
             </button>
           </td>
         </tr>
@@ -362,166 +588,371 @@ function PurchaseReceiveForm() {
     </tbody>
   </table>
 
-  {/* Add Row Button */}
-  <div className="mt-4">
-    <button
-      type="button"
-      onClick={addRow}
-      className="bg-green-500 text-white p-2 rounded"
-    >
-      Add Row
-    </button>
-  </div>
-</div>
+<h3 className="text-center font-bold">Additional Cost</h3>
 
+
+
+
+        
+  
+
+
+          <table className="w-full border-collapse border border-gray-300">
+            <thead className="bg-gray-200">
+              <tr>
+                <td className="border border-gray-300 p-2 text-center">
+                  Transport Cost
+                </td>
+                <td className="border border-gray-300 p-2 text-center">
+                  Labour Cost
+                </td>
+                <td className="border border-gray-300 p-2 text-center">
+                  Road Cost
+                </td>
+                <td className="border border-gray-300 p-2 text-center">
+                  Other Cost
+                </td>
+                <td className="border border-gray-300 p-2 text-center">
+                  Total Cost
+                </td>
+              </tr>
+              
+            </thead>
+            <tbody>
+              <tr>
+                {/* Transport Cost */}
+                <td className="border border-gray-300 p-2 text-center">
+                  <input
+                    type="number"
+                    className="p-1 w-24 h-7 border border-gray-300 rounded text-center text-sm"
+                    value={transportCost}
+                    onChange={(e) => setTransportCost(e.target.value)}
+                  />
+                </td>
+
+                {/* Labour Cost */}
+                <td className="border border-gray-300 p-2 text-center">
+                  <input
+                    type="number"
+                    className="p-1 w-24 h-7 border border-gray-300 rounded text-center text-sm"
+                    value={labourCost}
+                    onChange={(e) => setLabourCost(e.target.value)}
+                  />
+                </td>
+
+                {/* Road Cost */}
+                <td className="border border-gray-300 p-2 text-center">
+                  <input
+                    type="number"
+                    className="p-1 w-24 h-7 border border-gray-300 rounded text-center text-sm"
+                    value={roadCost}
+                    onChange={(e) => setRoadCost(e.target.value)}
+                  />
+                </td>
+
+                {/* Other Cost */}
+                <td className="border border-gray-300 p-2 text-center">
+                  <input
+                    type="text"
+                    className="p-1 w-24 h-7 border border-gray-300 rounded text-center text-sm"
+                    value={otherCost}
+                    onChange={(e) => {
+                      const inputValue = e.target.value;
+
+                      // Extract only numbers, limit to 2 digits
+                      const digits = inputValue.replace(/\D/g, "").slice(0, 6);
+
+                      // Allow any text but limit numbers to 2 digits
+                      const updatedValue = inputValue
+                        .replace(/\d/g, "")
+                        .concat(digits);
+
+                      setOtherCost(updatedValue);
+                    }}
+                  />
+                </td>
+                <td className="border border-gray-300 p-2 text-center">
+                  <input
+                    type="text"
+                    className="p-1 w-24 h-7 border border-gray-300 rounded text-center text-sm"
+                    value={totalCost}
+                    onChange={(e) => {
+                      const inputValue = e.target.value;
+
+                      // Extract only numbers, limit to 2 digits
+                      const digits = inputValue.replace(/\D/g, "").slice(0, 6);
+
+                      // Allow any text but limit numbers to 2 digits
+                      const updatedValue = inputValue
+                        .replace(/\d/g, "")
+                        .concat(digits);
+
+                      setTotalCost(updatedValue);
+                    }}
+                  />
+                </td>
+              </tr>
+              <tr>
+              <td className="border border-gray-300 p-2 text-center">
+                Total cost per Rim/Dozon
+              </td>
+              <td className="border border-gray-300 p-2 text-center">
+                Total cost per sheet/Piece
+              </td>
+              <td className="border border-gray-300 p-2 text-center">
+                 %interest in per Rim/Dozon
+              </td>
+              <td className="border border-gray-300 p-2 text-center">
+              %interest in per Sheet/Piece              </td></tr>
+              <tr>
+              <td className="border border-gray-300 p-2 text-center">
+                  <input
+                    type="text"
+                    className="p-1 w-24 h-7 border border-gray-300 rounded text-center text-sm"
+                    value={totalCost}
+                    onChange={(e) => {
+                      const inputValue = e.target.value;
+
+                      // Extract only numbers, limit to 2 digits
+                      const digits = inputValue.replace(/\D/g, "").slice(0, 6);
+
+                      // Allow any text but limit numbers to 2 digits
+                      const updatedValue = inputValue
+                        .replace(/\d/g, "")
+                        .concat(digits);
+
+                      setTotalCost(updatedValue);
+                    }}
+                  />
+                </td>
+                <td className="border border-gray-300 p-2 text-center">
+                  <input
+                    type="text"
+                    className="p-1 w-24 h-7 border border-gray-300 rounded text-center text-sm"
+                    value={totalCost}
+                    onChange={(e) => {
+                      const inputValue = e.target.value;
+
+                      // Extract only numbers, limit to 2 digits
+                      const digits = inputValue.replace(/\D/g, "").slice(0, 6);
+
+                      // Allow any text but limit numbers to 2 digits
+                      const updatedValue = inputValue
+                        .replace(/\d/g, "")
+                        .concat(digits);
+
+                      setTotalCost(updatedValue);
+                    }}
+                  />
+                </td>
+                <td className="border border-gray-300 p-2 text-center">
+                  <input
+                    type="text"
+                    className="p-1 w-24 h-7 border border-gray-300 rounded text-center text-sm"
+                    value={totalCost}
+                    onChange={(e) => {
+                      const inputValue = e.target.value;
+
+                      // Extract only numbers, limit to 2 digits
+                      const digits = inputValue.replace(/\D/g, "").slice(0, 6);
+
+                      // Allow any text but limit numbers to 2 digits
+                      const updatedValue = inputValue
+                        .replace(/\d/g, "")
+                        .concat(digits);
+
+                      setTotalCost(updatedValue);
+                    }}
+                  />
+                </td>
+                <td className="border border-gray-300 p-2 text-center">
+                  <input
+                    type="text"
+                    className="p-1 w-24 h-7 border border-gray-300 rounded text-center text-sm"
+                    value={totalCost}
+                    onChange={(e) => {
+                      const inputValue = e.target.value;
+
+                      // Extract only numbers, limit to 2 digits
+                      const digits = inputValue.replace(/\D/g, "").slice(0, 6);
+
+                      // Allow any text but limit numbers to 2 digits
+                      const updatedValue = inputValue
+                        .replace(/\d/g, "")
+                        .concat(digits);
+
+                      setTotalCost(updatedValue);
+                    }}
+                  />
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        </div></div>
+
+
+        <h3 className="text-2xl font-semibold mb-4 text-center">
+          Payment Information
+        </h3>
+
+        {/* Payment Section Wrapper */}
+        <div className="border border-gray-400 p-4 rounded-md mt-4">
+          {/* Grid Layout for Payment Inputs */}
+          <div className="grid grid-cols-10 gap-4">
+            {/* Supplier */}
+            <div>
+              <label className="block font-medium text-center">Company</label>
+              <input
+                type="text"
+                className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
+                value={supplier}
+                onChange={(e) => setSupplier(e.target.value)}
+              />
+            </div>
+
+            {/* Previous Due */}
+            <div>
+              <label className="block font-medium text-center">
+                Previous Due
+              </label>
+              <input
+                type="number"
+                className="mt-1 p-2 w-full border border-gray-300 rounded h-7 bg-gray-100"
+                value={previousDue}
+                readOnly
+              />
+            </div>
+
+            {/* Today Bill */}
+            <div>
+              <label className="block font-medium text-center">
+                Invoice/Challan Amt.
+              </label>
+              <input
+                type="number"
+                className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
+                value={todayBill}
+                onChange={(e) => setTodayBill(e.target.value)}
+              />
+            </div>
+
+            {/* Today Paid */}
+            <div>
+              <label className="block font-medium text-center">
+                Today Paid Amount
+              </label>
+              <input
+                type="number"
+                className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
+                value={todayPaid}
+                onChange={(e) => setTodayPaid(e.target.value)}
+              />
+            </div>
+
+            {/* Paid By (Dropdown) */}
+            <div>
+              <label className="block font-medium text-center">Paid By</label>
+              <select
+                className="mt-1 p-2 w-full border border-gray-300 rounded h-9 focus:ring-2 focus:ring-blue-500"
+                value={paidBy}
+                onChange={(e) => setPaidBy(e.target.value)}
+              >
+                <option value="Cash">Cash</option>
+                <option value="Bank">Bank</option>
+              </select>
+            </div>
+
+            {/* Bank Name */}
+            <div>
+              <label className="block font-medium text-center">Bank Name</label>
+              <input
+                type="text"
+                className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
+                value={bankName}
+                onChange={(e) => setBankName(e.target.value)}
+              />
+            </div>
+
+            {/* Account No */}
+            <div>
+              <label className="block font-medium text-center">
+                Account No.
+              </label>
+              <input
+                type="text"
+                className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
+                value={accountNo}
+                onChange={(e) => setAccountNo(e.target.value)}
+              />
+            </div>
+
+            {/* Cheque No */}
+            <div>
+              <label className="block font-medium text-center">Cheque No</label>
+              <input
+                type="text"
+                className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
+                value={chequeNo}
+                onChange={(e) => setChequeNo(e.target.value)}
+              />
+            </div>
+
+            {/* Cheque Date */}
+            <div>
+              <label className="block font-medium text-center">
+                Cheque Date
+              </label>
+              <input
+                type="date"
+                className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
+                value={chequeDate}
+                onChange={(e) => setChequeDate(e.target.value)}
+              />
+            </div>
+
+            {/* Balance Amount */}
+            <div>
+              <label className="block font-medium text-center">
+                Balance Amount
+              </label>
+              <input
+                type="text"
+                className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
+                value={balanceAmount}
+                onChange={(e) => setBalanceAmount(e.target.value)}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Submit Buttons */}
+        <div className="mt-6 flex justify-between space-x-4">
+          <button
+            type="button"
+            onClick={handlePDFExport}
+            className="bg-blue-500 text-white p-2 rounded flex-1"
+          >
+            Export to PDF
+          </button>
+          <button
+            type="submit"
+            onClick={handleSubmit}
+            className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 flex-1"
+          >
+            Submit
+          </button>
+          <button
+            type="button"
+            onClick={() => alert("Form Cancelled")}
+            className="bg-red-500 text-white p-2 rounded hover:bg-red-600 flex-1"
+          >
+            Cancel
+          </button>
+        </div>
+      </form>
     </div>
-
-
-{/* Payment Section with Border */}
-<h3 className="text-xl font-semibold mb-2">Payment Information</h3>
-<div className="border border-gray-400 p-4 rounded-md mt-4">
-  {/* Payment Section */}
-  <div className="mb-6">
-    {/* <h3 className="text-xl font-semibold mb-2">Payment Information</h3> */}
-    <div className="flex flex-wrap gap-4">
-           {/* Supplier Name */}
-            <div className="flex-1">
-        <label className="block font-medium">Supplier</label>
-        <input
-          type="text"
-          className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
-          value={supplier}
-          onChange={(e) => setSupplier(e.target.value)}
-        />
-      </div>
-
-      {/* Previous Due */}
-      <div className="flex-1">
-        <label className="block font-medium">Previous Due</label>
-        <input
-          type="text"
-          className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
-          value={dueAmount}
-          onChange={(e) => setDueAmount(e.target.value)}
-        />
-      </div>
-
-      {/* Today Bill */}
-      <div className="flex-1">
-        <label className="block font-medium">Today Bill</label>
-        <input
-          type="text"
-          className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
-          // value={todayBill}
-          // onChange={(e) => setTodayBill(e.target.value)}
-        />
-      </div>
-
-      {/* Today Paid */}
-      <div className="flex-1">
-        <label className="block font-medium">Today Paid</label>
-        <input
-          type="text"
-          className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
-          // value={todayPaid}
-          // onChange={(e) => setTodayPaid(e.target.value)}
-        />
-      </div>
-
-      {/* Paid By */}
-      <div className="flex-1">
-        <label className="block font-medium">Paid By</label>
-        <select
-          className="mt-1 p-2 w-full border border-gray-300 rounded h-9 focus:ring-2 focus:ring-blue-500"
-          // value={paidBy}
-          // onChange={(e) => setPaidBy(e.target.value)}
-        >
-          <option value="cash">Cash</option>
-          <option value="bank">Bank</option>
-        </select>
-      </div>
-
-      {/* Paid Amount */}
-      <div className="flex-1">
-        <label className="block font-medium">Paid Amount</label>
-        <input
-          type="text"
-          className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
-          value={paidAmount}
-          onChange={(e) => setPaidAmount(e.target.value)}
-        />
-      </div>
-
-      {/* Paid A/C */}
-      <div className="flex-1">
-        <label className="block font-medium">Paid A/C</label>
-        <input
-          type="text"
-          className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
-          value={paidAccount}
-          onChange={(e) => setPaidAccount(e.target.value)}
-        />
-      </div>
-
-      {/* Cheque No */}
-      <div className="flex-1">
-        <label className="block font-medium">Cheque No.</label>
-        <input
-          type="text"
-          className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
-          value={chequeNo}
-          onChange={(e) => setChequeNo(e.target.value)}
-        />
-      </div>
-
-      {/* Cheque Date */}
-      <div className="flex-1">
-        <label className="block font-medium">Cheque Date</label>
-        <input
-          type="date"
-          className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
-          value={chequeDate}
-          onChange={(e) => setChequeDate(e.target.value)}
-        />
-      </div>
-    </div>
-  </div>
-
-  {/* Button Section */}
-  <div className="mt-6 flex justify-between items-center space-x-4">
-    {/* Export to PDF Button */}
-    <button
-      type="button"
-      onClick={handlePDFExport}
-      className="bg-blue-500 text-white p-2 rounded flex-1"
-    >
-      Export to PDF
-    </button>
-
-    {/* Submit Button */}
-    <button
-      type="submit"
-      className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 flex-1"
-    >
-      Submit
-    </button>
-
-    {/* Cancel Button */}
-    <button
-      type="button"
-      className="bg-red-500 text-white p-2 rounded hover:bg-red-600 flex-1"
-      onClick={() => alert('Form Cancelled')}
-    >
-      Cancel
-    </button>
-  </div>
-</div>
-
-
-
-</form>
-</div>
-);
+  );
 }
 
 export default PurchaseReceiveForm;

@@ -11,11 +11,11 @@ const Home = () => {
             <Helmet>
                 <title>Sharif Stationary</title>
             </Helmet>
-           <Banner></Banner>
-           <Category></Category>
-          
-           <Featured></Featured>
-          
+            <Banner></Banner>
+            <Category></Category>
+
+            <Featured></Featured>
+
         </div>
     );
 };

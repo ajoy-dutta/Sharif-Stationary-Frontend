@@ -25,11 +25,12 @@ const SignIn = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      const response = await axios.post("http://localhost:8000/api/auth/signin", formData, {
+      const response = await axios.post("http://localhost:8000/api/auth/signin/", formData, {
         headers: {
           "Content-Type": "application/json",
         }
       });
+      console.log(response);  
       
       if (response.data.success) {
         toast.success("Sign in successful!");
