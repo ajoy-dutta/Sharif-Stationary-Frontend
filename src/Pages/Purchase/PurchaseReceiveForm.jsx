@@ -93,20 +93,12 @@ function PurchaseReceiveForm() {
       },
     ]);
   };
-  
-  const deleteRow = (index) => {
-    if (items.length > 1) {
-      setItems(items.filter((_, i) => i !== index)); // Removes the row at the given index
-    } else {
-      alert("At least one row is required.");
-    }
-  };
-  
+
   // Remove a row
-  // const removeRow = (index) => {
-  //   const updatedItems = items.filter((_, i) => i !== index);
-  //   setItems(updatedItems);
-  // };
+  const removeRow = (index) => {
+    const updatedItems = items.filter((_, i) => i !== index);
+    setItems(updatedItems);
+  };
 
   const handlePDFExport = () => {
     const doc = new jsPDF();
@@ -122,7 +114,6 @@ function PurchaseReceiveForm() {
       "Sheet/Piece Price",
       "Total Amount",
       "Remarks",
-      "Action",
     ];
 
     // Map table rows using correct object keys
@@ -239,8 +230,8 @@ function PurchaseReceiveForm() {
   };
 
   return (
-    <div className="p-8 bg-gray-100">
-      <h2 className="text-2xl font-semibold mb-2 -mt-4 text-center">
+    <div className="p-4 bg-gray-100">
+      <h2 className="text-xl font-semibold mb-2 -mt-4 text-center">
         Purchase Receive
       </h2>
       <form onSubmit={handleSubmit}>
@@ -293,7 +284,7 @@ function PurchaseReceiveForm() {
           <div>
             <label className="block text-center text-sm">Transport</label>
             <select
-              className="mt-1 p-2 w-full border border-gray-300 rounded h-10 text-sm"
+              className="mt-1 p-2 w-full border border-gray-300 rounded h-9 text-base"
               value={transport}
               onChange={(e) => setTransport(e.target.value)}
             >
@@ -387,205 +378,199 @@ function PurchaseReceiveForm() {
           <h3 className="text-xl font-semibold mb-4 text-center">
             Item Details
           </h3>
-          <div className="border border-gray-400 p-4 rounded-md mt-4">
-
-
-            <table className="min-w-full border-collapse">
-              <thead className="bg-gray-200 text-gray-700 font-semibold">
-                <tr>
-                  <th className="p-2 text-center">No</th>
-                  <th className="p-2 text-left">Product Description</th>
-                  <th className="p-2 text-center">Item/Product Code</th>
-                  <th className="p-2 text-center">Rim/Dozen</th>
-                  <th className="p-2 text-center">Sheet/Piece</th>
-                  <th className="p-2 text-center">Only Sheet Piece</th>
-                  <th className="p-2 text-center">Total Sheet Piece</th>
-                  <th className="p-2 text-center">Rim/Dozen Price</th>
-                  <th className="p-2 text-center">Sheet/Piece Price</th>
-                  <th className="p-2 text-center">Total Amount</th>
-                  <th className="p-2 text-left">Remarks</th>
-                  <th className="p-2 text-center">Actions</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {items.map((item, index) => (
-                  <tr key={index}>
-                    {/* No */}
-                    <td className="px-4 py-2 border text-center">
-                      {index + 1}
-                    </td>
-
-                    {/* Product Description (Dropdown) */}
-                    <td className="px-4 py-2 border">
-                      <select
-                        className="w-full p-2 border border-gray-300 rounded"
-                        value={item.productDescription}
-                        onChange={(e) =>
-                          handleChange(e, index, "productDescription")
-                        }
-                      >
-                        <option value="">Select Product</option>
-                        <option value="Paper A4">Paper A4</option>
-                        <option value="Paper A3">Paper A3</option>
-                        <option value="Notebook">Notebook</option>
-                        <option value="Other">Other</option>
-                      </select>
-                    </td>
-
-                    {/* Item/Product Code */}
-                    <td className="px-4 py-2 border">
-                      <input
-                        type="text"
-                        className="w-full p-2 border border-gray-300 rounded"
-                        value={item.productCode}
-                        onChange={(e) => handleChange(e, index, "productCode")}
-                      />
-                    </td>
-
-                    {/* Rim/Dozen */}
-                    <td className="px-4 py-2 border">
-                      <input
-                        type="number"
-                        className="w-full p-2 border border-gray-300 rounded"
-                        value={item.rimQuantity}
-                        onChange={(e) => handleChange(e, index, "rimQuantity")}
-                      />
-                    </td>
-
-                    {/* Sheet/Piece */}
-                    <td className="px-4 py-2 border">
-                      <input
-                        type="number"
-                        className="w-full p-2 border border-gray-300 rounded"
-                        value={item.sheetQuantity}
-                        onChange={(e) =>
-                          handleChange(e, index, "sheetQuantity")
-                        }
-                      />
-                    </td>
-
-                    {/* Only Sheet Piece */}
-                    <td className="px-4 py-2 border">
-                      <input
-                        type="number"
-                        className="w-full p-2 border border-gray-300 rounded"
-                        value={item.onlySheetPiece}
-                        onChange={(e) =>
-                          handleChange(e, index, "onlySheetPiece")
-                        }
-                      />
-                    </td>
-
-                    {/* Total Sheet Piece */}
-                    <td className="px-4 py-2 border">
-                      <input
-                        type="number"
-                        className="w-full p-2 border border-gray-300 rounded"
-                        value={item.totalSheetPiece}
-                        onChange={(e) =>
-                          handleChange(e, index, "totalSheetPiece")
-                        }
-                      />
-                    </td>
-
-                    {/* Rim/Dozen Price */}
-                    <td className="px-4 py-2 border">
-                      <input
-                        type="number"
-                        className="w-full p-2 border border-gray-300 rounded"
-                        value={item.rimPrice}
-                        onChange={(e) => handleChange(e, index, "rimPrice")}
-                      />
-                    </td>
-
-                    {/* Sheet/Piece Price */}
-                    <td className="px-4 py-2 border">
-                      <input
-                        type="number"
-                        className="w-full p-2 border border-gray-300 rounded"
-                        value={item.sheetPrice}
-                        onChange={(e) => handleChange(e, index, "sheetPrice")}
-                      />
-                    </td>
-
-                    {/* Total Amount */}
-                    <td className="px-4 py-2 border">
-                      <input
-                        type="number"
-                        className="w-full p-2 border border-gray-300 rounded bg-gray-100"
-                        value={item.totalAmount}
-                        readOnly
-                      />
-                    </td>
-
-                    {/* Remarks */}
-                    <td className="px-4 py-2 border">
-                      <textarea
-                        className="w-full p-2 border border-gray-300 rounded"
-                        value={item.remarks}
-                        onChange={(e) => handleChange(e, index, "remarks")}
-                      />
-                    </td>
-
-                    {/* Actions (Remove & Add) */}
-                    <td className="px-4 py-2 border flex flex-col space-y-2 items-center">
-                      <button
-                        type="button"
-                        onClick={() => removeRow(index)}
-                        className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 w-full"
-                      >
-                        Remove
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => handleSubmitRow(index)}
-                        className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 w-full"
-                      >
-                        Add
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-
-            {/* Add Row Button */}
-            <div className="mt-4">
-              <button
-                type="button"
-                onClick={addRow}
-                className="bg-green-500 text-white p-2 rounded"
-              >
-                Add Row
-              </button>
-            </div>
-          </div>
-        </div>
-        <h3 className="text-xl font-semibold mb-4 text-center">Additional Costs</h3>
-
-<div className="border border-gray-400 p-4 rounded-md mt-4">
-  <table className="w-full border-collapse border border-gray-300">
-    <thead className="bg-gray-200">
+          <div className="border border-gray-400 p-0 rounded-md mt-2 w-full flex justify-center">
+          <div className="overflow-x-auto w-[100%]">
+  <table className="table border-collapse w-full">
+    <thead className="bg-gray-200 text-gray-700 text-sm">
       <tr>
-        <th className="border border-gray-300 p-2 text-center">Transport Cost</th>
-        <th className="border border-gray-300 p-2 text-center">Labour Cost</th>
-        <th className="border border-gray-300 p-2 text-center">Road Cost</th>
-        <th className="border border-gray-300 p-2 text-center">Other Cost</th>
+        <td className="p-2 text-center w-[3%] h-8">No</td>
+        <td className="p-2 text-center w-[12%] h-8">Product Description</td>
+        <td className="p-2 text-center w-[10%] h-8">Item/Product Code</td>
+        <td className="p-2 text-center w-[7%] h-8">Rim/Dozen</td>
+        <td className="p-2 text-center w-[7%] h-8">Sheet/Piece</td>
+        <td className="p-2 text-center w-[8%] h-8">Only Sheet Piece</td>
+        <td className="p-2 text-center w-[8%] h-8">Total Sheet Piece</td>
+        <td className="p-2 text-center w-[8%] h-8">Rim/Dozen Price</td>
+        <td className="p-2 text-center w-[8%] h-8">Sheet/Piece Price</td>
+        <td className="p-2 text-center w-[8%] h-8">Total Amount</td>
+        <td className="p-2 text-center w-[10%] h-8">Remarks</td>
+        <td className="p-2 text-center w-[8%] h-8">Actions</td>
       </tr>
     </thead>
+
     <tbody>
-      <tr>
-        {/* Transport Cost */}
-        <td className="border border-gray-300 p-2 text-center">
-          <input
-            type="number"
-            className="p-1 w-24 h-8 border border-gray-300 rounded text-center text-sm"
-            value={transportCost}
-            onChange={(e) => setTransportCost(e.target.value)}
-          />
-        </td>
+      {items.map((item, index) => (
+        <tr key={index} className="h-12">
+          {/* No */}
+          <td className="border text-center w-[3%]">{index + 1}</td>
+
+          {/* Product Description */}
+          <td className="border w-[12%]">
+            <select
+              className="p-1 border border-gray-300 rounded w-full h-8"
+              value={item.productDescription}
+              onChange={(e) => handleChange(e, index, "productDescription")}
+            >
+              <option value="">Select</option>
+              <option value="Paper A4">Paper A4</option>
+              <option value="Paper A3">Paper A3</option>
+              <option value="Notebook">Notebook</option>
+              <option value="Other">Other</option>
+            </select>
+          </td>
+
+          {/* Item/Product Code */}
+          <td className="border w-[10%]">
+            <input
+              type="text"
+              className="p-1 border border-gray-300 rounded w-full h-8"
+              value={item.productCode}
+              onChange={(e) => handleChange(e, index, "productCode")}
+            />
+          </td>
+
+          {/* Rim/Dozen */}
+          <td className="border w-[7%]">
+            <input
+              type="number"
+              className="p-1 border border-gray-300 rounded w-full h-8 text-center"
+              value={item.rimQuantity}
+              onChange={(e) => handleChange(e, index, "rimQuantity")}
+            />
+          </td>
+
+          {/* Sheet/Piece */}
+          <td className="border w-[7%]">
+            <input
+              type="number"
+              className="p-1 border border-gray-300 rounded w-full h-8 text-center"
+              value={item.sheetQuantity}
+              onChange={(e) => handleChange(e, index, "sheetQuantity")}
+            />
+          </td>
+
+          {/* Only Sheet Piece */}
+          <td className="border w-[8%]">
+            <input
+              type="number"
+              className="p-1 border border-gray-300 rounded w-full h-8 text-center"
+              value={item.onlySheetPiece}
+              onChange={(e) => handleChange(e, index, "onlySheetPiece")}
+            />
+          </td>
+
+          {/* Total Sheet Piece */}
+          <td className="border w-[8%]">
+            <input
+              type="number"
+              className="p-1 border border-gray-300 rounded w-full h-8 text-center"
+              value={item.totalSheetPiece}
+              onChange={(e) => handleChange(e, index, "totalSheetPiece")}
+            />
+          </td>
+
+          {/* Rim/Dozen Price */}
+          <td className="border w-[8%]">
+            <input
+              type="number"
+              className="p-1 border border-gray-300 rounded w-full h-8 text-center"
+              value={item.rimPrice}
+              onChange={(e) => handleChange(e, index, "rimPrice")}
+            />
+          </td>
+
+          {/* Sheet/Piece Price */}
+          <td className="border w-[8%]">
+            <input
+              type="number"
+              className="p-1 border border-gray-300 rounded w-full h-8 text-center"
+              value={item.sheetPrice}
+              onChange={(e) => handleChange(e, index, "sheetPrice")}
+            />
+          </td>
+
+          {/* Total Amount */}
+          <td className="border w-[8%]">
+            <input
+              type="number"
+              className="p-1 border border-gray-300 rounded bg-gray-100 w-full h-8 text-center"
+              value={item.totalAmount}
+              readOnly
+            />
+          </td>
+
+          {/* Remarks */}
+          <td className="border w-[10%]">
+            <textarea
+              className="p-1 border border-gray-300 rounded w-full h-8"
+              value={item.remarks}
+              onChange={(e) => handleChange(e, index, "remarks")}
+            />
+          </td>
+
+          {/* Actions */}
+          <td className="border ml-10 w-[8%] flex flex-col items-center justify-center space-y-2">
+            <button
+              type="button"
+              onClick={() => removeRow(index)}
+              className="bg-red-500 text-white px-4  rounded hover:bg-red-600 text-xs w-auto"
+            >
+              Remove
+            </button>
+
+            <button
+              type="button"
+              onClick={addRow}
+              className="bg-green-500 text-white px-4  rounded hover:bg-green-600 text-xs w-auto"
+            >
+              Add
+            </button>
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+
+<h3 className="text-center font-bold">Additional Cost</h3>
+
+
+
+
+        
+  
+
+
+          <table className="w-full border-collapse border border-gray-300">
+            <thead className="bg-gray-200">
+              <tr>
+                <th className="border border-gray-300 p-2 text-center">
+                  Transport Cost
+                </th>
+                <th className="border border-gray-300 p-2 text-center">
+                  Labour Cost
+                </th>
+                <th className="border border-gray-300 p-2 text-center">
+                  Road Cost
+                </th>
+                <th className="border border-gray-300 p-2 text-center">
+                  Other Cost
+                </th>
+                <th className="border border-gray-300 p-2 text-center">
+                  Total Cost
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                {/* Transport Cost */}
+                <td className="border border-gray-300 p-2 text-center">
+                  <input
+                    type="number"
+                    className="p-1 w-24 h-7 border border-gray-300 rounded text-center text-sm"
+                    value={transportCost}
+                    onChange={(e) => setTransportCost(e.target.value)}
+                  />
+                </td>
 
                 {/* Labour Cost */}
                 <td className="border border-gray-300 p-2 text-center">
@@ -776,36 +761,16 @@ function PurchaseReceiveForm() {
 
             {/* Balance Amount */}
             <div>
-              <label className="block font-medium text-center">Balance Amount</label>
-              <input type="text" className="mt-1 p-2 w-full border border-gray-300 rounded h-7" value={balanceAmount} onChange={(e) => setBalanceAmount(e.target.value)} />
+              <label className="block font-medium text-center">
+                Balance Amount
+              </label>
+              <input
+                type="text"
+                className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
+                value={balanceAmount}
+                onChange={(e) => setBalanceAmount(e.target.value)}
+              />
             </div>
-
-            {/* New Fields from Image */}
-
-            {/* Transport Cost */}
-            <div>
-              <label className="block font-medium text-center">Transport Cost</label>
-              <input type="number" className="mt-1 p-2 w-full border border-gray-300 rounded h-7" value={transportCost} onChange={(e) => setTransportCost(e.target.value)} />
-            </div>
-
-            {/* Labour Cost */}
-            <div>
-              <label className="block font-medium text-center">Labour Cost</label>
-              <input type="number" className="mt-1 p-2 w-full border border-gray-300 rounded h-7" value={labourCost} onChange={(e) => setLabourCost(e.target.value)} />
-            </div>
-
-            {/* Road Cost */}
-            <div>
-              <label className="block font-medium text-center">Road Cost</label>
-              <input type="number" className="mt-1 p-2 w-full border border-gray-300 rounded h-7" value={roadCost} onChange={(e) => setRoadCost(e.target.value)} />
-            </div>
-
-            {/* Other Cost */}
-            <div>
-              <label className="block font-medium text-center">Other Cost</label>
-              <input type="number" className="mt-1 p-2 w-full border border-gray-300 rounded h-7" value={otherCost} onChange={(e) => setOtherCost(e.target.value)} />
-            </div>
-
           </div>
         </div>
 
