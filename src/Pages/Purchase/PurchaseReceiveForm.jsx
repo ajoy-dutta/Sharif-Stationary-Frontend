@@ -241,7 +241,7 @@ function PurchaseReceiveForm() {
   return (
     <div className="p-4 bg-gray-100">
       <h2 className="text-xl font-semibold mb-2 -mt-4 text-center">
-        Purchase Receive
+      Purchase & Invoice Information
       </h2>
       <form onSubmit={handleSubmit}>
         <div className="border border-gray-400 p-2 rounded-md grid grid-cols-8 gap-2 text-sm">
