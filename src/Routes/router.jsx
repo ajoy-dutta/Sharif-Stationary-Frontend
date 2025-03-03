@@ -24,6 +24,7 @@ import Stock from "../Pages/Stock/Stock.jsx";
 import Bill from "../Pages/Bill/Bill.jsx";
 import Report from "../Pages/Report/Report.jsx";
 import Invoice from "../Pages/Invoice/Invoice.jsx";
+import Godown from "../Pages/Master/Godown.jsx";
 
 export const router = createBrowserRouter([
   {
@@ -42,6 +43,10 @@ export const router = createBrowserRouter([
       {
         path: "/master",
         element: <Master></Master>,
+      },
+      {
+        path: "/godown",
+        element: <Godown></Godown>,
       },
       {
         path: "/purchase",

@@ -77,6 +77,7 @@ const Navbar = () => {
                 Stock
               </Link>
             </li>
+            
           </ul>
 
           {/* Authentication Buttons */}
