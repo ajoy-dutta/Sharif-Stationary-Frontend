@@ -7,7 +7,7 @@ import Home from "../Pages/HomePage/Home/Home/Home.jsx";
 import SignUp from "../SignUp.jsx";
 import Security from "../Pages/Security/Security.jsx";
 
-import Master from "../Pages/Master/Master.jsx";
+import Master from "../Pages/Master/Company.jsx";
 
 import Transfer from "../Pages/Transfer/Transfer.jsx";
 import Production from "../Pages/Production/Production.jsx";
@@ -24,6 +24,10 @@ import Stock from "../Pages/Stock/Stock.jsx";
 import Bill from "../Pages/Bill/Bill.jsx";
 import Report from "../Pages/Report/Report.jsx";
 import Invoice from "../Pages/Invoice/Invoice.jsx";
+import Products from "../Pages/Master/Products.jsx";
+import Warehouse from "../Pages/Master/Warehouse.jsx";
+import Company from "../Pages/Master/Company.jsx";
+import PaymentType from "../Pages/Master/PaymentType.jsx";
 
 export const router = createBrowserRouter([
   {
@@ -105,7 +109,23 @@ export const router = createBrowserRouter([
         path: "/admin",
         element:<AdminDashboard></AdminDashboard>,
       },
-    
+      {
+        path: "/products",
+        element: <Products></Products>,
+      },
+      {
+        path: "/warehouse",
+        element:<Warehouse></Warehouse>,
+      },
+      {
+        path: "/company",
+        element:<Company></Company>
+      },
+      {
+        path: "/payment-types",
+        element:<PaymentType></PaymentType>,
+      },
+  
       {
         path: "/sign-in",
         element: <SignIn></SignIn>,
