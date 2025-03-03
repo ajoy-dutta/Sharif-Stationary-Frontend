@@ -26,8 +26,8 @@ import Report from "../Pages/Report/Report.jsx";
 import Invoice from "../Pages/Invoice/Invoice.jsx";
 import Products from "../Pages/Master/Products.jsx";
 import Warehouse from "../Pages/Master/Warehouse.jsx";
-import Company from "../Pages/Master/Company.jsx";
 import PaymentType from "../Pages/Master/PaymentType.jsx";
+import Company from "../Pages/Master/Company.jsx";
 
 export const router = createBrowserRouter([
   {
@@ -48,9 +48,10 @@ export const router = createBrowserRouter([
         element: <Master></Master>,
       },
       {
-        path: "/godown",
-        element: <Godown></Godown>,
+        path: "/company",
+        element: <Company></Company>,
       },
+   
       {
         path: "/purchase",
         element: <PurchaseReceiveForm></PurchaseReceiveForm>,
@@ -121,10 +122,7 @@ export const router = createBrowserRouter([
         path: "/warehouse",
         element:<Warehouse></Warehouse>,
       },
-      {
-        path: "/company",
-        element:<Company></Company>
-      },
+
       {
         path: "/payment-types",
         element:<PaymentType></PaymentType>,
