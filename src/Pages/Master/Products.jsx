@@ -43,9 +43,9 @@ const Products = () => {
   
     const fetchCompanies = async () => {
       try {
-        const response = await AxiosInstance.get("/products/"); // ✅ Fetch from products API
-        const uniqueCompanies = response.data.map((product) => product.company); // ✅ Extract unique companies
-        setCompanies(uniqueCompanies);
+        const response = await AxiosInstance.get("/companies/"); // ✅ Fetch from products API
+        // const uniqueCompanies = response.data.map((product) => product.id); // ✅ Extract unique companies
+        setCompanies(response.data);
       } catch (error) {
         console.error("Error fetching companies:", error);
       }
@@ -87,7 +87,7 @@ const Products = () => {
     if (!editableProduct) return;
   
     const { company_id, product_code, product_description, date, id } = editableProduct;
-  
+  console.log("companyid",company_id)
     if (!company_id.trim() || !product_code.trim() || !product_description.trim() || !date.trim()) {
       toast.error("⚠️ All fields are required!");
       return;
@@ -139,11 +139,11 @@ const Products = () => {
     setProducts(filtered);
   };
 
-  const openProductModal = () => {
-    setEditableProduct(null); // Reset edit mode
-    setNewProduct({ company_id: "", product_code: "", product_description: "", date: "" }); // Reset form
-    document.getElementById("product_modal").showModal();
-  };
+  // const openProductModal = () => {
+  //   setEditableProduct(null); // Reset edit mode
+  //   setNewProduct({ company_id: "", product_code: "", product_description: "", date: "" }); // Reset form
+  //   document.getElementById("product_modal").showModal();
+  // };
 
   return (
     <div className="m-8">
@@ -247,25 +247,32 @@ const Products = () => {
 
     <div className="space-y-4">
       {/* 🔹 Company Name Dropdown */}
-      <div className="flex flex-col">
-        <label className="text-sm font-medium text-gray-700 mb-1">Company Name</label>
-        <select
-          className="select select-bordered w-full p-2"
-          value={editableProduct ? editableProduct.company_id : newProduct.company_id}
-          onChange={(e) =>
-            editableProduct
-              ? setEditableProduct((prev) => ({ ...prev, company_id: e.target.value }))
-              : setNewProduct((prev) => ({ ...prev, company_id: e.target.value }))
-          }
-        >
-          <option value="">Select Company</option>
-          {companies.map((company) => (
-            <option key={company.id} value={company.id}>
-              {company.company_name}
-            </option>
-          ))}
-        </select>
-      </div>
+{/* Debugging - Log editableProduct to check data */}
+
+  {/* 🔹 Company Name Dropdown */}
+  <div className="flex flex-col">
+    <label className="text-sm font-medium text-gray-700 mb-1">Company Name</label>
+    <select
+      className="select select-bordered w-full p-2"
+      value={editableProduct ? editableProduct.company?.id : newProduct.company_id} // ✅ FIXED: Use company.id
+      onChange={(e) =>
+        editableProduct
+          ? setEditableProduct((prev) => ({
+              ...prev,
+              company: { ...prev.company, id: e.target.value }, // ✅ FIX: Ensure object structure remains intact
+            }))
+          : setNewProduct((prev) => ({ ...prev, company_id: e.target.value }))
+      }
+    >
+      <option value="">Select Company</option>
+      {companies.map((company) => (
+        <option key={company.id} value={company.id}>
+          {company.company_name}
+        </option>
+      ))}
+    </select>
+  </div>
+
 
       {/* 🔹 Product Code */}
       <div className="flex flex-col">
@@ -324,6 +331,8 @@ const Products = () => {
   </div>
   <Toaster position="top-center" reverseOrder={false} />
 </dialog>
+
+<Toaster position="top-center" reverseOrder={false} />
 
 
     </div>

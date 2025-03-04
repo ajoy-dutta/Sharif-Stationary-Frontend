@@ -3,15 +3,9 @@ import { TiPlus } from "react-icons/ti";
 import { FaEdit } from "react-icons/fa";
 import { ImCross } from "react-icons/im";
 import { toast, Toaster } from "react-hot-toast";
-<<<<<<< HEAD
-
-
-import AxiosInstance from "../../Components/AxiosInstance";
-=======
 import axios from "axios";
 import AxiosInstance from '../../Components/AxiosInstance'
 
->>>>>>> 68cef313539fa62d1dd5324fc5e48ccf1e8844f2
 
 const Company = () => {
   const [company, setCompany] = useState([]);
