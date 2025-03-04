@@ -85,21 +85,26 @@ const Products = () => {
   // Edit product
   const handleEditProduct = async () => {
     if (!editableProduct) return;
-
+  
     const { company_id, product_code, product_description, date, id } = editableProduct;
-
+  
     if (!company_id.trim() || !product_code.trim() || !product_description.trim() || !date.trim()) {
       toast.error("⚠️ All fields are required!");
       return;
     }
-
+  
     try {
       const response = await AxiosInstance.put(`/products/${id}/`, editableProduct);
-
+  
       if (response.status === 200) {
         setProducts((prev) => prev.map((item) => (item.id === id ? response.data : item)));
         toast.success("Product updated successfully!");
-        setEditableProduct(null);
+  
+        // ✅ Clear Form Data
+        setEditableProduct(null); // Clears form after updating
+        setNewProduct({ company_id: "", product_code: "", product_description: "", date: "" });
+  
+        // ✅ Close Modal
         document.getElementById("product_modal").close();
       } else {
         toast.error("Failed to update product!");
@@ -109,6 +114,7 @@ const Products = () => {
       toast.error("Failed to update product!");
     }
   };
+  
 
   // Delete product
   const handleDeleteProduct = async (id) => {
@@ -133,6 +139,12 @@ const Products = () => {
     setProducts(filtered);
   };
 
+  const openProductModal = () => {
+    setEditableProduct(null); // Reset edit mode
+    setNewProduct({ company_id: "", product_code: "", product_description: "", date: "" }); // Reset form
+    document.getElementById("product_modal").showModal();
+  };
+
   return (
     <div className="m-8">
       <h2 className="text-sm">Search Product:*</h2>
@@ -148,9 +160,17 @@ const Products = () => {
             Search
           </button>
         </div>
-        <button className="btn btn-sm bg-blue-700 text-white" onClick={() => document.getElementById("product_modal").showModal()}>
-          <TiPlus /> Add Product
-        </button>
+        <button
+  className="btn btn-sm bg-blue-700 text-white"
+  onClick={() => {
+    setEditableProduct(null); // Reset editing mode
+    setNewProduct({ company_id: "", product_code: "", product_description: "", date: "" }); // Clear form
+    document.getElementById("product_modal").showModal(); // Open modal
+  }}
+>
+  <TiPlus /> Add Product
+</button>
+
       </div>
 
       <div className="m-8 text-center font-bold text-gray-700 border-b-[1px] pb-2">

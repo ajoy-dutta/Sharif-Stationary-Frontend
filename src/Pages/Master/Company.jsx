@@ -3,10 +3,8 @@ import { TiPlus } from "react-icons/ti";
 import { FaEdit } from "react-icons/fa";
 import { ImCross } from "react-icons/im";
 import { toast, Toaster } from "react-hot-toast";
-<<<<<<< HEAD
-import axios from "axios";
-=======
->>>>>>> e49ab72a6deec917cd3c280d5bae999b702eb513
+
+
 import AxiosInstance from "../../Components/AxiosInstance";
 
 const Company = () => {
