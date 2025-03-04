@@ -3,26 +3,30 @@ import { TiPlus } from "react-icons/ti";
 import { FaEdit } from "react-icons/fa";
 import { ImCross } from "react-icons/im";
 import { toast, Toaster } from "react-hot-toast";
+<<<<<<< HEAD
 
 
 import AxiosInstance from "../../Components/AxiosInstance";
+=======
+import axios from "axios";
+import AxiosInstance from '../../Components/AxiosInstance'
+
+>>>>>>> 68cef313539fa62d1dd5324fc5e48ccf1e8844f2
 
 const Company = () => {
   const [company, setCompany] = useState([]);
   const [newCompany, setNewCompany] = useState({
     company_name: "",
+    company_representative_name :"",
     phone_number: "",
     address: "",
   });
   const [editableCompany, setEditableCompany] = useState(null);
 
-  // Fetch data from the API
   useEffect(() => {
     const fetchCompany = async () => {
       try {
-        const response = await AxiosInstance.get(
-          "/companies/"
-        );
+        const response = await AxiosInstance.get("/companies/"); // Base URL already in AxiosInstance
         setCompany(response.data);
         console.log(response.data);
       } catch (error) {
@@ -33,69 +37,65 @@ const Company = () => {
   }, []);
 
   const handleAddCompany = async () => {
-    const { phone_number, company_name, address } = newCompany;
-
+    const { phone_number, company_name, company_representative_name, address } = newCompany;
+  
     // Validation
-    if (!phone_number.trim() || !company_name.trim() || !address.trim()) {
+    if (!phone_number.trim() || !company_representative_name.trim() || !company_name.trim() || !address.trim()) {
       toast.error("⚠️ All fields are required!");
       return;
     }
-
+  
     try {
-      const response = await AxiosInstance.post(
-        "/companies/",
-        newCompany
-      );
+      const response = await AxiosInstance.post("/companies/", newCompany); // Using axiosInstance
+  
       if (response.status === 201) {
         setCompany((prev) => [...prev, response.data]);
-        setNewCompany({ phone_number: "", company_name: "", address: "" });
-        toast.success("Company added successfully!");
+        setNewCompany({ phone_number: "", company_representative_name: "", company_name: "", address: "" });
+        toast.success(" Company added successfully!");
         document.getElementById("my_modal_5").close();
       } else {
-        toast.error("Failed to add company!");
+        toast.error(" Failed to add company!");
       }
     } catch (error) {
       console.error("Error adding company:", error);
-      toast.error("Failed to add company!");
+      toast.error(" Failed to add company!");
     }
   };
 
+
   const handleEditCompany = async () => {
     if (!editableCompany) return;
-
-    const { phone_number, company_name, address, id } = editableCompany;
-
-    if (!phone_number.trim() || !company_name.trim() || !address.trim()) {
-        toast.error("⚠️ All fields are required!");
+  
+    const { phone_number, company_representative_name, company_name, address, id } = editableCompany;
+  
+    if (!phone_number.trim() || !company_representative_name.trim() || !company_name.trim() || !address.trim()) {
+      toast.error("⚠️ All fields are required!");
       return;
     }
-
+  
     // Check if any changes were made before updating
     const originalCompany = company.find((c) => c.id === id);
     if (
       originalCompany &&
       originalCompany.phone_number === phone_number.trim() &&
       originalCompany.company_name === company_name.trim() &&
+      originalCompany.company_representative_name === company_representative_name.trim() &&
       originalCompany.address === address.trim()
     ) {
       toast.error("⚠️ No changes were made!");
       return;
     }
-
+  
     try {
-      const response = await AxiosInstance.put(
-        `/companies/${id}/`,
-        {
-          phone_number: phone_number.trim(),
-          company_name: company_name.trim(),
-          address: address.trim(),
-        }
-      );
-
+      const response = await AxiosInstance.put(`/companies/${id}/`, {
+        phone_number: phone_number.trim(),
+        company_name: company_name.trim(),
+        company_representative_name: company_representative_name.trim(),
+        address: address.trim(),
+      });
+  
       if (response.status === 200) {
-        setCompany((prev) =>
-          prev.map((item) => (item.id === id ? response.data : item))
-        );
+        setCompany((prev) => prev.map((item) => (item.id === id ? response.data : item)));
         toast.success("Company updated successfully!");
         setEditableCompany(null);
         document.getElementById("my_modal_5").close();
@@ -107,7 +107,7 @@ const Company = () => {
       toast.error("Failed to update company!");
     }
   };
-
+  
   const handleDeleteCompany = async (id) => {
     try {
       await AxiosInstance.delete(`/companies/${id}/`);
@@ -118,6 +118,7 @@ const Company = () => {
       toast.error("Failed to delete company!");
     }
   };
+  
 
   // Handle search
   const handleSearch = () => {
@@ -161,6 +162,7 @@ const Company = () => {
             <tr className="text-center">
               <th>SL</th>
               <th>Company Name</th>
+              <th>Representative Name</th>
 <th>Phone Number</th>
 <th>Address</th>
 <th>Edit</th>
@@ -174,8 +176,10 @@ const Company = () => {
                 <tr key={index}>
                   <td>{item.id}</td>
                   <td>{item.company_name}</td>
+                  <td>{item.company_representative_name}</td>
                   <td>{item.phone_number}</td>
                   <td>{item.address}</td>
+                  
                   <td>
                     <button
                       className="text-blue-500 hover:underline"
@@ -200,7 +204,7 @@ const Company = () => {
             ) : (
               <tr>
                 <td colSpan="6" className="px-4 py-6 text-gray-500">
-               <span>কোনো কোম্পানি পাওয়া যায়নি!</span>
+               <span>No company found!</span>
                 </td>
               </tr>
             )}
@@ -240,6 +244,29 @@ const Company = () => {
                   : setNewCompany((prev) => ({
                       ...prev,
                       company_name: e.target.value,
+                    }))
+              }
+            />
+          </div>
+
+          <div className="flex justify-center">
+            <input
+              className="input input-bordered w-80 mx-auto mb-4"
+              placeholder="Enter Company Name"
+              value={
+                editableCompany
+                  ? editableCompany.company_representative_name
+                  : newCompany.company_representative_name
+              } // Use editableCompany if editing
+              onChange={(e) =>
+                editableCompany
+                  ? setEditableCompany((prev) => ({
+                      ...prev,
+                      company_representative_name: e.target.value,
+                    }))
+                  : setNewCompany((prev) => ({
+                      ...prev,
+                      company_representative_name: e.target.value,
                     }))
               }
             />
