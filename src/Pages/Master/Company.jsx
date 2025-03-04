@@ -5,7 +5,7 @@ import { ImCross } from "react-icons/im";
 import { toast, Toaster } from "react-hot-toast";
 import axios from "axios";
 import AxiosInstance from '../../Components/AxiosInstance'
-import AxiosInstance from "../../Components/AxiosInstance";
+
 
 const Company = () => {
   const [company, setCompany] = useState([]);
