@@ -79,7 +79,7 @@ function PurchaseReceiveForm() {
     if (field === "rimDozenQty" || field === "rimDozenPurchaseRate") {
       updatedItems[index].totalAmount =
         updatedItems[index].rimDozenQty *
-        updatedItems[index].rimDozenPurchaseRate || 0;
+          updatedItems[index].rimDozenPurchaseRate || 0;
     }
 
     setItems(updatedItems);
@@ -194,7 +194,7 @@ function PurchaseReceiveForm() {
 
       // ✅ 3. Save Payment Information
       const paymentData = {
-        purchase_receive: purchaseId, // Link to Purchase Receive
+        purchase_receive: purchaseId, 
         supplier: formData.supplier,
         previous_due: formData.previous_due,
         today_bill: formData.today_bill,
@@ -314,10 +314,6 @@ function PurchaseReceiveForm() {
             />
           </div>
 
-
-
-
-
           {/* 7. Driver Name */}
           <div>
             <label className="block text-center">Driver Name</label>
@@ -353,15 +349,12 @@ function PurchaseReceiveForm() {
           <div>
             <label className="block text-center">Delivery No</label>
             <input
-              type="text"  // Changed from "date" to "text" since it's a number
+              type="text" // Changed from "date" to "text" since it's a number
               className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
               value={deliveryNo}
               onChange={(e) => setDeliveryNo(e.target.value)}
             />
           </div>
-
-
-
 
           {/* 6. Vehicle No */}
           <div>
@@ -405,9 +398,6 @@ function PurchaseReceiveForm() {
               onChange={(e) => setGodownNo(e.target.value)}
             />
           </div>
-
-
-
         </div>
 
         <div className="p-4">
@@ -417,247 +407,232 @@ function PurchaseReceiveForm() {
           <div className="border border-gray-400 p-0 rounded-md mt-2 w-full flex justify-center">
             <div className="overflow-x-auto w-[100%]">
               <table className="table border-collapse w-full">
-                <thead className="bg-gray-200 text-gray-700 text-sm">
-                  <tr>
-                    <td className="p-2 text-center w-[3%] h-8">No</td>
-
-                    <td className="p-2 text-center w-[10%] h-8">Item/Product Code</td>
-                    <td className="p-2 text-center w-[12%] h-8">Product Description</td>
-                    <td className="p-2 text-center w-[7%] h-8">Rim/Dozen</td>
-                    <td className="p-2 text-center w-[7%] h-8">Sheet/Piece</td>
-                    <td className="p-2 text-center w-[8%] h-8">Only Sheet Piece</td>
-                    <td className="p-2 text-center w-[8%] h-8">Total Sheet Piece</td>
-                    <td className="p-2 text-center w-[8%] h-8">Rim/Dozen Price</td>
-                    <td className="p-2 text-center w-[8%] h-8">Sheet/Piece Price</td>
-                    <td className="p-2 text-center w-[8%] h-8">Total Amount</td>
-                    <td className="p-2 text-center w-[10%] h-8">Remarks</td>
-                    <td className="p-2 text-center w-[8%] h-8">Actions</td>
-                  </tr>
-                </thead>
-
                 <tbody>
                   {items.map((item, index) => (
-                    <tr key={index} className="h-12">
-                      {/* No */}
-                      <td className="border text-center w-[3%]">{index + 1}</td>
+                    <>
+                      {/* First Row: Column Headings */}
+                      <tr
+                        key={`heading-${index}`}
+                        className="bg-gray-200 text-gray-700 text-sm"
+                      >
+                        <td className="p-2 text-center border">No</td>
+                        <td className="p-2 text-center border">
+                          Item/Product Code
+                        </td>
+                        <td className="p-2 text-center border">
+                          Product Description
+                        </td>
+                        <td className="p-2 text-center border">Rim/Dozen</td>
+                        <td className="p-2 text-center border">Sheet/Piece</td>
+                        <td className="p-2 text-center border">
+                          Only Sheet Piece
+                        </td>
+                        <td className="p-2 text-center border">
+                          Total Sheet Piece
+                        </td>
+                        <td className="p-2 text-center border">
+                          Rim/Dozen Price
+                        </td>
+                        <td className="p-2 text-center border">
+                          Sheet/Piece Price
+                        </td>
+                        <td className="p-2 text-center border">Total Amount</td>
+                        <td className="p-2 text-center border">
+                          Transport Cost
+                        </td>
+                        <td className="p-2 text-center border">Labour Cost</td>
+                      </tr>
 
+                      {/* Second Row: Input Fields */}
+                      <tr key={`data-${index}`} className="border">
+                        <td className="border text-center">{index + 1}</td>
+                        <td className="border">
+                          <input
+                            type="text"
+                            className="p-1 border border-gray-300 rounded w-full h-8"
+                            value={item.productCode}
+                            onChange={(e) =>
+                              handleChange(e, index, "productCode")
+                            }
+                          />
+                        </td>
+                        <td className="border">
+                          <select
+                            className="p-1 border border-gray-300 rounded w-full h-8"
+                            value={item.productDescription}
+                            onChange={(e) =>
+                              handleChange(e, index, "productDescription")
+                            }
+                          >
+                            <option value="">Select</option>
+                            <option value="Paper A4">Paper A4</option>
+                            <option value="Paper A3">Paper A3</option>
+                            <option value="Notebook">Notebook</option>
+                            <option value="Other">Other</option>
+                          </select>
+                        </td>
+                        <td className="border">
+                          <input
+                            type="number"
+                            className="p-1 border border-gray-300 rounded w-full h-8 text-center"
+                            value={item.rimQuantity}
+                            onChange={(e) =>
+                              handleChange(e, index, "rimQuantity")
+                            }
+                          />
+                        </td>
+                        <td className="border">
+                          <input
+                            type="number"
+                            className="p-1 border border-gray-300 rounded w-full h-8 text-center"
+                            value={item.sheetQuantity}
+                            onChange={(e) =>
+                              handleChange(e, index, "sheetQuantity")
+                            }
+                          />
+                        </td>
+                        <td className="border">
+                          <input
+                            type="number"
+                            className="p-1 border border-gray-300 rounded w-full h-8 text-center"
+                            value={item.onlySheetPiece}
+                            onChange={(e) =>
+                              handleChange(e, index, "onlySheetPiece")
+                            }
+                          />
+                        </td>
+                        <td className="border">
+                          <input
+                            type="number"
+                            className="p-1 border border-gray-300 rounded w-full h-8 text-center"
+                            value={item.totalSheetPiece}
+                            onChange={(e) =>
+                              handleChange(e, index, "totalSheetPiece")
+                            }
+                          />
+                        </td>
+                        <td className="border">
+                          <input
+                            type="number"
+                            className="p-1 border border-gray-300 rounded w-full h-8 text-center"
+                            value={item.rimPrice}
+                            onChange={(e) => handleChange(e, index, "rimPrice")}
+                          />
+                        </td>
+                        <td className="border">
+                          <input
+                            type="number"
+                            className="p-1 border border-gray-300 rounded w-full h-8 text-center"
+                            value={item.sheetPrice}
+                            onChange={(e) =>
+                              handleChange(e, index, "sheetPrice")
+                            }
+                          />
+                        </td>
+                        <td className="border">
+                          <input
+                            type="number"
+                            className="p-1 border border-gray-300 rounded bg-gray-100 w-full h-8 text-center"
+                            value={item.totalAmount}
+                            readOnly
+                          />
+                        </td>
+                        <td className="border">
+                          <input
+                            type="number"
+                            className="p-1 w-full h-8 border border-gray-300 rounded text-center"
+                            value={item.transportCost}
+                            onChange={(e) =>
+                              updateCost(index, "transportCost", e.target.value)
+                            }
+                          />
+                        </td>
+                        <td className="border">
+                          <input
+                            type="number"
+                            className="p-1 w-full h-8 border border-gray-300 rounded text-center"
+                            value={item.labourCost}
+                            onChange={(e) =>
+                              updateCost(index, "labourCost", e.target.value)
+                            }
+                          />
+                        </td>
+                      </tr>
 
+                      {/* Second Row: Additional Costs + Actions */}
+                      <tr
+                        key={`extra-heading-${index}`}
+                        className="bg-gray-200 text-gray-700 text-sm"
+                      >
+                        <td className="border text-center">Road Cost</td>
+                        <td className="border text-center">Other Cost</td>
+                        <td className="border text-center">Total Cost</td>
+                        <td className="border text-center">Total Rim Cost</td>
+                        <td className="border text-center">Total Sheet Cost</td>
+                        <td className="border text-center">(Rim+Total Cost)</td>
+                        <td className="border text-center">
+                          (Sheet+Total Cost)
+                        </td>
+                        <td className="border text-center">Percentage (%)</td>
+                        <td className="border text-center">Sell Amount</td>
+                        <td className="border text-center">Remarks</td>
+                        <td className="border text-center">Actions</td>
+                      </tr>
 
-                      {/* Item/Product Code */}
-                      <td className="border w-[10%]">
-                        <input
-                          type="text"
-                          className="p-1 border border-gray-300 rounded w-full h-8"
-                          value={item.productCode}
-                          onChange={(e) => handleChange(e, index, "productCode")}
-                        />
-                      </td>
-                      {/* Product Description */}
-                      <td className="border w-[12%]">
-                        <select
-                          className="p-1 border border-gray-300 rounded w-full h-8"
-                          value={item.productDescription}
-                          onChange={(e) => handleChange(e, index, "productDescription")}
-                        >
-                          <option value="">Select</option>
-                          <option value="Paper A4">Paper A4</option>
-                          <option value="Paper A3">Paper A3</option>
-                          <option value="Notebook">Notebook</option>
-                          <option value="Other">Other</option>
-                        </select>
-                      </td>
-
-                      {/* Rim/Dozen */}
-                      <td className="border w-[7%]">
-                        <input
-                          type="number"
-                          className="p-1 border border-gray-300 rounded w-full h-8 text-center"
-                          value={item.rimQuantity}
-                          onChange={(e) => handleChange(e, index, "rimQuantity")}
-                        />
-                      </td>
-
-                      {/* Sheet/Piece */}
-                      <td className="border w-[7%]">
-                        <input
-                          type="number"
-                          className="p-1 border border-gray-300 rounded w-full h-8 text-center"
-                          value={item.sheetQuantity}
-                          onChange={(e) => handleChange(e, index, "sheetQuantity")}
-                        />
-                      </td>
-
-                      {/* Only Sheet Piece */}
-                      <td className="border w-[8%]">
-                        <input
-                          type="number"
-                          className="p-1 border border-gray-300 rounded w-full h-8 text-center"
-                          value={item.onlySheetPiece}
-                          onChange={(e) => handleChange(e, index, "onlySheetPiece")}
-                        />
-                      </td>
-
-                      {/* Total Sheet Piece */}
-                      <td className="border w-[8%]">
-                        <input
-                          type="number"
-                          className="p-1 border border-gray-300 rounded w-full h-8 text-center"
-                          value={item.totalSheetPiece}
-                          onChange={(e) => handleChange(e, index, "totalSheetPiece")}
-                        />
-                      </td>
-
-                      {/* Rim/Dozen Price */}
-                      <td className="border w-[8%]">
-                        <input
-                          type="number"
-                          className="p-1 border border-gray-300 rounded w-full h-8 text-center"
-                          value={item.rimPrice}
-                          onChange={(e) => handleChange(e, index, "rimPrice")}
-                        />
-                      </td>
-
-                      {/* Sheet/Piece Price */}
-                      <td className="border w-[8%]">
-                        <input
-                          type="number"
-                          className="p-1 border border-gray-300 rounded w-full h-8 text-center"
-                          value={item.sheetPrice}
-                          onChange={(e) => handleChange(e, index, "sheetPrice")}
-                        />
-                      </td>
-
-                      {/* Total Amount */}
-                      <td className="border w-[8%]">
-                        <input
-                          type="number"
-                          className="p-1 border border-gray-300 rounded bg-gray-100 w-full h-8 text-center"
-                          value={item.totalAmount}
-                          readOnly
-                        />
-                      </td>
-
-                      {/* Remarks */}
-                      <td className="border w-[10%]">
-                        <textarea
-                          className="p-1 border border-gray-300 rounded w-full h-8"
-                          value={item.remarks}
-                          onChange={(e) => handleChange(e, index, "remarks")}
-                        />
-                      </td>
-
-                      {/* Actions */}
-                      <td className="border ml-10 w-[8%] flex flex-col items-center justify-center space-y-2">
-                        <button
-                          type="button"
-                          onClick={() => removeRow(index)}
-                          className="bg-red-500 text-white px-4  rounded hover:bg-red-600 text-xs w-16"
-                        >
-                          Remove
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={addRow}
-                          className="bg-green-500 text-white px-4  rounded hover:bg-green-600 text-xs w-16"
-                        >
-                          Add
-                        </button>
-                      </td>
-                    </tr>
+                      <tr key={`extra-${index}`} className="h-12 border">
+                        {[
+                          item.roadCost,
+                          item.otherCost,
+                          item.totalCost,
+                          item.totalCostPerRim,
+                          item.totalCostPerSheet,
+                          item.costPerRim,
+                          item.costPerSheet,
+                          item.interestRim,
+                          item.saleAmount,
+                        ].map((value, idx) => (
+                          <td key={`calc-${index}-${idx}`} className="border">
+                            <input
+                              type="number"
+                              className="p-1 w-full h-8 border border-gray-300 rounded text-center"
+                              value={value}
+                              onChange={(e) =>
+                                updateCalculation(index, idx, e.target.value)
+                              }
+                            />
+                          </td>
+                        ))}
+                        <td className="border">
+                          <textarea
+                            className="p-1 border border-gray-300 rounded w-full h-8"
+                            value={item.remarks}
+                            onChange={(e) => handleChange(e, index, "remarks")}
+                          />
+                        </td>
+                        <td className="border flex flex-col items-center justify-center space-y-2">
+                          <button
+                            type="button"
+                            onClick={addRow}
+                            className="bg-green-500 text-white px-4 rounded hover:bg-green-600 text-xs w-16"
+                          >
+                            Add
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => removeRow(index)}
+                            className="bg-red-500 text-white px-4 rounded hover:bg-red-600 text-xs w-16 mt-1"
+                          >
+                            Remove
+                          </button>
+                        </td>
+                      </tr>
+                    </>
                   ))}
                 </tbody>
               </table>
-
-              <h3 className="text-center font-bold">Additional Cost</h3>
-
-
-
-
-
-
-
-
-              <table className="w-full border-collapse border border-gray-300">
-  {/* Table Header */}
-  <thead className="bg-gray-200">
-    <tr>
-      <th className="border border-gray-300 p-2 text-center">Transport Cost</th>
-      <th className="border border-gray-300 p-2 text-center">Labour Cost</th>
-      <th className="border border-gray-300 p-2 text-center">Road Cost</th>
-      <th className="border border-gray-300 p-2 text-center">Other Cost</th>
-      <th className="border border-gray-300 p-2 text-center">Total Cost</th>
-    </tr>
-  </thead>
-
-  {/* Table Body */}
-  <tbody>
-    {/* Input Row for Costs */}
-    <tr>
-      {[transportCost, labourCost, roadCost, otherCost, totalCost].map(
-        (cost, index) => (
-          <td key={index} className="border border-gray-300 p-2 text-center">
-            <input
-              type="number"
-              className="p-1 w-24 h-7 border border-gray-300 rounded text-center text-sm"
-              value={cost}
-              onChange={(e) => updateCost(index, e.target.value)}
-            />
-          </td>
-        )
-      )}
-    </tr>
-
-    {/* Headers for Calculated Costs */}
-    <tr className="bg-gray-100">
-      <th className="border border-gray-300 p-2 text-center">
-       Rim/Dozen Price
-      </th>
-      <th className="border border-gray-300 p-2 text-center">
-       Sheet/Piece price
-      </th>
-      <th className="border border-gray-300 p-2 text-center">
-        (Rim/Dozen+Total cost)
-      </th>
-      <th className="border border-gray-300 p-2 text-center">
-(Sheet/Piece+Total cost)
-      </th>
-      <th className="border border-gray-300 p-2 text-center">
-      Percentage(%)
-      </th>
-      <th className="border border-gray-300 p-2 text-center">
-        Sell Amount
-      </th>
-     
-    </tr>
-
-    {/* Input Row for Calculated Costs */}
-    <tr>
-      {[
-        totalCostPerRim,
-        totalCostPerSheet,
-        costPerRim,
-        costPerSheet,
-        interestRim,
-        saleAmount,
-        
-      ].map((value, index) => (
-        <td key={index} className="border border-gray-300 p-2 text-center">
-          <input
-            type="number"
-            className="p-1 w-24 h-7 border border-gray-300 rounded text-center text-sm"
-            value={value}
-            onChange={(e) => updateCalculation(index, e.target.value)}
-          />
-        </td>
-      ))}
-    </tr>
-  </tbody>
-</table>
-
             </div>
-          </div></div>
-
+          </div>
+        </div>
 
         <h3 className="text-2xl font-semibold mb-4 text-center">
           Payment Information
@@ -694,7 +669,7 @@ function PurchaseReceiveForm() {
             {/* Today Bill */}
             <div>
               <label className="block font-medium text-center">
-                Invoice/Challan Amt.
+                Invoice/Challan Amount
               </label>
               <input
                 type="number"
