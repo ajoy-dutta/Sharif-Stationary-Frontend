@@ -3,7 +3,7 @@ import { TiPlus } from "react-icons/ti";
 import { FaEdit } from "react-icons/fa";
 import { ImCross } from "react-icons/im";
 import { toast, Toaster } from "react-hot-toast";
-import axios from "axios";
+import AxiosInstance from '../../Components/AxiosInstance'
 
 const Warehouse = () => {
   const [godown, setGodown] = useState([]);
@@ -14,146 +14,103 @@ const Warehouse = () => {
   });
   const [editableGodown, setEditableGodown] = useState(null);
 
-  // Fetch data from the API
-  useEffect(() => {
-    const fetchGodown = async () => {
-      try {
-        const response = await axios.get("http://127.0.0.1:8000/api/godowns/");
-        const data = response.data;
-        setGodown(data);
-        console.log(data); // Logging the fetched data instead of state
-      } catch (error) {
-        console.error("Error fetching godowns:", error);
-      }
-    };
-
-    fetchGodown();
-  }, []);
-
-  const handleAddGodown = async () => {
-    const { shop_name, godown_name, address } = newGodown;
-
-    // ✅ Validation: Ensure required fields are filled
-    if (!shop_name.trim()) {
-      toast.error("⚠️ Shop name required!");
-      return;
-    }
-    if (!godown_name.trim()) {
-      toast.error("⚠️ Warehouse name required!");
-      return;
-    }
-    if (!address.trim()) {
-      toast.error("⚠️Address required!");
-      return;
-    }
-
+// ✅ Fetch Godowns using `axiosInstance`
+useEffect(() => {
+  const fetchGodown = async () => {
     try {
-      const response = await axios.post(
-        "http://127.0.0.1:8000/api/godowns/",
-        newGodown
-      );
-
-      if (response.status === 201) {
-        setGodown((prev) => [...prev, response.data]);
-
-        setNewGodown({
-          shop_name: "",
-          godown_name: "",
-          address: "",
-        });
-
-        // ✅ Show success message
-        toast.success("Warehouse added successfully!");
-
-        // ✅ Close modal
-        document.getElementById("my_modal_5").close();
-      } else {
-        toast.error("Failed to add warehouse!");
-      }
+      const response = await AxiosInstance.get("/godowns/");
+      setGodown(response.data);
+      console.log(response.data);
     } catch (error) {
-      console.error("Error adding godown:", error);
+      console.error("Error fetching godowns:", error);
+    }
+  };
+  fetchGodown();
+}, []);
+
+// ✅ Handle Add Godown
+const handleAddGodown = async () => {
+  const { shop_name, godown_name, address } = newGodown;
+
+  if (!shop_name.trim() || !godown_name.trim() || !address.trim()) {
+    toast.error("⚠️ All fields are required!");
+    return;
+  }
+
+  try {
+    const response = await AxiosInstance.post("/godowns/", newGodown);
+
+    if (response.status === 201) {
+      setGodown((prev) => [...prev, response.data]);
+      setNewGodown({ shop_name: "", godown_name: "", address: "" });
+
+      toast.success("Warehouse added successfully!");
+      document.getElementById("my_modal_5").close();
+    } else {
       toast.error("Failed to add warehouse!");
     }
-  };
+  } catch (error) {
+    console.error("Error adding godown:", error);
+    toast.error("Failed to add warehouse!");
+  }
+};
 
-  const handleEditGodown = async () => {
-    if (!editableGodown) return;
+// ✅ Handle Edit Godown
+const handleEditGodown = async () => {
+  if (!editableGodown) return;
 
-    const { shop_name, godown_name, address, id } = editableGodown;
+  const { shop_name, godown_name, address, id } = editableGodown;
 
-    // ✅ Validation: Ensure required fields are filled
-    if (!shop_name.trim()) {
-      toast.error("⚠️ Shop name required!");
-      return;
-    }
-    if (!godown_name.trim()) {
-      toast.error("⚠️ Warehouse name required!");
-      return;
-    }
-    if (!address.trim()) {
-      toast.error("⚠️Address required!");
-      return;
-    }
-    // ✅ Check if any changes were made before updating
-    const originalGodown = godown.find((g) => g.id === id);
+  if (!shop_name.trim() || !godown_name.trim() || !address.trim()) {
+    toast.error("⚠️ All fields are required!");
+    return;
+  }
 
-    if (
-      originalGodown &&
-      originalGodown.shop_name === shop_name.trim() &&
-      originalGodown.godown_name === godown_name.trim() &&
-      originalGodown.address === address.trim()
-    ) {
-      toast.error("⚠️ No change detected!");
-      return;
-    }
+  // ✅ Check if any changes were made before updating
+  const originalGodown = godown.find((g) => g.id === id);
+  if (
+    originalGodown &&
+    originalGodown.shop_name === shop_name.trim() &&
+    originalGodown.godown_name === godown_name.trim() &&
+    originalGodown.address === address.trim()
+  ) {
+    toast.error("⚠️ No change detected!");
+    return;
+  }
 
-    try {
-      const response = await axios.put(
-        `http://127.0.0.1:8000/api/godowns/${id}/`,
-        {
-          shop_name: shop_name.trim(),
-          godown_name: godown_name.trim(),
-          address: address.trim(),
-        }
-      );
+  try {
+    const response = await AxiosInstance.put(`/godowns/${id}/`, {
+      shop_name: shop_name.trim(),
+      godown_name: godown_name.trim(),
+      address: address.trim(),
+    });
 
-      if (response.status === 200) {
-        // ✅ Update `godown` state instantly
-        setGodown((prev) =>
-          prev.map((item) => (item.id === id ? response.data : item))
-        );
-
-        // ✅ Show success message
-        toast.success("Warehouse updated successfully!");
-
-        // ✅ Close modal & Reset edit state
-        setEditableGodown(null);
-        document.getElementById("my_modal_5").close();
-      } else {
-        toast.error("Failed to update warehouse!");
-      }
-    } catch (error) {
-      console.error("Error updating godown:", error);
+    if (response.status === 200) {
+      setGodown((prev) => prev.map((item) => (item.id === id ? response.data : item)));
+      toast.success("Warehouse updated successfully!");
+      setEditableGodown(null);
+      document.getElementById("my_modal_5").close();
+    } else {
       toast.error("Failed to update warehouse!");
     }
-  };
+  } catch (error) {
+    console.error("Error updating godown:", error);
+    toast.error("Failed to update warehouse!");
+  }
+};
 
-  const handleDeleteGodown = async (id) => {
-    try {
-      await axios.delete(`http://127.0.0.1:8000/api/godowns/${id}/`);
+// ✅ Handle Delete Godown
+const handleDeleteGodown = async (id) => {
+  try {
+    await AxiosInstance.delete(`/godowns/${id}/`);
+    setGodown((prev) => prev.filter((item) => item.id !== id));
+    toast.success("Warehouse deleted successfully!");
+  } catch (error) {
+    console.error("Error deleting godown:", error);
+    toast.error("Failed to delete warehouse!");
+  }
+};
 
-      // ✅ Instantly update the state
-      setGodown((prev) => prev.filter((item) => item.id !== id));
-
-      // ✅ Show success toast
-      toast.success("Warehouse deleted successfully!");
-    } catch (error) {
-      console.error("Error deleting godown:", error);
-
-      // ❌ Show error toast
-      toast.error("Failed to delete warehouse! ");
-    }
-  };
 
   // handlw search
   const handleSearch = () => {

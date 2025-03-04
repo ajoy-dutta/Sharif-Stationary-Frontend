@@ -29,6 +29,12 @@ import PaymentType from "../Pages/Master/PaymentType.jsx";
 import Company from "../Pages/Master/Company.jsx";
 import ProtectedRoute from "../Provider/ProtectedRoute.jsx"
 import Dashboard from "../Pages/DashboardPage/Dashboard.jsx";
+import ProtectedRoute from "../Provider/ProtectedRoute.jsx"
+=======
+import ProtectedRoute from "../Provider/ProtectedRoute.jsx"
+import Dashboard from "../Pages/DashboardPage/Dashboard.jsx"
+
+>>>>>>> 68cef313539fa62d1dd5324fc5e48ccf1e8844f2
 
 export const router = createBrowserRouter([
   {
