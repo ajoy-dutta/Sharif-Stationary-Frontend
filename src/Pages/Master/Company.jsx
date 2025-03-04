@@ -3,7 +3,7 @@ import { TiPlus } from "react-icons/ti";
 import { FaEdit } from "react-icons/fa";
 import { ImCross } from "react-icons/im";
 import { toast, Toaster } from "react-hot-toast";
-import axios from "axios";
+import AxiosInstance from "../../Components/AxiosInstance";
 
 const Company = () => {
   const [company, setCompany] = useState([]);
@@ -18,8 +18,8 @@ const Company = () => {
   useEffect(() => {
     const fetchCompany = async () => {
       try {
-        const response = await axios.get(
-          "http://127.0.0.1:8000/api/companies/"
+        const response = await AxiosInstance.get(
+          "/companies/"
         );
         setCompany(response.data);
         console.log(response.data);
@@ -40,8 +40,8 @@ const Company = () => {
     }
 
     try {
-      const response = await axios.post(
-        "http://127.0.0.1:8000/api/companies/",
+      const response = await AxiosInstance.post(
+        "/companies/",
         newCompany
       );
       if (response.status === 201) {
@@ -81,8 +81,8 @@ const Company = () => {
     }
 
     try {
-      const response = await axios.put(
-        `http://127.0.0.1:8000/api/companies/${id}/`,
+      const response = await AxiosInstance.put(
+        `/companies/${id}/`,
         {
           phone_number: phone_number.trim(),
           company_name: company_name.trim(),
@@ -108,7 +108,7 @@ const Company = () => {
 
   const handleDeleteCompany = async (id) => {
     try {
-      await axios.delete(`http://127.0.0.1:8000/api/companies/${id}/`);
+      await AxiosInstance.delete(`/companies/${id}/`);
       setCompany((prev) => prev.filter((item) => item.id !== id));
       toast.success("Company deleted successfully!");
     } catch (error) {

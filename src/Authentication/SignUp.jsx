@@ -123,7 +123,7 @@ const SignUp = () => {
       });
       setShowName1("");
       alert("Registration successful!");
-      navigate("/dashboard");
+      navigate("/company");
     } catch (error) {
       console.error("Error:", error.response?.data || error.message);
       alert(error.response?.data?.message || "Something went wrong!");

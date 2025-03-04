@@ -27,12 +27,20 @@ import Products from "../Pages/Master/Products.jsx";
 import Warehouse from "../Pages/Master/Warehouse.jsx";
 import PaymentType from "../Pages/Master/PaymentType.jsx";
 import Company from "../Pages/Master/Company.jsx";
-import Pro
+import ProtectedRoute from "../Provider/ProtectedRoute.jsx"
 
 export const router = createBrowserRouter([
   {
     path: "/",
-    element: <SignUp></SignUp>,
+    element: <SignUp />,
+  },
+  {
+    path: "/",
+    element: (
+      <ProtectedRoute> 
+        <Main /> {/* Ensure a Layout Component like Main is wrapped */}
+      </ProtectedRoute>
+    ),
     children: [
       {
         path: "/",
