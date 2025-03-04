@@ -3,7 +3,10 @@ import { TiPlus } from "react-icons/ti";
 import { FaEdit } from "react-icons/fa";
 import { ImCross } from "react-icons/im";
 import { toast, Toaster } from "react-hot-toast";
+<<<<<<< HEAD
 import axios from "axios";
+=======
+>>>>>>> e49ab72a6deec917cd3c280d5bae999b702eb513
 import AxiosInstance from "../../Components/AxiosInstance";
 
 const Company = () => {
@@ -82,8 +85,8 @@ const Company = () => {
     }
 
     try {
-      const response = await axios.put(
-        `http://127.0.0.1:8000/api/companies/${id}/`,
+      const response = await AxiosInstance.put(
+        `/companies/${id}/`,
         {
           phone_number: phone_number.trim(),
           company_name: company_name.trim(),
@@ -109,7 +112,7 @@ const Company = () => {
 
   const handleDeleteCompany = async (id) => {
     try {
-      await axios.delete(`http://127.0.0.1:8000/api/companies/${id}/`);
+      await AxiosInstance.delete(`/companies/${id}/`);
       setCompany((prev) => prev.filter((item) => item.id !== id));
       toast.success("Company deleted successfully!");
     } catch (error) {

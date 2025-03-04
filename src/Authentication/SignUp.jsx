@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import img from "../../src/assets/fabiana-targino-SY2U0EQWmk0-unsplash.jpg";
+import img from "../../src/assets/simple-stripes-ESHa5_JzKQM-unsplash.jpg";
 import AxiosInstance from "../../src/Components/AxiosInstance";
 import { LuDelete } from "react-icons/lu";
 import { useUser } from "../../src/Provider/UserProvider";
@@ -38,7 +38,7 @@ const SignUp = () => {
 
       refreshUser();
       alert("Login successful!");
-      // navigate("/dashboard");
+      navigate("/dashboard");
     } catch (error) {
       console.error("Error:", error.response?.data || error.message);
 
@@ -121,10 +121,9 @@ const SignUp = () => {
         password: "",
         confirm_password: "",
       });
-
       setShowName1("");
       alert("Registration successful!");
-      navigate("/dashboard");
+      navigate("/company");
     } catch (error) {
       console.error("Error:", error.response?.data || error.message);
       alert(error.response?.data?.message || "Something went wrong!");
