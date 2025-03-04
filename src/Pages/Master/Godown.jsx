@@ -3,17 +3,15 @@ import { TiPlus } from "react-icons/ti";
 import { FaEdit } from "react-icons/fa";
 import { ImCross } from "react-icons/im";
 import { toast, Toaster } from "react-hot-toast";
-import axios from 'axios';
 
 
-
-const Warehouse = () => {
+const Godown = () => {
 
     const [godown, setGodown] = useState([]); 
     const [newGodown, setNewGodown] = useState({
         shop_name: '',
         godown_name: '',
-        address: '',
+        godown_address: '',
       });
     const [editableGodown, setEditableGodown] = useState(null);
 
@@ -40,15 +38,15 @@ useEffect(() => {
 
     // ✅ Validation: Ensure required fields are filled
     if (!shop_name.trim()) {
-        toast.error("⚠️ Shop name required!");
+        toast.error("⚠️ দোকানের নাম আবশ্যক!");
         return;
     }
     if (!godown_name.trim()) {
-        toast.error("⚠️ Warehouse name required!");
+        toast.error("⚠️ গুদামের নাম আবশ্যক!");
         return;
     }
-    if (!address.trim()) {
-        toast.error("⚠️Address required!");
+    if (!godown_address.trim()) {
+        toast.error("⚠️ গুদামের ঠিকানা আবশ্যক!");
         return;
     }
 
@@ -65,100 +63,99 @@ useEffect(() => {
             });
 
             // ✅ Show success message
-            toast.success("Warehouse added successfully!");
+            toast.success("গুদাম সফলভাবে যোগ করা হয়েছে!");
 
             // ✅ Close modal
             document.getElementById('my_modal_5').close();
         } else {
-            toast.error("Failed to add warehouse!");
+            toast.error("গুদাম যোগ করতে ব্যর্থ হয়েছে!");
         }
     } catch (error) {
         console.error("Error adding godown:", error);
-        toast.error("Failed to add warehouse!");
+        toast.error("গুদাম যোগ করতে ব্যর্থ হয়েছে!");
     }
 };
 
     
 
 
-const handleEditGodown = async () => {
-    if (!editableGodown) return;
-
-    const { shop_name, godown_name, address, id } = editableGodown;
-
-    // ✅ Validation: Ensure required fields are filled
-    if (!shop_name.trim()) {
-        toast.error("⚠️ Shop name required!");
-        return;
-    }
-    if (!godown_name.trim()) {
-        toast.error("⚠️ Warehouse name required!");
-        return;
-    }
-    if (!address.trim()) {
-        toast.error("⚠️Address required!");
-        return;
-    }
-    // ✅ Check if any changes were made before updating
-    const originalGodown = godown.find((g) => g.id === id);
-
-    if (
-        originalGodown &&
-        originalGodown.shop_name === shop_name.trim() &&
-        originalGodown.godown_name === godown_name.trim() &&
-        originalGodown.address === address.trim()
-    ) {
-        toast.error("⚠️ No change detected!");
-        return;
-    }
-
-    try {
-        const response = await axios.put(`http://127.0.0.1:8000/api/godowns/${id}/`, {
-            shop_name: shop_name.trim(),
-            godown_name: godown_name.trim(),
-            address: address.trim(),
-        });
-
-        if (response.status === 200) {
-            // ✅ Update `godown` state instantly
-            setGodown((prev) =>
-                prev.map((item) => (item.id === id ? response.data : item))
-            );
-
-            // ✅ Show success message
-            toast.success("Warehouse updated successfully!");
-
-            // ✅ Close modal & Reset edit state
-            setEditableGodown(null);
-            document.getElementById("my_modal_5").close();
-        } else {
-            toast.error("Failed to update warehouse!");
-        }
-    } catch (error) {
-        console.error("Error updating godown:", error);
-        toast.error("Failed to update warehouse!");
-    }
-};
-
+    const handleEditGodown = async () => {
+      if (!editableGodown) return;
+  
+      const { shop_name, godown_name, address, id } = editableGodown;
+  
+      // ✅ Validation: Ensure required fields are filled
+      if (!shop_name.trim()) {
+          toast.error("⚠️ দোকানের নাম আবশ্যক!");
+          return;
+      }
+      if (!godown_name.trim()) {
+          toast.error("⚠️ গুদামের নাম আবশ্যক!");
+          return;
+      }
+      if (!address.trim()) {
+          toast.error("⚠️ গুদামের ঠিকানা আবশ্যক!");
+          return;
+      }
+  
+      // ✅ Check if any changes were made before updating
+      const originalGodown = godown.find((g) => g.id === id); // 🔹 FIXED: Replaced `godowns` with `godown`
+  
+      if (
+          originalGodown &&
+          originalGodown.shop_name === shop_name.trim() &&
+          originalGodown.godown_name === godown_name.trim() &&
+          originalGodown.address === address.trim()
+      ) {
+          toast.error("⚠️ কোনো পরিবর্তন করা হয়নি!");
+          return;
+      }
+  
+      try {
+          const response = await AxiosInstance.put(`/godown/${id}/`, {
+              shop_name: shop_name.trim(),
+              godown_name: godown_name.trim(),
+              address: address.trim(),
+          });
+  
+          if (response.status === 200) {
+              // ✅ Update `godown` state instantly
+              setGodown((prev) =>
+                  prev.map((item) => (item.id === id ? response.data : item))
+              );
+  
+              // ✅ Show success message
+              toast.success("গুদাম সফলভাবে আপডেট হয়েছে!");
+  
+              // ✅ Close modal & Reset edit state
+              setEditableGodown(null);
+              document.getElementById("my_modal_5").close();
+          } else {
+              toast.error("গুদাম আপডেট করতে ব্যর্থ হয়েছে!");
+          }
+      } catch (error) {
+          console.error("Error updating godown:", error);
+          toast.error("গুদাম আপডেট করতে ব্যর্থ হয়েছে!");
+      }
+  };
   
   
-const handleDeleteGodown = async (id) => {
+  const handleDeleteGodown = async (id) => {
     try {
-        await axios.delete(`http://127.0.0.1:8000/api/godowns/${id}/`);
+        await AxiosInstance.delete(`/godown/${id}/`);
 
         // ✅ Instantly update the state
         setGodown((prev) => prev.filter((item) => item.id !== id));
 
         // ✅ Show success toast
-        toast.success("Warehouse deleted successfully!");
+        toast.success("গুদাম সফলভাবে মুছে ফেলা হয়েছে!");
     } catch (error) {
         console.error("Error deleting godown:", error);
 
         // ❌ Show error toast
-        toast.error("Failed to delete warehouse! ");
+        toast.error("গুদাম মুছতে ব্যর্থ হয়েছে!");
     }
 };
-
 
 
      // handlw search
@@ -176,20 +173,20 @@ const handleDeleteGodown = async (id) => {
     return (
       <div className="m-8">
         <div className="">
-        <h2 className="text-sm mb-1">Warehouse name :*</h2>
+        <h2 className="text-sm">গুদামের নাম :*</h2>
           <div className="flex justify-between items-center ">
           <div className="">
             <div className="join items-center">
               <input
                 type="text"
                 id="godownName"
-                placeholder="Enter warehouse name"
+                placeholder="Enter গুদামের নাম"
                  className="input input-bordered text-sm rounded-s-md h-[30px] join-item"
                 // className="  px-4 py-2 w-1/4 "
               />
               <div className="indicator">
                 <button
-                  className="btn btn-sm rounded-s-none join-item bg-blue-700 text-white"
+                  className="btn btn-sm rounded-s-none join-item bg-blue-950 text-white"
                   onClick={handleSearch} // Trigger the search when button is clicked
                 >
                   Search
@@ -199,7 +196,7 @@ const handleDeleteGodown = async (id) => {
           </div>
             <div>
               <button
-                className="btn btn-sm bg-blue-700 text-white"
+                className="btn btn-sm bg-blue-950 text-white"
                 onClick={() =>
                   document.getElementById("my_modal_5").showModal()
                 }
@@ -211,23 +208,22 @@ const handleDeleteGodown = async (id) => {
        <div className="m-8">
        <label
               htmlFor="godownName"
-              className="block text-center text-lg  pb-2 border-b-[1px] text-gray-700 font-bold"
+              className="block text-center  pb-2 border-b-[1px] text-gray-700 font-bold"
             >
-             List of warehouse
+              গুদামের নামের তালিকা
             </label>
        </div>
           <div className="overflow-x-auto ">
        
-            <table className="table table-xs text-md table-zebra table-fixed table-compact w-3/4 mx-auto">
-              <thead className="bg-blue-700 text-white font-md font-normal">
+            <table className="table table-xs text-sm table-zebra table-fixed table-compact w-3/4 mx-auto">
+              <thead className="bg-gray-200 text-black font-md font-normal">
                 <tr className="text-center">
                   <th className="px-4 py-2">SL</th>
-                  <th className="px-4 py-2">Shop Name</th>
-<th className="px-4 py-2">Warehouse Name</th>
-<th className="px-4 py-2">Warehouse Address</th>
-<th className="px-4 py-2">Edit</th>
-<th className="px-4 py-2">Delete</th>
-
+                  <th className="px-4 py-2">দোকানের নাম</th>
+                  <th className="px-4 py-2">গুদামের নাম</th>
+                  <th className="px-4 py-2">গুদামের ঠিকানা</th>
+                  <th className="px-4 py-2">সম্পাদনা</th>
+                  <th className="px-4 py-2">মুছে ফেলুন</th>
                 </tr>
               </thead>
               <tbody className="text-center">
@@ -265,7 +261,7 @@ const handleDeleteGodown = async (id) => {
   ) : (
     <tr>
       <td colSpan="6" className="px-4 py-6 text-gray-500">
-        No warehouse found!
+        কোনো গুদাম পাওয়া যায়নি!
       </td>
     </tr>
   )}
@@ -364,7 +360,7 @@ const handleDeleteGodown = async (id) => {
             {/* Modal Action */}
             <div className="modal-action justify-center">
               <button
-                className="btn bg-blue-700 text-white mx-auto"
+                className="btn bg-blue-950 text-white mx-auto"
                 onClick={editableGodown ? handleEditGodown : handleAddGodown} // Trigger appropriate action
               >
                 {editableGodown ? "Update Godown" : "Add Godown"}
@@ -378,4 +374,4 @@ const handleDeleteGodown = async (id) => {
     );
 };
 
-export default Warehouse;
+export default Godown;

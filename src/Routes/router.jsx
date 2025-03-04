@@ -4,7 +4,7 @@ import Main from "../Layout/Main";
 
 import Product from "../Pages/Product/Product.jsx";
 import Home from "../Pages/HomePage/Home/Home/Home.jsx";
-import SignUp from "../SignUp.jsx";
+import SignUp from "../../src/Authentication/SignUp.jsx";
 import Security from "../Pages/Security/Security.jsx";
 
 import Master from "../Pages/Master/Company.jsx";
@@ -18,7 +18,6 @@ import ShopkeeperProfile from "../ShopKeeper/ShopKeeperProfile.jsx";
 import UserProfile from "../Users/UserProfile.jsx";
 import AdminDashboard from "../Admin/AdminDashord/AdminDashboard.jsx";
 import SalesNew from "../Pages/Sales/SalesNew.jsx";
-import SignIn from "../SignIn.jsx";
 import ForgotPassword from "../Authentication/ForgotPassword.jsx";
 import Stock from "../Pages/Stock/Stock.jsx";
 import Bill from "../Pages/Bill/Bill.jsx";
@@ -26,13 +25,14 @@ import Report from "../Pages/Report/Report.jsx";
 import Invoice from "../Pages/Invoice/Invoice.jsx";
 import Products from "../Pages/Master/Products.jsx";
 import Warehouse from "../Pages/Master/Warehouse.jsx";
-import Company from "../Pages/Master/Company.jsx";
 import PaymentType from "../Pages/Master/PaymentType.jsx";
+import Company from "../Pages/Master/Company.jsx";
+import Pro
 
 export const router = createBrowserRouter([
   {
     path: "/",
-    element: <Main />,
+    element: <SignUp></SignUp>,
     children: [
       {
         path: "/",
@@ -47,6 +47,11 @@ export const router = createBrowserRouter([
         path: "/master",
         element: <Master></Master>,
       },
+      {
+        path: "/company",
+        element: <Company></Company>,
+      },
+   
       {
         path: "/purchase",
         element: <PurchaseReceiveForm></PurchaseReceiveForm>,
@@ -117,23 +122,16 @@ export const router = createBrowserRouter([
         path: "/warehouse",
         element:<Warehouse></Warehouse>,
       },
-      {
-        path: "/company",
-        element:<Company></Company>
-      },
+
       {
         path: "/payment-types",
         element:<PaymentType></PaymentType>,
       },
   
-      {
-        path: "/sign-in",
-        element: <SignIn></SignIn>,
-      },
-      {
-        path: "/signup",
-        element: <SignUp></SignUp>,
-      },
+      // {
+      //   path: "/signup",
+      //   element: <SignUp></SignUp>,
+      // },
     ],
   },
 ]);

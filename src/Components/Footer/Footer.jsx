@@ -2,7 +2,7 @@
 
 const Footer = () => {
   return (
-    <footer className="bg-gray-800 text-white py-4 text-center fixed bottom-0 w-full">
+    <footer className="bg-gray-800 text-white py-4 text-center fixed shadow-md z-50 bottom-0 w-full">
       <p>Sharif Paper and Stationery | Developed by Uthshab Technology Limited</p>
     </footer>
   );
