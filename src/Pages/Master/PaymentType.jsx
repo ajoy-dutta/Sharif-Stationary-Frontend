@@ -3,7 +3,7 @@ import { TiPlus } from "react-icons/ti";
 import { FaEdit } from "react-icons/fa";
 import { ImCross } from "react-icons/im";
 import { toast, Toaster } from "react-hot-toast";
-import axios from "axios"; 
+import AxiosInstance from "../../Components/AxiosInstance";
 
 const PaymentType = () => {
     const [searchTerm, setSearchTerm] = useState("");
@@ -19,7 +19,7 @@ const PaymentType = () => {
 
     const fetchPaymentMethods = async () => {
         try {
-            const response = await axios.get("http://127.0.0.1:8000/api/payment_method/");
+            const response = await AxiosInstance.get("/payment_method/");
             setPayment(response.data);
             setBackupPayment(response.data); // ✅ Store unfiltered data
         } catch (error) {
@@ -35,16 +35,19 @@ const PaymentType = () => {
         }
     
         try {
-            const response = await axios.post(
-                "http://127.0.0.1:8000/api/payment_method/",
+            const response = await AxiosInstance.post(
+                "/payment_method/",
                 { payment_method: paymentMethod.trim() }, // ✅ Ensure data format is correct
                 { headers: { "Content-Type": "application/json" } } // ✅ Add headers
             );
-    
+     
             // ✅ Update state correctly
             setPayment([...payment, response.data]);
     
-            // ✅ Clear input and close modal
+            // ✅ Clear input and close modal 
+
+
+
             setNewPaymentMethod("");
             document.getElementById("my_modal_5").close();
             toast.success("✅ পেমেন্ট পদ্ধতি সফলভাবে যোগ করা হয়েছে!");
@@ -74,8 +77,8 @@ const PaymentType = () => {
         }
 
         try {
-            const response = await axios.put(
-                `http://127.0.0.1:8000/api/payment_method/${id}/`,
+            const response = await AxiosInstance.put(
+                `/payment_method/${id}/`,
                 { payment_method: payment_method.trim() }
             );
 
@@ -94,7 +97,7 @@ const PaymentType = () => {
     // Delete a payment method
     const handleDeletePayment = async (id) => {
         try {
-            await axios.delete(`http://127.0.0.1:8000/api/payment_method/${id}/`);
+            await AxiosInstance.delete(`/payment_method/${id}/`);
             setPayment((prev) => prev.filter((item) => item.id !== id));
             setBackupPayment((prev) => prev.filter((item) => item.id !== id)); // ✅ Remove from backup
             toast.success("✅ পেমেন্ট পদ্ধতি সফলভাবে মুছে ফেলা হয়েছে!");

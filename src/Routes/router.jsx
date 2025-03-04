@@ -27,11 +27,24 @@ import Products from "../Pages/Master/Products.jsx";
 import Warehouse from "../Pages/Master/Warehouse.jsx";
 import PaymentType from "../Pages/Master/PaymentType.jsx";
 import Company from "../Pages/Master/Company.jsx";
+<<<<<<< HEAD
+import Dashboard from "../Pages/DashboardPage/Dashboard.jsx";
+=======
+import ProtectedRoute from "../Provider/ProtectedRoute.jsx"
+>>>>>>> b26ec6889ad6b1a7187659b8a7aa92d59f13f749
 
 export const router = createBrowserRouter([
   {
     path: "/",
-    element: <Main />,
+    element: <SignUp />,
+  },
+  {
+    path: "/",
+    element: (
+      <ProtectedRoute> 
+        <Main /> {/* Ensure a Layout Component like Main is wrapped */}
+      </ProtectedRoute>
+    ),
     children: [
       {
         path: "/",
@@ -50,6 +63,12 @@ export const router = createBrowserRouter([
         path: "/company",
         element: <Company></Company>,
       },
+      
+      {
+        path: "/dashboard",
+        element: <Dashboard></Dashboard>,
+      },
+
    
       {
         path: "/purchase",
@@ -127,10 +146,10 @@ export const router = createBrowserRouter([
         element:<PaymentType></PaymentType>,
       },
   
-      {
-        path: "/signup",
-        element: <SignUp></SignUp>,
-      },
+      // {
+      //   path: "/signup",
+      //   element: <SignUp></SignUp>,
+      // },
     ],
   },
 ]);
