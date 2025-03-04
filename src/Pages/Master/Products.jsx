@@ -3,193 +3,195 @@ import { TiPlus } from "react-icons/ti";
 import { FaEdit } from "react-icons/fa";
 import { ImCross } from "react-icons/im";
 import { toast, Toaster } from "react-hot-toast";
-import axios from "axios";
+import AxiosInstance from "../../Components/AxiosInstance";
 
-const Company = () => {
-  const [company, setCompany] = useState([]);
-  const [newCompany, setNewCompany] = useState({
-    company_name: "",
-    phone_number: "",
-    address: "",
+const Products = () => {
+  const [products, setProducts] = useState([]);
+  const [newProduct, setNewProduct] = useState({
+    company_id: "",
+    product_code: "",
+    product_description: "",
+    date: "",
   });
-  const [editableCompany, setEditableCompany] = useState(null);
 
-  // Fetch data from the API
+  const [editableProduct, setEditableProduct] = useState(null);
+
+//   // Fetch products from API
+//   useEffect(() => {
+//     const fetchProducts = async () => {
+//       try {
+//         const response = await AxiosInstance.get("/products/");
+//         setProducts(response.data);
+//         setCompanies(companyResponse.data); // ✅ Update companies state
+//       } catch (error) {
+//         console.error("Error fetching products:", error);
+//       }
+//     };
+//     fetchProducts();
+//   }, []);
+  
+  const [companies, setCompanies] = useState([]);
   useEffect(() => {
-    const fetchCompany = async () => {
+    const fetchProducts = async () => {
       try {
-        const response = await axios.get(
-          "http://127.0.0.1:8000/api/companies/"
-        );
-        setCompany(response.data);
-        console.log(response.data);
+        const response = await AxiosInstance.get("/products/");
+        setProducts(response.data);
+      } catch (error) {
+        console.error("Error fetching products:", error);
+      }
+    };
+  
+    const fetchCompanies = async () => {
+      try {
+        const response = await AxiosInstance.get("/products/"); // ✅ Fetch from products API
+        const uniqueCompanies = response.data.map((product) => product.company); // ✅ Extract unique companies
+        setCompanies(uniqueCompanies);
       } catch (error) {
         console.error("Error fetching companies:", error);
       }
     };
-    fetchCompany();
+  
+    fetchProducts();
+    fetchCompanies();
   }, []);
+  
 
-  const handleAddCompany = async () => {
-    const { phone_number, company_name, address } = newCompany;
+  // Add a new product
+  const handleAddProduct = async () => {
+    const { company_id, product_code, product_description, date } = newProduct;
 
-    // Validation
-    if (!phone_number.trim() || !company_name.trim() || !address.trim()) {
+    if (!company_id.trim() || !product_code.trim() || !product_description.trim() || !date.trim()) {
       toast.error("⚠️ All fields are required!");
       return;
     }
 
     try {
-      const response = await axios.post(
-        "http://127.0.0.1:8000/api/companies/",
-        newCompany
-      );
+      const response = await AxiosInstance.post("/products/", newProduct);
+
       if (response.status === 201) {
-        setCompany((prev) => [...prev, response.data]);
-        setNewCompany({ phone_number: "", company_name: "", address: "" });
-        toast.success("Company added successfully!");
-        document.getElementById("my_modal_5").close();
+        setProducts((prev) => [...prev, response.data]);
+        setNewProduct({ company_id: "", product_code: "", product_description: "", date: "" });
+        toast.success("Product added successfully!");
+        document.getElementById("product_modal").close();
       } else {
-        toast.error("Failed to add company!");
+        toast.error("Failed to add product!");
       }
     } catch (error) {
-      console.error("Error adding company:", error);
-      toast.error("Failed to add company!");
+      console.error("Error adding product:", error.response?.data);
+      toast.error("Failed to add product!");
     }
   };
 
-  const handleEditCompany = async () => {
-    if (!editableCompany) return;
+  // Edit product
+  const handleEditProduct = async () => {
+    if (!editableProduct) return;
 
-    const { phone_number, company_name, address, id } = editableCompany;
+    const { company_id, product_code, product_description, date, id } = editableProduct;
 
-    if (!phone_number.trim() || !company_name.trim() || !address.trim()) {
-        toast.error("⚠️ All fields are required!");
-      return;
-    }
-
-    // Check if any changes were made before updating
-    const originalCompany = company.find((c) => c.id === id);
-    if (
-      originalCompany &&
-      originalCompany.phone_number === phone_number.trim() &&
-      originalCompany.company_name === company_name.trim() &&
-      originalCompany.address === address.trim()
-    ) {
-      toast.error("⚠️ No changes were made!");
+    if (!company_id.trim() || !product_code.trim() || !product_description.trim() || !date.trim()) {
+      toast.error("⚠️ All fields are required!");
       return;
     }
 
     try {
-      const response = await axios.put(
-        `http://127.0.0.1:8000/api/companies/${id}/`,
-        {
-          phone_number: phone_number.trim(),
-          company_name: company_name.trim(),
-          address: address.trim(),
-        }
-      );
+      const response = await AxiosInstance.put(`/products/${id}/`, editableProduct);
 
       if (response.status === 200) {
-        setCompany((prev) =>
-          prev.map((item) => (item.id === id ? response.data : item))
-        );
-        toast.success("Company updated successfully!");
-        setEditableCompany(null);
-        document.getElementById("my_modal_5").close();
+        setProducts((prev) => prev.map((item) => (item.id === id ? response.data : item)));
+        toast.success("Product updated successfully!");
+        setEditableProduct(null);
+        document.getElementById("product_modal").close();
       } else {
-        toast.error("Failed to update company!");
+        toast.error("Failed to update product!");
       }
     } catch (error) {
-      console.error("Error updating company:", error);
-      toast.error("Failed to update company!");
+      console.error("Error updating product:", error);
+      toast.error("Failed to update product!");
     }
   };
 
-  const handleDeleteCompany = async (id) => {
+  // Delete product
+  const handleDeleteProduct = async (id) => {
     try {
-      await axios.delete(`http://127.0.0.1:8000/api/companies/${id}/`);
-      setCompany((prev) => prev.filter((item) => item.id !== id));
-      toast.success("Company deleted successfully!");
+      await AxiosInstance.delete(`/products/${id}/`);
+      setProducts((prev) => prev.filter((item) => item.id !== id));
+      toast.success("Product deleted successfully!");
     } catch (error) {
-      console.error("Error deleting company:", error);
-      toast.error("Failed to delete company!");
+      console.error("Error deleting product:", error);
+      toast.error("Failed to delete product!");
     }
   };
 
   // Handle search
   const handleSearch = () => {
-    const searchTerm = document.getElementById("companyName").value;
-    const filtered = company.filter(
+    const searchTerm = document.getElementById("productSearch").value;
+    const filtered = products.filter(
       (item) =>
-        item.company_name &&
-        item.company_name.toLowerCase().includes(searchTerm.toLowerCase())
+        item.product_code &&
+        item.product_code.toLowerCase().includes(searchTerm.toLowerCase())
     );
-    setCompany(filtered);
+    setProducts(filtered);
   };
 
   return (
     <div className="m-8">
-      <h2 className="text-sm">Company Name:*</h2>
+      <h2 className="text-sm">Search Product:*</h2>
       <div className="flex justify-between items-center">
         <div className="join items-center">
           <input
             type="text"
-            id="companyName"
-            placeholder="Enter company name"
+            id="productSearch"
+            placeholder="Enter product code"
             className="input input-bordered text-sm rounded-s-md h-[30px] join-item"
           />
-          <button
-            className="btn btn-sm bg-blue-700 text-white"
-            onClick={handleSearch}
-          >
+          <button className="btn btn-sm bg-blue-700 text-white" onClick={handleSearch}>
             Search
           </button>
         </div>
-        <button className="btn btn-sm bg-blue-700 text-white" onClick={() => document.getElementById("my_modal_5")?.showModal()}>
-    <TiPlus /> Add Company
-</button>
+        <button className="btn btn-sm bg-blue-700 text-white" onClick={() => document.getElementById("product_modal").showModal()}>
+          <TiPlus /> Add Product
+        </button>
       </div>
+
       <div className="m-8 text-center font-bold text-gray-700 border-b-[1px] pb-2">
-     <h2 className="text-lg"> List of Product </h2>
+        <h2 className="text-lg">List of Products</h2>
       </div>
+
       <div className="overflow-x-auto">
         <table className="table table-sm text-sm table-zebra table-fixed table-compact w-3/4 mx-auto">
           <thead className="bg-blue-700 text-white font-md font-normal">
             <tr className="text-center">
               <th>SL</th>
-              <th>Company Name</th>
-<th>Phone Number</th>
-<th>Address</th>
-<th>Edit</th>
-<th>Delete</th>
-
+              <th>Company ID</th>
+              <th>Added Date</th>
+              <th>Product Code</th>
+              <th>Product Description</th>
+              <th>Edit</th>
+              <th>Delete</th>
             </tr>
           </thead>
           <tbody className="text-center">
-            {company.length > 0 ? (
-              company.map((item, index) => (
+            {products.length > 0 ? (
+              products.map((item, index) => (
                 <tr key={index}>
-                  <td>{item.id}</td>
-                  <td>{item.company_name}</td>
-                  <td>{item.phone_number}</td>
-                  <td>{item.address}</td>
+                  <td>{index + 1}</td>
+                  <td>{item.company.company_name}</td>
+                  <td>{item.date}</td>
+                  <td>{item.product_code}</td>
+                  <td>{item.product_description}</td>
                   <td>
                     <button
                       className="text-blue-500 hover:underline"
                       onClick={() => {
-                        setEditableCompany(item);
-                        document.getElementById("my_modal_5").showModal();
+                        setEditableProduct(item);
+                        document.getElementById("product_modal").showModal();
                       }}
                     >
                       <FaEdit />
                     </button>
                   </td>
                   <td>
-                    <button
-                      className="text-red-500 hover:underline"
-                      onClick={() => handleDeleteCompany(item.id)}
-                    >
+                    <button className="text-red-500 hover:underline" onClick={() => handleDeleteProduct(item.id)}>
                       <ImCross />
                     </button>
                   </td>
@@ -197,8 +199,8 @@ const Company = () => {
               ))
             ) : (
               <tr>
-                <td colSpan="6" className="px-4 py-6 text-gray-500">
-               <span>কোনো কোম্পানি পাওয়া যায়নি!</span>
+                <td colSpan="7" className="px-4 py-6 text-gray-500">
+                  No products found!
                 </td>
               </tr>
             )}
@@ -206,104 +208,106 @@ const Company = () => {
         </table>
       </div>
 
-      <dialog id="my_modal_5" className="modal modal-bottom sm:modal-middle">
-        <div className="modal-box relative">
-          <button
-            className="absolute top-2 right-2 text-lg"
-            onClick={() => document.getElementById("my_modal_5").close()} // Close modal
-          >
-            <ImCross />
-          </button>
+      {/* Modal */}
+     {/* Modal */}
+{/* Modal */}
+<dialog id="product_modal" className="modal modal-bottom sm:modal-middle">
+  <div className="modal-box relative p-6">
+    {/* Close Button */}
+    <button
+      className="absolute top-4 right-4 text-lg"
+      onClick={() => document.getElementById("product_modal").close()}
+    >
+      <ImCross />
+    </button>
 
-          <h3 className="font-bold text-lg my-5 text-center">
-            {editableCompany ? "Edit Company" : "Add Company"}
-          </h3>
+    <h3 className="font-bold text-lg my-5 text-center">
+      {editableProduct ? "Edit Product" : "Add Product"}
+    </h3>
 
-          {/* Company Name Input */}
-          <div className="flex justify-center">
-            <input
-              className="input input-bordered w-80 mx-auto mb-4"
-              placeholder="Enter Company Name"
-              value={
-                editableCompany
-                  ? editableCompany.company_name
-                  : newCompany.company_name
-              } // Use editableCompany if editing
-              onChange={(e) =>
-                editableCompany
-                  ? setEditableCompany((prev) => ({
-                      ...prev,
-                      company_name: e.target.value,
-                    }))
-                  : setNewCompany((prev) => ({
-                      ...prev,
-                      company_name: e.target.value,
-                    }))
-              }
-            />
-          </div>
+    <div className="space-y-4">
+      {/* 🔹 Company Name Dropdown */}
+      <div className="flex flex-col">
+        <label className="text-sm font-medium text-gray-700 mb-1">Company Name</label>
+        <select
+          className="select select-bordered w-full p-2"
+          value={editableProduct ? editableProduct.company_id : newProduct.company_id}
+          onChange={(e) =>
+            editableProduct
+              ? setEditableProduct((prev) => ({ ...prev, company_id: e.target.value }))
+              : setNewProduct((prev) => ({ ...prev, company_id: e.target.value }))
+          }
+        >
+          <option value="">Select Company</option>
+          {companies.map((company) => (
+            <option key={company.id} value={company.id}>
+              {company.company_name}
+            </option>
+          ))}
+        </select>
+      </div>
 
-          {/* phone number Input */}
-          <div className="flex justify-center">
-            <input
-              className="input input-bordered w-80 mx-auto mb-4"
-              placeholder="Enter Phone Number"
-              value={
-                editableCompany
-                  ? editableCompany.phone_number
-                  : newCompany.phone_number
-              } // Use editableCompany if editing
-              onChange={(e) =>
-                editableCompany
-                  ? setEditableCompany((prev) => ({
-                      ...prev,
-                      phone_number: e.target.value,
-                    }))
-                  : setNewCompany((prev) => ({
-                      ...prev,
-                      phone_number: e.target.value,
-                    }))
-              }
-            />
-          </div>
+      {/* 🔹 Product Code */}
+      <div className="flex flex-col">
+        <label className="text-sm font-medium text-gray-700 mb-1">Product Code</label>
+        <input
+          type="text"
+          className="input input-bordered w-full p-2"
+          placeholder="Enter Product Code"
+          value={editableProduct ? editableProduct.product_code : newProduct.product_code}
+          onChange={(e) =>
+            editableProduct
+              ? setEditableProduct((prev) => ({ ...prev, product_code: e.target.value }))
+              : setNewProduct((prev) => ({ ...prev, product_code: e.target.value }))
+          }
+        />
+      </div>
 
-          {/* Company Address Input */}
-          <div className="flex justify-center">
-            <input
-              className="input input-bordered w-80 mx-auto mb-4"
-              placeholder="Enter Company Address"
-              value={
-                editableCompany ? editableCompany.address : newCompany.address
-              } // Use editableCompany if editing
-              onChange={(e) =>
-                editableCompany
-                  ? setEditableCompany((prev) => ({
-                      ...prev,
-                      address: e.target.value,
-                    }))
-                  : setNewCompany((prev) => ({
-                      ...prev,
-                      address: e.target.value,
-                    }))
-              }
-            />
-          </div>
+      {/* 🔹 Product Description */}
+      <div className="flex flex-col">
+        <label className="text-sm font-medium text-gray-700 mb-1">Product Description</label>
+        <input
+          type="text"
+          className="input input-bordered w-full p-2"
+          placeholder="Enter Product Description"
+          value={editableProduct ? editableProduct.product_description : newProduct.product_description}
+          onChange={(e) =>
+            editableProduct
+              ? setEditableProduct((prev) => ({ ...prev, product_description: e.target.value }))
+              : setNewProduct((prev) => ({ ...prev, product_description: e.target.value }))
+          }
+        />
+      </div>
 
-          {/* Modal Action */}
-          <div className="modal-action justify-center">
-            <button
-              className="btn bg-blue-700 text-white mx-auto"
-              onClick={editableCompany ? handleEditCompany : handleAddCompany} // Trigger appropriate action
-            >
-              {editableCompany ? "Update Company" : "Add Company"}
-            </button>
-          </div>
-        </div>
-        <Toaster position="top-center" reverseOrder={false} />
-      </dialog>
-      <Toaster position="top-center" reverseOrder={false} />
+      {/* 🔹 Date Picker */}
+      <div className="flex flex-col">
+        <label className="text-sm font-medium text-gray-700 mb-1">Date</label>
+        <input
+          type="date"
+          className="input input-bordered w-full p-2"
+          value={editableProduct ? editableProduct.date : newProduct.date}
+          onChange={(e) =>
+            editableProduct
+              ? setEditableProduct((prev) => ({ ...prev, date: e.target.value }))
+              : setNewProduct((prev) => ({ ...prev, date: e.target.value }))
+          }
+        />
+      </div>
+    </div>
+
+    {/* 🔹 Action Buttons */}
+    <div className="modal-action justify-center mt-6">
+      <button className="btn bg-blue-700 text-white w-full p-2" onClick={editableProduct ? handleEditProduct : handleAddProduct}>
+        {editableProduct ? "Update Product" : "Add Product"}
+      </button>
+    </div>
+  </div>
+  <Toaster position="top-center" reverseOrder={false} />
+</dialog>
+
+
     </div>
   );
 };
 
-export default Company;
+export default Products;

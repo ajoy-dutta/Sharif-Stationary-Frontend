@@ -4,6 +4,7 @@ import { FaEdit } from "react-icons/fa";
 import { ImCross } from "react-icons/im";
 import { toast, Toaster } from "react-hot-toast";
 import axios from "axios";
+import AxiosInstance from "../../Components/AxiosInstance";
 
 const Company = () => {
   const [company, setCompany] = useState([]);
@@ -18,8 +19,8 @@ const Company = () => {
   useEffect(() => {
     const fetchCompany = async () => {
       try {
-        const response = await axios.get(
-          "http://127.0.0.1:8000/api/companies/"
+        const response = await AxiosInstance.get(
+          "/companies/"
         );
         setCompany(response.data);
         console.log(response.data);
@@ -40,8 +41,8 @@ const Company = () => {
     }
 
     try {
-      const response = await axios.post(
-        "http://127.0.0.1:8000/api/companies/",
+      const response = await AxiosInstance.post(
+        "/companies/",
         newCompany
       );
       if (response.status === 201) {
