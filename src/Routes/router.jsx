@@ -28,6 +28,8 @@ import Warehouse from "../Pages/Master/Warehouse.jsx";
 import PaymentType from "../Pages/Master/PaymentType.jsx";
 import Company from "../Pages/Master/Company.jsx";
 import ProtectedRoute from "../Provider/ProtectedRoute.jsx"
+import Dashboard from "../Pages/DashboardPage/Dashboard.jsx"
+
 
 export const router = createBrowserRouter([
   {
@@ -59,6 +61,12 @@ export const router = createBrowserRouter([
         path: "/company",
         element: <Company></Company>,
       },
+      
+      {
+        path: "/dashboard",
+        element: <Dashboard></Dashboard>,
+      },
+
    
       {
         path: "/purchase",

@@ -1,94 +1,112 @@
+import React from "react";
+import {
+  FaCubes,
+  FaUsers,
+  FaUserAlt,
+  FaHome,
+  FaLongArrowAltUp,
+} from "react-icons/fa";
 
+// Reusable Card Component
+const StatCard = ({ icon, title, value, progressValue, progressColor }) => {
+  return (
+    <div className="h-28 bg-white py-4 px-5 rounded-lg shadow-md hover:shadow-lg transition-all">
+      <div className="flex items-center justify-between">
+        <h2 className="text-gray-700 flex flex-col text-2xl">
+          {icon}
+          <span className="text-lg">{title}</span>
+        </h2>
+        <h2 className={`text-3xl ${progressColor}`}>{value}</h2>
+      </div>
+      <progress
+        className={`progress ${progressColor} w-full`}
+        value={progressValue}
+        max="100"
+      ></progress>
+    </div>
+  );
+};
 
-// //   export default Dashboard;
-// import { Link } from "react-router-dom";
+const Dashboard = () => {
+  const stats = [
+    { icon: <FaCubes />, title: "Total Product", value: 1, progress: 70, color: "progress-error text-pink-400" },
+    { icon: <FaUsers />, title: "Total Suppliers", value: 1, progress: 65, color: "progress-info text-sky-500" },
+    { icon: <FaUserAlt />, title: "Total Customers", value: 100, progress: 40, color: "progress-success text-green-500" },
+    { icon: <FaHome />, title: "Total Houses", value: 130, progress: 70, color: "progress-primary text-purple-500" },
+  ];
 
-// const Dashboard = () => {
-//   return (
-//     <>
-//       {/* Heading Above Navbar */}
-//       <div className="bg-gray-200 text-center py-3">
-//         <h1 className="text-4xl font-extrabold text-red-600">
-//           Sharif Paper <span className="text-red-600">& Stationery</span>
-//         </h1>
-//       </div>
+  return (
+    <div className="px-5 py-3">
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+        {stats.map((stat, index) => (
+          <StatCard
+            key={index}
+            icon={stat.icon}
+            title={stat.title}
+            value={stat.value}
+            progressValue={stat.progress}
+            progressColor={stat.color}
+          />
+        ))}
+      </div>
 
-//       {/* Navbar */}
-//       <nav className="bg-white shadow-md p-4">
-//         <div className="container mx-auto flex justify-between items-center">
-          
-//           {/* Navigation Links */}
-//           <ul className="flex space-x-6">
-//             <li>
-//               <Link to="/security" className="text-gray-800 hover:text-blue-500 font-medium px-3">
-//                 Security
-//               </Link>
-//             </li>
-//             <li>
-//               <Link to="/dashboard" className="text-gray-800 hover:text-blue-500 font-medium px-3">
-//                 Dashboard
-//               </Link>
-//             </li>
-//             <li>
-//               <Link to="/master" className="text-gray-800 hover:text-blue-500 font-medium px-3">
-//                 Master
-//               </Link>
-//             </li>
-//             <li>
-//               <Link to="/purchase" className="text-gray-800 hover:text-blue-500 font-medium px-3">
-//                 Purchase
-//               </Link>
-//             </li>
-//             <li>
-//               <Link to="/transfer" className="text-gray-800 hover:text-blue-500 font-medium px-3">
-//                 Transfer
-//               </Link>
-//             </li>
-//             <li>
-//               <Link to="/production" className="text-gray-800 hover:text-blue-500 font-medium px-3">
-//                 Production
-//               </Link>
-//             </li>
-//             <li>
-//               <Link to="/sales" className="text-gray-800 hover:text-blue-500 font-medium px-3">
-//                 Wholesales
-//               </Link>
-//             </li>
-//             <li>
-//               <Link to="/salesNew" className="text-gray-800 hover:text-blue-500 font-medium px-3">
-//                 SalesNew
-//               </Link>
-//             </li>
-//             <li>
-//               <Link to="/posting" className="text-gray-800 hover:text-blue-500 font-medium px-3">
-//                 Posting
-//               </Link>
-//             </li>
-//             <li>
-//               <Link to="/account" className="text-gray-800 hover:text-blue-500 font-medium px-3">
-//                 Account
-//               </Link>
-//             </li>
-//           </ul>
+      {/* Info & Summary */}
+      <div className="py-6 flex flex-col gap-5 lg:flex-row">
+        {/* Info Section */}
+        <div className="w-full lg:w-1/2 flex">
+          <div className="w-1/3 h-80 bg-sky-400"></div>
+          <div className="w-2/3 bg-white py-8 px-4 flex flex-col gap-12 shadow-md">
+            <div>
+              <h2 className="border-b-2 pb-2 font-semibold">Information</h2>
+              <div className="pt-3 flex justify-between">
+                <div className="flex flex-col">
+                  <h2 className="text-sm text-gray-600">Email</h2>
+                  <h3 className="font-medium">admin@gmail.com</h3>
+                </div>
+                <div className="flex flex-col">
+                  <h3 className="text-sm text-gray-600">Phone</h3>
+                  <h3 className="font-medium">01793250485</h3>
+                </div>
+              </div>
+            </div>
+            <div>
+              <h2 className="border-b-2 pb-2 font-semibold">Address</h2>
+              <div className="flex justify-between pt-3">
+                <h2>Village Name</h2>
+                <h2>Municipality Name</h2>
+              </div>
+              <div className="flex justify-between">
+                <h2>Post Office</h2>
+                <h2>Post Code</h2>
+              </div>
+            </div>
+          </div>
+        </div>
 
-//           {/* Authentication Buttons */}
-//           <div className="flex space-x-4">
-//             <Link to="/sign-in">
-//               <button className="text-white bg-blue-500 hover:bg-blue-600 font-medium px-4 py-2 rounded-md">
-//                 SignIn
-//               </button>
-//             </Link>
-//             <Link to="/signup">
-//               <button className="text-blue-500 border border-blue-500 hover:bg-blue-500 hover:text-white font-medium px-4 py-2 rounded-md">
-//                 Signup
-//               </button>
-//             </Link>
-//           </div>
-//         </div>
-//       </nav>
-//     </>
-//   );
-// };
+        {/* Summary Cards */}
+        <div className="w-full lg:w-1/2 grid grid-cols-2 gap-5">
+          {[
+            { color: "bg-green-400", title: "Daily Total Purchase", value: 27 },
+            { color: "bg-sky-400", title: "Daily Total Purchase", value: 27 },
+            { color: "bg-red-400", title: "Daily Total Sale", value: 126 },
+            { color: "bg-orange-400", title: "Daily Total Due", value: 121 },
+          ].map((card, index) => (
+            <div
+              key={index}
+              className={`${card.color} h-40 flex flex-col justify-center items-center rounded-lg shadow-md`}
+            >
+              <h2 className="text-2xl text-white">{card.title}</h2>
+              <h2 className="flex text-white items-center">
+                <FaLongArrowAltUp /> Count
+              </h2>
+              <h2 className="text-white text-lg">{card.value}</h2>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
 
-// export default Dashboard;
-
+export default Dashboard;

@@ -239,12 +239,13 @@ function PurchaseReceiveForm() {
   };
 
   return (
-    <div className="p-4 bg-gray-100">
+    <div className="m-8 mb-0 mx-12">
       <h2 className="text-xl font-semibold mb-2 -mt-4 text-center">
-        Purchase Receive
+      Purchase & Invoice Information
       </h2>
       <form onSubmit={handleSubmit}>
-        <div className="border border-gray-400 p-2 rounded-md grid grid-cols-8 gap-2 text-sm">
+      <div className="p-4 rounded-xl grid grid-cols-8 gap-2 text-sm bg-white  shadow-[0px_0px_30px_rgba(0,0,0,0.1)]">
+
           {/* 1. Company Name */}
           <div>
             <label className="block text-center">Company Name</label>
@@ -400,11 +401,11 @@ function PurchaseReceiveForm() {
           </div>
         </div>
 
-        <div className="p-4">
+        <div className="mt-4">
           <h3 className="text-xl font-semibold mb-4 text-center">
             Item Details
           </h3>
-          <div className="border border-gray-400 p-0 rounded-md mt-2 w-full flex justify-center">
+          <div className="p-4 rounded-md mt-2 w-full flex justify-center bg-white shadow-[0px_0px_30px_rgba(0,0,0,0.1)] ">
             <div className="overflow-x-auto w-[100%]">
               <table className="table border-collapse w-full">
                 <tbody>
@@ -634,17 +635,17 @@ function PurchaseReceiveForm() {
           </div>
         </div>
 
-        <h3 className="text-2xl font-semibold mb-4 text-center">
+        <h3 className="text-xl font-semibold my-4 text-center">
           Payment Information
         </h3>
 
         {/* Payment Section Wrapper */}
-        <div className="border border-gray-400 p-4 rounded-md mt-4">
+        <div className=" p-4 bg-white  shadow-[0px_0px_30px_rgba(0,0,0,0.1)] rounded-md mt-4">
           {/* Grid Layout for Payment Inputs */}
           <div className="grid grid-cols-10 gap-4">
             {/* Supplier */}
             <div>
-              <label className="block font-medium text-center">Company</label>
+              <label className="block  text-center">Company</label>
               <input
                 type="text"
                 className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
@@ -655,7 +656,7 @@ function PurchaseReceiveForm() {
 
             {/* Previous Due */}
             <div>
-              <label className="block font-medium text-center">
+              <label className="block  text-center">
                 Previous Due
               </label>
               <input
@@ -668,7 +669,7 @@ function PurchaseReceiveForm() {
 
             {/* Today Bill */}
             <div>
-              <label className="block font-medium text-center">
+              <label className="block  text-center">
                 Invoice/Challan Amount
               </label>
               <input
@@ -681,7 +682,7 @@ function PurchaseReceiveForm() {
 
             {/* Today Paid */}
             <div>
-              <label className="block font-medium text-center">
+              <label className="block  text-center">
                 Today Paid Amount
               </label>
               <input
@@ -694,7 +695,7 @@ function PurchaseReceiveForm() {
 
             {/* Paid By (Dropdown) */}
             <div>
-              <label className="block font-medium text-center">Paid By</label>
+              <label className="block text-center">Paid By</label>
               <select
                 className="mt-1 p-2 w-full border border-gray-300 rounded h-9 focus:ring-2 focus:ring-blue-500"
                 value={paidBy}
@@ -707,7 +708,7 @@ function PurchaseReceiveForm() {
 
             {/* Bank Name */}
             <div>
-              <label className="block font-medium text-center">Bank Name</label>
+              <label className="block  text-center">Bank Name</label>
               <input
                 type="text"
                 className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
@@ -718,7 +719,7 @@ function PurchaseReceiveForm() {
 
             {/* Account No */}
             <div>
-              <label className="block font-medium text-center">
+              <label className="block  text-center">
                 Account No.
               </label>
               <input
@@ -731,7 +732,7 @@ function PurchaseReceiveForm() {
 
             {/* Cheque No */}
             <div>
-              <label className="block font-medium text-center">Cheque No</label>
+              <label className="block  text-center">Cheque No</label>
               <input
                 type="text"
                 className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
@@ -742,7 +743,7 @@ function PurchaseReceiveForm() {
 
             {/* Cheque Date */}
             <div>
-              <label className="block font-medium text-center">
+              <label className="block text-center">
                 Cheque Date
               </label>
               <input
@@ -755,7 +756,7 @@ function PurchaseReceiveForm() {
 
             {/* Balance Amount */}
             <div>
-              <label className="block font-medium text-center">
+              <label className="block  text-center">
                 Balance Amount
               </label>
               <input
