@@ -1,7 +1,10 @@
-import { NavLink } from "react-router-dom";
-import { IoMdPersonAdd } from "react-icons/io";
+import { Link, NavLink } from "react-router-dom";
+import { useUser } from "../../Provider/UserProvider";
+import { IoPersonRemoveSharp } from "react-icons/io5"; // Ensure correct import
 
 const Navbar = () => {
+  const { user, signOut } = useUser(); // Get user context
+
   return (
     <div className="navbar sticky top-0 bg-base-100 shadow-md">
       <div className="navbar-start">
@@ -15,291 +18,63 @@ const Navbar = () => {
               viewBox="0 0 24 24"
               stroke="currentColor"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M4 6h16M4 12h8m-8 6h16"
-              />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h8m-8 6h16" />
             </svg>
           </label>
-          <ul
-            tabIndex={0}
-            className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52"
-          >
-            <li>
-              <NavLink
-                to="/dashboard"
-                className={({ isActive }) =>
-                  isActive ? "text-blue-600 font-bold" : "text-gray-800"
-                }
-              >
-                Dashboard
-              </NavLink>
-            </li>
-            <li>
-              <NavLink
-                to="/master"
-                className={({ isActive }) =>
-                  isActive ? "text-blue-600 font-bold" : "text-gray-800"
-                }
-              >
-                Master
-              </NavLink>
-            </li>
-            <li>
-              <NavLink
-                to="/purchase"
-                className={({ isActive }) =>
-                  isActive ? "text-blue-600 font-bold" : "text-gray-800"
-                }
-              >
-                Purchase
-              </NavLink>
-            </li>
-            <li>
-              <NavLink
-                to="/transfer"
-                className={({ isActive }) =>
-                  isActive ? "text-blue-600 font-bold" : "text-gray-800"
-                }
-              >
-                Transfer
-              </NavLink>
-            </li>
-            <li>
-              <NavLink
-                to="/production"
-                className={({ isActive }) =>
-                  isActive ? "text-blue-600 font-bold" : "text-gray-800"
-                }
-              >
-                Production
-              </NavLink>
-            </li>
-            <li>
-              <NavLink
-                to="/sales"
-                className={({ isActive }) =>
-                  isActive ? "text-blue-600 font-bold" : "text-gray-800"
-                }
-              >
-                Wholesale
-              </NavLink>
-            </li>
-            <li>
-              <NavLink
-                to="/salesNew"
-                className={({ isActive }) =>
-                  isActive ? "text-blue-600 font-bold" : "text-gray-800"
-                }
-              >
-                RetailSale
-              </NavLink>
-            </li>
-            <li>
-              <NavLink
-                to="/report"
-                className={({ isActive }) =>
-                  isActive ? "text-blue-600 font-bold" : "text-gray-800"
-                }
-              >
-                Report
-              </NavLink>
-            </li>
-            <li>
-              <NavLink
-                to="/stock"
-                className={({ isActive }) =>
-                  isActive ? "text-blue-600 font-bold" : "text-gray-800"
-                }
-              >
-                Stock
-              </NavLink>
-            </li>
-
-            <li>
-              <NavLink
-                to="/warehouse"
-                className={({ isActive }) =>
-                  isActive ? "text-blue-600 font-bold" : "text-gray-800"
-                }
-              >
-               Warehouse
-              </NavLink>
-            </li> 
-            
+          <ul tabIndex={0} className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
+            <li><NavLink to="/dashboard">Dashboard</NavLink></li>
+            <li><NavLink to="/master">Master</NavLink></li>
+            <li><NavLink to="/purchase">Purchase</NavLink></li>
+            <li><NavLink to="/transfer">Transfer</NavLink></li>
+            <li><NavLink to="/production">Production</NavLink></li>
+            <li><NavLink to="/sales">Wholesale</NavLink></li>
+            <li><NavLink to="/salesNew">Retail Sale</NavLink></li>
+            <li><NavLink to="/report">Report</NavLink></li>
+            <li><NavLink to="/stock">Stock</NavLink></li>
+            <li><NavLink to="/warehouse">Warehouse</NavLink></li>
           </ul>
         </div>
-        <a className="btn btn-ghost normal-case text-xl">
-          Sharif Paper & Stationery
-        </a>
+        <a className="btn btn-ghost normal-case text-xl">Sharif Paper & Stationery</a>
       </div>
 
       {/* Desktop Menu */}
       <div className="navbar-center hidden lg:flex">
         <ul className="menu menu-horizontal px-1">
+          <li><NavLink to="/dashboard">Dashboard</NavLink></li>
           <li>
-            <NavLink
-              to="/dashboard"
-              className={({ isActive }) =>
-                isActive
-                  ? "text-blue-600 font-bold px-3"
-                  : "text-gray-800 hover:text-blue-500 font-medium px-3"
-              }
-            >
-              Dashboard
-            </NavLink>
-          </li>
-
-          <li tabIndex={0}>
             <details>
               <summary>Master</summary>
               <ul className="p-2">
-                <li>
-                  <NavLink
-                    to="/products"
-                    className={({ isActive }) =>
-                      isActive ? "text-blue-600 font-bold" : "text-gray-800"
-                    }
-                  >
-                    Products
-                  </NavLink>
-                </li>
-                <li>
-                  <NavLink
-                    to="/company"
-                    className={({ isActive }) =>
-                      isActive ? "text-blue-600 font-bold" : "text-gray-800"
-                    }
-                  >
-                    Company
-                  </NavLink>
-                </li>
-                <li>
-                  <NavLink
-                    to="/payment-types"
-                    className={({ isActive }) =>
-                      isActive ? "text-blue-600 font-bold  text-nowrap" : "text-gray-800  text-nowrap"
-                    }
-                  >
-                    Payment Types
-                  </NavLink>
-                </li>
-                <li>
-                  <NavLink
-                    to="/warehouse"
-                    className={({ isActive }) =>
-                      isActive ? "text-blue-600 font-bold" : "text-gray-800"
-                    }
-                  >
-                    Warehouse
-                  </NavLink>
-                </li>
+                <li><NavLink to="/products">Products</NavLink></li>
+                <li><NavLink to="/company">Company</NavLink></li>
+                <li><NavLink to="/payment-types">Payment Types</NavLink></li>
+                <li><NavLink to="/warehouse">Warehouse</NavLink></li>
               </ul>
             </details>
           </li>
-
-          <li>
-            <NavLink
-              to="/purchase"
-              className={({ isActive }) =>
-                isActive
-                  ? "text-blue-600 font-bold px-3"
-                  : "text-gray-800 hover:text-blue-500 font-medium px-3"
-              }
-            >
-              Purchase
-            </NavLink>
-          </li>
-
-          <li>
-            <NavLink
-              to="/transfer"
-              className={({ isActive }) =>
-                isActive
-                  ? "text-blue-600 font-bold px-3"
-                  : "text-gray-800 hover:text-blue-500 font-medium px-3"
-              }
-            >
-              Transfer
-            </NavLink>
-          </li>
-
-          <li>
-            <NavLink
-              to="/production"
-              className={({ isActive }) =>
-                isActive
-                  ? "text-blue-600 font-bold px-3"
-                  : "text-gray-800 hover:text-blue-500 font-medium px-3"
-              }
-            >
-              Production
-            </NavLink>
-          </li>
-
-          <li>
-            <NavLink
-              to="/sales"
-              className={({ isActive }) =>
-                isActive
-                  ? "text-blue-600 font-bold px-3"
-                  : "text-gray-800 hover:text-blue-500 font-medium px-3"
-              }
-            >
-              Wholesale
-            </NavLink>
-          </li>
-
-          <li>
-            <NavLink
-              to="/salesNew"
-              className={({ isActive }) =>
-                isActive
-                  ? "text-blue-600 font-bold px-3"
-                  : "text-gray-800 hover:text-blue-500 font-medium px-3"
-              }
-            >
-              RetailSale
-            </NavLink>
-          </li>
-
-          <li>
-            <NavLink
-              to="/report"
-              className={({ isActive }) =>
-                isActive
-                  ? "text-blue-600 font-bold px-3"
-                  : "text-gray-800 hover:text-blue-500 font-medium px-3"
-              }
-            >
-              Report
-            </NavLink>
-          </li>
-
-          <li>
-            <NavLink
-              to="/stock"
-              className={({ isActive }) =>
-                isActive
-                  ? "text-blue-600 font-bold px-3"
-                  : "text-gray-800 hover:text-blue-500 font-medium px-3"
-              }
-            >
-              Stock
-            </NavLink>
-          </li>
+          <li><NavLink to="/purchase">Purchase</NavLink></li>
+          <li><NavLink to="/transfer">Transfer</NavLink></li>
+          <li><NavLink to="/production">Production</NavLink></li>
+          <li><NavLink to="/sales">Wholesale</NavLink></li>
+          <li><NavLink to="/salesNew">Retail Sale</NavLink></li>
+          <li><NavLink to="/report">Report</NavLink></li>
+          <li><NavLink to="/stock">Stock</NavLink></li>
         </ul>
       </div>
 
-      {/* Sign-in Button */}
-      <div className="navbar-end">
-        <NavLink to="/sign-in">
-          <button className="text-white bg-blue-500 hover:bg-blue-600 font-medium px-4 py-2 rounded-md">
-            <IoMdPersonAdd />
+      {/* Authentication Buttons */}
+      <div className="flex space-x-4">
+        {user ? (
+          <button onClick={signOut} className="text-blue-500 border border-blue-500 hover:bg-blue-500 hover:text-white font-medium px-4 py-2 rounded-md">
+            Sign out
           </button>
-        </NavLink>
+        ) : (
+          <Link to="/signup">
+            <button className="text-blue-500 border border-blue-500 hover:bg-blue-500 hover:text-white font-medium px-4 py-2 rounded-md">
+              Sign in
+            </button>
+          </Link>
+        )}
       </div>
     </div>
   );
