@@ -1,6 +1,12 @@
 import { Link } from "react-router-dom";
+import { useUser } from "../../Provider/UserProvider";
+import { IoPersonRemoveSharp } from "react-icons/io5";
+
+
 
 const Navbar = () => {
+  const { user } = useUser(); // Get user context
+const { signOut } = useUser();
   return (
     <>
       {/* Heading Above Navbar */}
@@ -81,16 +87,19 @@ const Navbar = () => {
 
           {/* Authentication Buttons */}
           <div className="flex space-x-4">
-            <Link to="/sign-in">
-              <button className="text-white bg-blue-500 hover:bg-blue-600 font-medium px-4 py-2 rounded-md">
-                SignIn
-              </button>
-            </Link>
-            <Link to="/signup">
-              <button className="text-blue-500 border border-blue-500 hover:bg-blue-500 hover:text-white font-medium px-4 py-2 rounded-md">
-                Signup
-              </button>
-            </Link>
+ 
+          {user ? ( // If user exists, show Logout button
+                          
+                    <button onClick={signOut} className="text-blue-500 border border-blue-500 hover:bg-blue-500 hover:text-white font-medium px-4 py-2 rounded-md">
+                        Sign out
+                    </button>
+            ) : ( // Otherwise, show Sign in button
+                <Link to="/signup">
+                    <button className="text-blue-500 border border-blue-500 hover:bg-blue-500 hover:text-white font-medium px-4 py-2 rounded-md">
+                        Sign in
+                    </button>
+                </Link>
+            )}
           </div>
         </div>
       </nav>

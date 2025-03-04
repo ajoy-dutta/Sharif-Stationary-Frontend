@@ -4,7 +4,7 @@ import Main from "../Layout/Main";
 
 import Product from "../Pages/Product/Product.jsx";
 import Home from "../Pages/HomePage/Home/Home/Home.jsx";
-import SignUp from "../SignUp.jsx";
+import SignUp from "../../src/Authentication/SignUp.jsx";
 import Security from "../Pages/Security/Security.jsx";
 
 import Master from "../Pages/Master/Master.jsx";
@@ -18,7 +18,6 @@ import ShopkeeperProfile from "../ShopKeeper/ShopKeeperProfile.jsx";
 import UserProfile from "../Users/UserProfile.jsx";
 import AdminDashboard from "../Admin/AdminDashord/AdminDashboard.jsx";
 import SalesNew from "../Pages/Sales/SalesNew.jsx";
-import SignIn from "../SignIn.jsx";
 import ForgotPassword from "../Authentication/ForgotPassword.jsx";
 import Stock from "../Pages/Stock/Stock.jsx";
 import Bill from "../Pages/Bill/Bill.jsx";
@@ -106,10 +105,6 @@ export const router = createBrowserRouter([
         element:<AdminDashboard></AdminDashboard>,
       },
     
-      {
-        path: "/sign-in",
-        element: <SignIn></SignIn>,
-      },
       {
         path: "/signup",
         element: <SignUp></SignUp>,

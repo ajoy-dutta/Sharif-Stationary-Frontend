@@ -1,6 +1,7 @@
 import { createContext, useState, useContext, useEffect } from "react";
-import { baseurl } from "../BaseURL";
 import { useNavigate } from "react-router-dom";
+
+import  AxiosInstance  from "../Components/AxiosInstance";
 
 const UserContext = createContext();
 
@@ -17,7 +18,7 @@ export const UserProvider = ({ children }) => {
   const [error, setError] = useState(null);
   
 
-  const token = localStorage.getItem("accessToken");
+  const token = localStorage.getItem("access_token");
 
   const fetchUserData = async () => {
     if (!token) {
@@ -31,23 +32,12 @@ export const UserProvider = ({ children }) => {
       setLoading(true);
       setError(null);
 
-      const response = await fetch(`${baseurl}/user/`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await AxiosInstance.get("/user/");
+      
+      setUser(response.data);
+      localStorage.setItem("user", JSON.stringify(response.data));
 
-      if (!response.ok) {
-        throw new Error(`Error: ${response.status}`);
-      }
-
-      const data = await response.json();
-      setUser(data);
-      localStorage.setItem("user", JSON.stringify(data)); // Save user data to localStorage
-
-    } catch (err) {
+    }  catch (err) {
       console.error(err);
       setError(err.message || "Failed to fetch user data.");
       setUser(null);
@@ -63,7 +53,7 @@ export const UserProvider = ({ children }) => {
 
   // Handle Sign Out
   const signOut = () => {
-    localStorage.removeItem("accessToken"); 
+    localStorage.removeItem("access_token"); 
     localStorage.removeItem("user"); 
     setUser(null);
     
