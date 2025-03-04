@@ -40,11 +40,14 @@ const PaymentType = () => {
                 { payment_method: paymentMethod.trim() }, // ✅ Ensure data format is correct
                 { headers: { "Content-Type": "application/json" } } // ✅ Add headers
             );
-    
+     
             // ✅ Update state correctly
             setPayment([...payment, response.data]);
     
-            // ✅ Clear input and close modal
+            // ✅ Clear input and close modal 
+
+
+
             setNewPaymentMethod("");
             document.getElementById("my_modal_5").close();
             toast.success("✅ পেমেন্ট পদ্ধতি সফলভাবে যোগ করা হয়েছে!");
