@@ -1,394 +1,235 @@
 import { useState } from "react";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { jsPDF } from "jspdf";
+import "jspdf-autotable";
 
-const SalesNew = () => {
-  const [formData, setFormData] = useState({
-    date: "",
-    voucherNo: "",
-    customer: "",
-    customerAddress: "",
-    phoneNumber: "",
-    remarks: "",
-    branch: "",
-    servedBy: "",
-    deliveryAddress: "",
-    temporaryCustomer: false,
-    payMethod: "Cash",
-    cardDetails: "",
-    totalAmount: "",
-    discount: "",
-    cardAmount: 0,
-    paidAmount: 0,
-    dueAmount: 0,
-    vatTotal: 0,
-    exchangePoint: 0,
-    netAmount: 0,
-  });
-
-  const [products, setProducts] = useState([
+function PurchaseReceiveForm() {
+  const [date, setDate] = useState("");
+  const [customerID, setCustomerID] = useState("");
+  const [customerName, setCustomerName] = useState("");
+  const [customerAddress, setCustomerAddress] = useState("");
+  const [phoneNo, setPhoneNo] = useState("");
+  const [remarks, setRemarks] = useState("");
+  
+  const [items, setItems] = useState([
     {
-      id: 1,
+      no: 1,
       productCode: "",
-      productTitle: "",
-      rim: "",
-      sheet: "",
-      balance: "",
-      itemTotal: "",
-      discount: "",
-      vat: "",
-      vatAmount: "",
-      total: "",
+      productDescription: "",
+      rimQuantity: "",
+      dozenQuantity: "",
+      sheetQuantity: "",
+      onlySheetPiece: "",
+      totalSheetPiece: "",
+      rimPrice: "",
+      dozenPrice: "",
+      sheetPrice: "",
+      totalAmount: "",
+      remarks: "",
     },
   ]);
 
-  // Handling changes for both formData and products
-  const handleChange = (e, index = null) => {
-    const { name, value, type, checked } = e.target;
+  const [previousDue, setPreviousDue] = useState(0);
+  const [invoiceAmount, setInvoiceAmount] = useState(0);
+  const [todayPaidAmount, setTodayPaidAmount] = useState(0);
+  const [paidBy, setPaidBy] = useState("Cash");
+  const [bankName, setBankName] = useState("");
+  const [accountNo, setAccountNo] = useState("");
+  const [chequeNo, setChequeNo] = useState("");
+  const [chequeDate, setChequeDate] = useState("");
+  const [balanceAmount, setBalanceAmount] = useState(0);
 
-    if (index !== null) {
-      const updatedProducts = [...products];
-      updatedProducts[index] = {
-        ...updatedProducts[index],
-        [name]: type === "checkbox" ? checked : value,
-      };
-      setProducts(updatedProducts);
-    } else {
-      setFormData({
-        ...formData,
-        [name]: type === "checkbox" ? checked : value,
-      });
-    }
-  };
-
-  const handlePreviewInvoice = () => {
-    toast.info("Order item is cancelled");
-  };
-
-  // Handle adding a new product
-  const handleAddProduct = () => {
-    setProducts([
-      ...products,
+  const addRow = () => {
+    setItems([
+      ...items,
       {
-        id: products.length + 1,
+        no: items.length + 1,
         productCode: "",
-        productTitle: "",
-        rim: "",
-        sheet: "",
-        balance: "",
-        itemTotal: "",
-        discount: "",
-        vat: "",
-        vatAmount: "",
-        total: "",
+        productDescription: "",
+        rimQuantity: "",
+        dozenQuantity: "",
+        sheetQuantity: "",
+        onlySheetPiece: "",
+        totalSheetPiece: "",
+        rimPrice: "",
+        dozenPrice: "",
+        sheetPrice: "",
+        totalAmount: "",
+        remarks: "",
       },
     ]);
   };
 
-  // Handle deleting a product field
-  const handleDelete = (index) => {
-    const updatedProducts = [...products];
-    updatedProducts.splice(index, 1);
-    setProducts(updatedProducts);
+  const removeRow = (index) => {
+    const updatedItems = items.filter((_, i) => i !== index);
+    setItems(updatedItems);
   };
 
-  const handleSubmit = () => {
-    toast.success("Customer order Submitted Successfully!");
+  const handleChange = (e, index, field) => {
+    const updatedItems = [...items];
+    updatedItems[index][field] = e.target.value;
+    setItems(updatedItems);
+  };
+
+  const handlePDFExport = () => {
+    const doc = new jsPDF();
+    const tableColumn = [
+      "No",
+      "Item/Product Code",
+      "Product Description",
+      "Rim Quantity",
+      "Dozen Quantity",
+      "Sheet Quantity",
+      "Only Sheet Piece",
+      "Total Sheet Piece",
+      "Rim Price",
+      "Dozen Price",
+      "Sheet Price",
+      "Total Amount",
+      "Remarks",
+    ];
+    const tableRows = items.map((item) => [
+      item.no,
+      item.productCode,
+      item.productDescription,
+      item.rimQuantity,
+      item.dozenQuantity,
+      item.sheetQuantity,
+      item.onlySheetPiece,
+      item.totalSheetPiece,
+      item.rimPrice,
+      item.dozenPrice,
+      item.sheetPrice,
+      item.totalAmount,
+      item.remarks,
+    ]);
+
+    doc.text("Purchase Items Report", 14, 15);
+    doc.autoTable({
+      head: [tableColumn],
+      body: tableRows,
+      startY: 20,
+    });
+
+    doc.save("purchase_items.pdf");
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    alert("Form Submitted Successfully!");
+    console.log({
+      date,
+      customerID,
+      customerName,
+      customerAddress,
+      phoneNo,
+      remarks,
+      items,
+      previousDue,
+      invoiceAmount,
+      todayPaidAmount,
+      paidBy,
+      bankName,
+      accountNo,
+      chequeNo,
+      chequeDate,
+      balanceAmount,
+    });
   };
 
   return (
-    <div className="max-w-6xl mx-auto p-6">
-<div className="text-center py-4">
-  <span className="text-2xl font-bold text-gray-700">খুচরা বিক্রেতার জন্য</span>
-</div>
+    <div className="m-8 mb-0 mx-12">
+      <h2 className="text-xl font-semibold mb-2 -mt-4 text-center">
+        Sale & Invoice Information
+      </h2>
+      <form onSubmit={handleSubmit}>
+        <div className="p-4 rounded-xl grid grid-cols-8 gap-2 text-sm bg-white shadow-md">
+          {/* Date */}
+          <div>
+            <label className="block text-center">Date</label>
+            <input
+              type="date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+            />
+          </div>
 
-      {/* Customer Section */}
-      <div className="grid grid-cols-6 gap-4 mb-6 border p-8 rounded-lg shadow">
-        {/* <h2 className="col-span-4 text-lg font-semibold">Customer</h2> */}
+          {/* Customer ID */}
+          <div>
+            <label className="block text-center">Customer ID</label>
+            <input
+              type="text"
+              value={customerID}
+              onChange={(e) => setCustomerID(e.target.value)}
+            />
+          </div>
 
-        <div>
-          <label className="block text-sm font-medium">Date</label>
-          <input
-            type="text" // Changed to text input for dd/mm/yy format
-            name="date"
-            value={formData.date}
-            onChange={handleChange}
-            placeholder="dd/mm/yy"
-            className="w-full px-4 py-1 border border-gray-300 rounded"
-          />
+          {/* Customer Name */}
+          <div>
+            <label className="block text-center">Customer Name</label>
+            <input
+              type="text"
+              value={customerName}
+              onChange={(e) => setCustomerName(e.target.value)}
+            />
+          </div>
+
+          {/* Customer Address */}
+          <div>
+            <label className="block text-center">Customer Address</label>
+            <input
+              type="text"
+              value={customerAddress}
+              onChange={(e) => setCustomerAddress(e.target.value)}
+            />
+          </div>
+
+          {/* Phone No */}
+          <div>
+            <label className="block text-center">Phone No</label>
+            <input
+              type="text"
+              value={phoneNo}
+              onChange={(e) => setPhoneNo(e.target.value)}
+            />
+          </div>
+
+          {/* Remarks */}
+          <div>
+            <label className="block text-center">Remarks</label>
+            <input
+              type="text"
+              value={remarks}
+              onChange={(e) => setRemarks(e.target.value)}
+            />
+          </div>
         </div>
-        <div>
-          <label className="block text-sm font-medium">Voucher Number</label>
-          <input
-            type="text"
-            name="voucherNo"
-            value={formData.voucherNo}
-            onChange={handleChange}
-            className="w-full px-4 py-1 border border-gray-300 rounded"
-          />
+
+        {/* Buttons */}
+        <div className="mt-6 flex justify-between space-x-4">
+          <button
+            type="button"
+            onClick={handlePDFExport}
+            className="bg-blue-500 text-white p-2 rounded flex-1"
+          >
+            Export to PDF
+          </button>
+          <button
+            type="submit"
+            className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 flex-1"
+          >
+            Submit
+          </button>
+          <button
+            type="button"
+            onClick={() => alert("Form Cancelled")}
+            className="bg-red-500 text-white p-2 rounded hover:bg-red-600 flex-1"
+          >
+            Cancel
+          </button>
         </div>
-
-        <div>
-          <label className="block text-sm font-medium">Customer Name</label>
-          <input
-            type="text"
-            name="customer"
-            value={formData.customer}
-            onChange={handleChange}
-            className="w-full px-4 py-1 border border-gray-300 rounded"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium">Customer Address</label>
-          <input
-            type="text"
-            name="customerAddress"
-            value={formData.customerAddress}
-            onChange={handleChange}
-            className="w-full px-4 py-1 border border-gray-300 rounded"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium">Phone Number</label>
-          <input
-            type="text"
-            name="phoneNumber"
-            value={formData.phoneNumber}
-            onChange={handleChange}
-            className="w-full px-4 py-1 border border-gray-300 rounded"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium">Remarks</label>
-          <input
-            type="text"
-            name="remarks"
-            value={formData.remarks}
-            onChange={handleChange}
-            className="w-full px-4 py-1 border border-gray-300 rounded"
-          />
-        </div>
-      </div>
-
-      {/* Product Details Section */}
-      <div className="max-w-6xl mx-auto p-6">
-  <h2 className="text-lg font-semibold mb-4">Product Details</h2>
-
-  {products.map((product, index) => (
-    <div
-      key={index}
-      className="flex items-center gap-4 mb-4 border p-4 rounded-lg shadow"
-    >
-      <div className="flex-1">
-        <label className="block text-sm font-medium">Product's Company</label>
-        <input
-          type="text"
-          name="balance"
-          value={product.balance}
-          onChange={(e) => handleChange(e, index)}
-          className="w-full px-4 py-1 border border-gray-300 rounded"
-        />
-      </div>
-      <div className="flex-1">
-        <label className="block text-sm font-medium">Product Code</label>
-        <input
-          type="text"
-          name="productCode"
-          value={product.productCode}
-          onChange={(e) => handleChange(e, index)}
-          className="w-full px-4 py-1 border border-gray-300 rounded"
-        />
-      </div>
-      <div className="flex-1">
-        <label className="block text-sm font-medium">Product Title / Name</label>
-        <input
-          type="text"
-          name="productTitle"
-          value={product.productTitle}
-          onChange={(e) => handleChange(e, index)}
-          className="w-full px-4 py-1 border border-gray-300 rounded"
-        />
-      </div>
-      <div className="flex-1">
-        <label className="block text-sm font-medium">Rim's Quantity</label>
-        <input
-          type="text"
-          name="rim"
-          value={product.rim}
-          onChange={(e) => handleChange(e, index)}
-          className="w-full px-4 py-1 border border-gray-300 rounded"
-        />
-      </div>
-      <div className="flex-1">
-        <label className="block text-sm font-medium">Sheet's Quantity</label>
-        <input
-          type="text"
-          name="sheet"
-          value={product.sheet}
-          onChange={(e) => handleChange(e, index)}
-          className="w-full px-4 py-1 border border-gray-300 rounded"
-        />
-      </div>
-      <div className="flex-1">
-        <label className="block text-sm font-medium">Num of Product</label>
-        <input
-          type="text"
-          name="itemTotal"
-          value={product.itemTotal}
-          onChange={(e) => handleChange(e, index)}
-          className="w-full px-4 py-1 border border-gray-300 rounded"
-        />
-      </div>
-      <div className="flex-1">
-        <label className="block text-sm font-medium">VAT</label>
-        <input
-          type="text"
-          name="vat"
-          value={product.vat}
-          onChange={(e) => handleChange(e, index)}
-          className="w-full px-4 py-1 border border-gray-300 rounded"
-        />
-      </div>
-      <div className="flex-1">
-        <label className="block text-sm font-medium">Product Size</label>
-        <input
-          type="text"
-          name="vatAmount"
-          value={product.vatAmount}
-          onChange={(e) => handleChange(e, index)}
-          className="w-full px-4 py-1 border border-gray-300 rounded"
-        />
-      </div>
-      <div className="w-24">
-        <button
-          type="button"
-          onClick={() => handleDelete(index)}
-          className="px-4 py-1 bg-red-500 text-white rounded"
-        >
-          Delete
-        </button>
-      </div>
-    </div>
-  ))}
-
-  <div className="text-center">
-    <button
-      type="button"
-      onClick={handleAddProduct}
-      className="px-6 py-1 bg-green-500 text-white rounded-lg"
-    >
-      Add New Product
-    </button>
-  </div>
-</div>
-
-
-      {/* Payment and Summary Section */} 
-      <div className="w-36 h-7 bg-green-500 text-white text-sm  flex items-center justify-center rounded-md shadow-md ml-2 mb-2">
-  Payment Status
-  <br />
-</div>
-
-      <div className="grid grid-cols-4 gap-4 mb-6">
-   
-        <div>
-          <label className="block text-sm font-medium">Due Amount</label>
-          <input
-            type="number"
-            name="cardAmount"
-            value={formData.cardAmount}
-            onChange={handleChange}
-            className="w-full px-16 py-1 border border-gray-300 rounded"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium">Today Bill</label>
-          <input
-            type="number"
-            name="paidAmount"
-            value={formData.paidAmount}
-            onChange={handleChange}
-            className="w-full px-16 py-1 border border-gray-300 rounded"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium">Total Amount</label>
-          <input
-            type="number"
-            name="dueAmount"
-            value={formData.dueAmount}
-            onChange={handleChange}
-            className="w-full px-16 py-1 border border-gray-300 rounded"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium">Discount</label>
-          <input
-            type="number"
-            name="discount"
-            value={formData.discount}
-            onChange={handleChange}
-            className="w-full px-16 py-1 border border-gray-300 rounded"
-          />
-        </div>
-      </div>
-
-      <div className="grid grid-cols-4 gap-4 mb-6">
-        <div>
-          <label className="block text-sm font-medium">Paid Amount</label>
-          <input
-            type="number"
-            name="vatTotal"
-            value={formData.vatTotal}
-            onChange={handleChange}
-            className="w-full px-16 py-1 border border-gray-300 rounded"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium">VAT</label>
-          <input
-            type="number"
-            name="exchangePoint"
-            value={formData.exchangePoint}
-            onChange={handleChange}
-            className="w-full px-16 py-1 border border-gray-300 rounded"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium">Net Amount</label>
-          <input
-            type="number"
-            name="netAmount"
-            value={formData.netAmount}
-            onChange={handleChange}
-            className="w-full px-16 py-1 border border-gray-300 rounded"
-          />
-        </div>
-      </div>
-
-      {/* Buttons */}
-      <div className="flex justify-between mt-4">
-        <button
-          onClick={handlePreviewInvoice}
-          className="px-4 py-2 bg-gray-500 text-white rounded"
-        >
-          Cancel
-        </button>
-        <button
-          onClick={handleSubmit}
-          className="px-4 py-2 bg-blue-500 text-white rounded"
-        >
-          Submit
-        </button>
-      </div>
-
-      {/* Toast Container */}
-      <ToastContainer />
+      </form>
     </div>
   );
-};
+}
 
-export default SalesNew;
+export default PurchaseReceiveForm;
