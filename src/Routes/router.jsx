@@ -35,7 +35,6 @@ import ProtectedRoute from "../Provider/ProtectedRoute.jsx"
 import Dashboard from "../Pages/DashboardPage/Dashboard.jsx"
 
 
-
 export const router = createBrowserRouter([
   {
     path: "/",

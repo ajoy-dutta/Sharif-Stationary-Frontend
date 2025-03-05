@@ -226,7 +226,7 @@ const [otherCost, setOtherCost] = useState(0);
   };
 
   return (
-    <div className="p-8 bg-gray-100">
+    <div className="p-8 bg-gray-100 flex-grow">
       <h2 className="text-2xl font-semibold mb-4 text-center">
         Sale Receive 
       </h2>
