@@ -16,20 +16,20 @@ const Products = () => {
 
   const [editableProduct, setEditableProduct] = useState(null);
 
-//   // Fetch products from API
-//   useEffect(() => {
-//     const fetchProducts = async () => {
-//       try {
-//         const response = await AxiosInstance.get("/products/");
-//         setProducts(response.data);
-//         setCompanies(companyResponse.data); // ✅ Update companies state
-//       } catch (error) {
-//         console.error("Error fetching products:", error);
-//       }
-//     };
-//     fetchProducts();
-//   }, []);
-  
+  //   // Fetch products from API
+  //   useEffect(() => {
+  //     const fetchProducts = async () => {
+  //       try {
+  //         const response = await AxiosInstance.get("/products/");
+  //         setProducts(response.data);
+  //         setCompanies(companyResponse.data); // ✅ Update companies state
+  //       } catch (error) {
+  //         console.error("Error fetching products:", error);
+  //       }
+  //     };
+  //     fetchProducts();
+  //   }, []);
+
   const [companies, setCompanies] = useState([]);
   useEffect(() => {
     const fetchProducts = async () => {
@@ -40,7 +40,7 @@ const Products = () => {
         console.error("Error fetching products:", error);
       }
     };
-  
+
     const fetchCompanies = async () => {
       try {
         const response = await AxiosInstance.get("/companies/"); // ✅ Fetch from products API
@@ -50,17 +50,21 @@ const Products = () => {
         console.error("Error fetching companies:", error);
       }
     };
-  
+
     fetchProducts();
     fetchCompanies();
   }, []);
-  
 
   // Add a new product
   const handleAddProduct = async () => {
     const { company_id, product_code, product_description, date } = newProduct;
 
-    if (!company_id.trim() || !product_code.trim() || !product_description.trim() || !date.trim()) {
+    if (
+      !company_id.trim() ||
+      !product_code.trim() ||
+      !product_description.trim() ||
+      !date.trim()
+    ) {
       toast.error("⚠️ All fields are required!");
       return;
     }
@@ -70,7 +74,12 @@ const Products = () => {
 
       if (response.status === 201) {
         setProducts((prev) => [...prev, response.data]);
-        setNewProduct({ company_id: "", product_code: "", product_description: "", date: "" });
+        setNewProduct({
+          company_id: "",
+          product_code: "",
+          product_description: "",
+          date: "",
+        });
         toast.success("Product added successfully!");
         document.getElementById("product_modal").close();
       } else {
@@ -85,25 +94,42 @@ const Products = () => {
   // Edit product
   const handleEditProduct = async () => {
     if (!editableProduct) return;
-  
-    const { company_id, product_code, product_description, date, id } = editableProduct;
-  console.log("companyid",company_id)
-    if (!company_id.trim() || !product_code.trim() || !product_description.trim() || !date.trim()) {
+
+    const { company_id, product_code, product_description, date, id } =
+      editableProduct;
+    if (
+      !company_id.trim() ||
+      !product_code.trim() ||
+      !product_description.trim() ||
+      !date.trim()
+    ) {
       toast.error("⚠️ All fields are required!");
       return;
     }
-  
+
     try {
-      const response = await AxiosInstance.put(`/products/${id}/`, editableProduct);
-  
+      const response = await AxiosInstance.put(
+        `/products/${id}/`,
+        editableProduct
+      );
+
       if (response.status === 200) {
-        setProducts((prev) => prev.map((item) => (item.id === id ? response.data : item)));
+        setProducts((prev) =>
+          prev.map((item) => (item.id === id ? response.data : item))
+        );
         toast.success("Product updated successfully!");
-  
+
+        toast.success("Product updated successfully!");
+
         // ✅ Clear Form Data
         setEditableProduct(null); // Clears form after updating
-        setNewProduct({ company_id: "", product_code: "", product_description: "", date: "" });
-  
+        setNewProduct({
+          company_id: "",
+          product_code: "",
+          product_description: "",
+          date: "",
+        });
+
         // ✅ Close Modal
         document.getElementById("product_modal").close();
       } else {
@@ -114,7 +140,6 @@ const Products = () => {
       toast.error("Failed to update product!");
     }
   };
-  
 
   // Delete product
   const handleDeleteProduct = async (id) => {
@@ -156,21 +181,28 @@ const Products = () => {
             placeholder="Enter product code"
             className="input input-bordered text-sm rounded-s-md h-[30px] join-item"
           />
-          <button className="btn btn-sm bg-blue-700 text-white" onClick={handleSearch}>
+          <button
+            className="btn btn-sm bg-blue-700 text-white"
+            onClick={handleSearch}
+          >
             Search
           </button>
         </div>
         <button
-  className="btn btn-sm bg-blue-700 text-white"
-  onClick={() => {
-    setEditableProduct(null); // Reset editing mode
-    setNewProduct({ company_id: "", product_code: "", product_description: "", date: "" }); // Clear form
-    document.getElementById("product_modal").showModal(); // Open modal
-  }}
->
-  <TiPlus /> Add Product
-</button>
-
+          className="btn btn-sm bg-blue-700 text-white"
+          onClick={() => {
+            setEditableProduct(null); // Reset editing mode
+            setNewProduct({
+              company_id: "",
+              product_code: "",
+              product_description: "",
+              date: "",
+            }); // Clear form
+            document.getElementById("product_modal").showModal(); // Open modal
+          }}
+        >
+          <TiPlus /> Add Product
+        </button>
       </div>
 
       <div className="m-8 text-center font-bold text-gray-700 border-b-[1px] pb-2">
@@ -211,7 +243,10 @@ const Products = () => {
                     </button>
                   </td>
                   <td>
-                    <button className="text-red-500 hover:underline" onClick={() => handleDeleteProduct(item.id)}>
+                    <button
+                      className="text-red-500 hover:underline"
+                      onClick={() => handleDeleteProduct(item.id)}
+                    >
                       <ImCross />
                     </button>
                   </td>
@@ -229,112 +264,153 @@ const Products = () => {
       </div>
 
       {/* Modal */}
-     {/* Modal */}
-{/* Modal */}
-<dialog id="product_modal" className="modal modal-bottom sm:modal-middle">
-  <div className="modal-box relative p-6">
-    {/* Close Button */}
-    <button
-      className="absolute top-4 right-4 text-lg"
-      onClick={() => document.getElementById("product_modal").close()}
-    >
-      <ImCross />
-    </button>
+      {/* Modal */}
+      {/* Modal */}
+      <dialog id="product_modal" className="modal modal-bottom sm:modal-middle">
+        <div className="modal-box relative p-6">
+          {/* Close Button */}
+          <button
+            className="absolute top-4 right-4 text-lg"
+            onClick={() => document.getElementById("product_modal").close()}
+          >
+            <ImCross />
+          </button>
 
-    <h3 className="font-bold text-lg my-5 text-center">
-      {editableProduct ? "Edit Product" : "Add Product"}
-    </h3>
+          <h3 className="font-bold text-lg my-5 text-center">
+            {editableProduct ? "Edit Product" : "Add Product"}
+          </h3>
 
-    <div className="space-y-4">
-      {/* 🔹 Company Name Dropdown */}
-{/* Debugging - Log editableProduct to check data */}
+          <div className="space-y-4">
+            {/* 🔹 Company Name Dropdown */}
+            {/* Debugging - Log editableProduct to check data */}
 
-  {/* 🔹 Company Name Dropdown */}
-  <div className="flex flex-col">
-    <label className="text-sm font-medium text-gray-700 mb-1">Company Name</label>
-    <select
-      className="select select-bordered w-full p-2"
-      value={editableProduct ? editableProduct.company?.id : newProduct.company_id} // ✅ FIXED: Use company.id
-      onChange={(e) =>
-        editableProduct
-          ? setEditableProduct((prev) => ({
-              ...prev,
-              company: { ...prev.company, id: e.target.value }, // ✅ FIX: Ensure object structure remains intact
-            }))
-          : setNewProduct((prev) => ({ ...prev, company_id: e.target.value }))
-      }
-    >
-      <option value="">Select Company</option>
-      {companies.map((company) => (
-        <option key={company.id} value={company.id}>
-          {company.company_name}
-        </option>
-      ))}
-    </select>
-  </div>
+            {/* 🔹 Company Name Dropdown */}
+            <div className="flex flex-col">
+              <label className="text-sm font-medium text-gray-700 mb-1">
+                Company Name
+              </label>
+              <select
+                className="select select-bordered w-full p-2"
+                value={
+                  editableProduct
+                    ? editableProduct.company?.id
+                    : newProduct.company_id
+                } // ✅ FIXED: Use company.id
+                onChange={(e) =>
+                  editableProduct
+                    ? setEditableProduct((prev) => ({
+                        ...prev,
+                        company: { ...prev.company, id: e.target.value }, // ✅ FIX: Ensure object structure remains intact
+                      }))
+                    : setNewProduct((prev) => ({
+                        ...prev,
+                        company_id: e.target.value,
+                      }))
+                }
+              >
+                <option value="">Select Company</option>
+                {companies.map((company) => (
+                  <option key={company.id} value={company.id}>
+                    {company.company_name}
+                  </option>
+                ))}
+              </select>
+            </div>
 
+            {/* 🔹 Product Code */}
+            <div className="flex flex-col">
+              <label className="text-sm font-medium text-gray-700 mb-1">
+                Product Code
+              </label>
+              <input
+                type="text"
+                className="input input-bordered w-full p-2"
+                placeholder="Enter Product Code"
+                value={
+                  editableProduct
+                    ? editableProduct.product_code
+                    : newProduct.product_code
+                }
+                onChange={(e) =>
+                  editableProduct
+                    ? setEditableProduct((prev) => ({
+                        ...prev,
+                        product_code: e.target.value,
+                      }))
+                    : setNewProduct((prev) => ({
+                        ...prev,
+                        product_code: e.target.value,
+                      }))
+                }
+              />
+            </div>
 
-      {/* 🔹 Product Code */}
-      <div className="flex flex-col">
-        <label className="text-sm font-medium text-gray-700 mb-1">Product Code</label>
-        <input
-          type="text"
-          className="input input-bordered w-full p-2"
-          placeholder="Enter Product Code"
-          value={editableProduct ? editableProduct.product_code : newProduct.product_code}
-          onChange={(e) =>
-            editableProduct
-              ? setEditableProduct((prev) => ({ ...prev, product_code: e.target.value }))
-              : setNewProduct((prev) => ({ ...prev, product_code: e.target.value }))
-          }
-        />
-      </div>
+            {/* 🔹 Product Description */}
+            <div className="flex flex-col">
+              <label className="text-sm font-medium text-gray-700 mb-1">
+                Product Description
+              </label>
+              <input
+                type="text"
+                className="input input-bordered w-full p-2"
+                placeholder="Enter Product Description"
+                value={
+                  editableProduct
+                    ? editableProduct.product_description
+                    : newProduct.product_description
+                }
+                onChange={(e) =>
+                  editableProduct
+                    ? setEditableProduct((prev) => ({
+                        ...prev,
+                        product_description: e.target.value,
+                      }))
+                    : setNewProduct((prev) => ({
+                        ...prev,
+                        product_description: e.target.value,
+                      }))
+                }
+              />
+            </div>
 
-      {/* 🔹 Product Description */}
-      <div className="flex flex-col">
-        <label className="text-sm font-medium text-gray-700 mb-1">Product Description</label>
-        <input
-          type="text"
-          className="input input-bordered w-full p-2"
-          placeholder="Enter Product Description"
-          value={editableProduct ? editableProduct.product_description : newProduct.product_description}
-          onChange={(e) =>
-            editableProduct
-              ? setEditableProduct((prev) => ({ ...prev, product_description: e.target.value }))
-              : setNewProduct((prev) => ({ ...prev, product_description: e.target.value }))
-          }
-        />
-      </div>
+            {/* 🔹 Date Picker */}
+            <div className="flex flex-col">
+              <label className="text-sm font-medium text-gray-700 mb-1">
+                Date
+              </label>
+              <input
+                type="date"
+                className="input input-bordered w-full p-2"
+                value={editableProduct ? editableProduct.date : newProduct.date}
+                onChange={(e) =>
+                  editableProduct
+                    ? setEditableProduct((prev) => ({
+                        ...prev,
+                        date: e.target.value,
+                      }))
+                    : setNewProduct((prev) => ({
+                        ...prev,
+                        date: e.target.value,
+                      }))
+                }
+              />
+            </div>
+          </div>
 
-      {/* 🔹 Date Picker */}
-      <div className="flex flex-col">
-        <label className="text-sm font-medium text-gray-700 mb-1">Date</label>
-        <input
-          type="date"
-          className="input input-bordered w-full p-2"
-          value={editableProduct ? editableProduct.date : newProduct.date}
-          onChange={(e) =>
-            editableProduct
-              ? setEditableProduct((prev) => ({ ...prev, date: e.target.value }))
-              : setNewProduct((prev) => ({ ...prev, date: e.target.value }))
-          }
-        />
-      </div>
-    </div>
+          {/* 🔹 Action Buttons */}
+          <div className="modal-action justify-center mt-6">
+            <button
+              className="btn bg-blue-700 text-white w-full p-2"
+              onClick={editableProduct ? handleEditProduct : handleAddProduct}
+            >
+              {editableProduct ? "Update Product" : "Add Product"}
+            </button>
+          </div>
+        </div>
+        <Toaster position="top-center" reverseOrder={false} />
+      </dialog>
 
-    {/* 🔹 Action Buttons */}
-    <div className="modal-action justify-center mt-6">
-      <button className="btn bg-blue-700 text-white w-full p-2" onClick={editableProduct ? handleEditProduct : handleAddProduct}>
-        {editableProduct ? "Update Product" : "Add Product"}
-      </button>
-    </div>
-  </div>
-  <Toaster position="top-center" reverseOrder={false} />
-</dialog>
-
-<Toaster position="top-center" reverseOrder={false} />
-
-
+      <Toaster position="top-center" reverseOrder={false} />
     </div>
   );
 };
