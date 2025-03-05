@@ -180,11 +180,22 @@ const Company = () => {
           </div>
         </div>
         <button
-          className="btn btn-sm bg-blue-950 text-white"
-          onClick={() => document.getElementById("my_modal_5")?.showModal()}
-        >
-          <TiPlus /> Add Company
-        </button>
+  className="btn btn-sm bg-blue-950 text-white"
+  onClick={() => {
+    setEditableCompany(null); // Reset editing mode when adding a new company
+    setNewCompany({
+      company_name: "",
+      company_representative_name: "",
+      phone_number: "",
+      address: "",
+      previous_due: "",
+    }); // Clear form for new company
+    document.getElementById("my_modal_5").showModal(); // Open modal
+  }}
+>
+  <TiPlus /> Add Company
+</button>
+
       </div>
       <div className="m-8 text-center font-bold text-gray-700 border-b-[1px] pb-2">
         <h2 className="text-lg"> List of Company </h2>
@@ -385,6 +396,7 @@ const Company = () => {
   </div>
   <Toaster position="top-center" reverseOrder={false} />
 </dialog>
+
 
 
       <Toaster position="top-center" reverseOrder={false} />
