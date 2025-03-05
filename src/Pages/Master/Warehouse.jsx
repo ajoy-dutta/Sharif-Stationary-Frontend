@@ -3,10 +3,12 @@ import { TiPlus } from "react-icons/ti";
 import { FaEdit } from "react-icons/fa";
 import { ImCross } from "react-icons/im";
 import { toast, Toaster } from "react-hot-toast";
-import AxiosInstance from '../../Components/AxiosInstance'
+import AxiosInstance from "../../Components/AxiosInstance";
 
 const Warehouse = () => {
   const [godown, setGodown] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [backupGodown, setBackupGodown] = useState([]);
   const [newGodown, setNewGodown] = useState({
     shop_name: "",
     godown_name: "",
@@ -14,111 +16,123 @@ const Warehouse = () => {
   });
   const [editableGodown, setEditableGodown] = useState(null);
 
-// ✅ Fetch Godowns using `axiosInstance`
-useEffect(() => {
-  const fetchGodown = async () => {
-    try {
-      const response = await AxiosInstance.get("/godowns/");
-      setGodown(response.data);
-      console.log(response.data);
-    } catch (error) {
-      console.error("Error fetching godowns:", error);
+  // ✅ Fetch Godowns using `axiosInstance`
+  useEffect(() => {
+    const fetchGodown = async () => {
+      try {
+        const response = await AxiosInstance.get("/godowns/");
+        setGodown(response.data);
+        setBackupGodown(response.data);
+        console.log(response.data);
+      } catch (error) {
+        console.error("Error fetching godowns:", error);
+      }
+    };
+    fetchGodown();
+  }, []);
+
+  // ✅ Handle Add Godown
+  const handleAddGodown = async () => {
+    const { shop_name, godown_name, address } = newGodown;
+
+    if (!shop_name.trim() || !godown_name.trim() || !address.trim()) {
+      toast.error("⚠️ All fields are required!");
+      return;
     }
-  };
-  fetchGodown();
-}, []);
 
-// ✅ Handle Add Godown
-const handleAddGodown = async () => {
-  const { shop_name, godown_name, address } = newGodown;
+    try {
+      const response = await AxiosInstance.post("/godowns/", newGodown);
 
-  if (!shop_name.trim() || !godown_name.trim() || !address.trim()) {
-    toast.error("⚠️ All fields are required!");
-    return;
-  }
+      if (response.status === 201) {
+        setGodown((prev) => [...prev, response.data]);
+        setNewGodown({ shop_name: "", godown_name: "", address: "" });
 
-  try {
-    const response = await AxiosInstance.post("/godowns/", newGodown);
-
-    if (response.status === 201) {
-      setGodown((prev) => [...prev, response.data]);
-      setNewGodown({ shop_name: "", godown_name: "", address: "" });
-
-      toast.success("Warehouse added successfully!");
-      document.getElementById("my_modal_5").close();
-    } else {
+        toast.success("Warehouse added successfully!");
+        document.getElementById("my_modal_5").close();
+      } else {
+        toast.error("Failed to add warehouse!");
+      }
+    } catch (error) {
+      console.error("Error adding godown:", error);
       toast.error("Failed to add warehouse!");
     }
-  } catch (error) {
-    console.error("Error adding godown:", error);
-    toast.error("Failed to add warehouse!");
-  }
-};
+  };
 
-// ✅ Handle Edit Godown
-const handleEditGodown = async () => {
-  if (!editableGodown) return;
+  // ✅ Handle Edit Godown
+  const handleEditGodown = async () => {
+    if (!editableGodown) return;
 
-  const { shop_name, godown_name, address, id } = editableGodown;
+    const { shop_name, godown_name, address, id } = editableGodown;
 
-  if (!shop_name.trim() || !godown_name.trim() || !address.trim()) {
-    toast.error("⚠️ All fields are required!");
-    return;
-  }
-
-  // ✅ Check if any changes were made before updating
-  const originalGodown = godown.find((g) => g.id === id);
-  if (
-    originalGodown &&
-    originalGodown.shop_name === shop_name.trim() &&
-    originalGodown.godown_name === godown_name.trim() &&
-    originalGodown.address === address.trim()
-  ) {
-    toast.error("⚠️ No change detected!");
-    return;
-  }
-
-  try {
-    const response = await AxiosInstance.put(`/godowns/${id}/`, {
-      shop_name: shop_name.trim(),
-      godown_name: godown_name.trim(),
-      address: address.trim(),
-    });
-
-    if (response.status === 200) {
-      setGodown((prev) => prev.map((item) => (item.id === id ? response.data : item)));
-      toast.success("Warehouse updated successfully!");
-      setEditableGodown(null);
-      document.getElementById("my_modal_5").close();
-    } else {
-      toast.error("Failed to update warehouse!");
+    if (!shop_name.trim() || !godown_name.trim() || !address.trim()) {
+      toast.error("⚠️ All fields are required!");
+      return;
     }
-  } catch (error) {
-    console.error("Error updating godown:", error);
-    toast.error("Failed to update warehouse!");
-  }
-};
 
-// ✅ Handle Delete Godown
-const handleDeleteGodown = async (id) => {
-  try {
-    await AxiosInstance.delete(`/godowns/${id}/`);
-    setGodown((prev) => prev.filter((item) => item.id !== id));
-    toast.success("Warehouse deleted successfully!");
-  } catch (error) {
-    console.error("Error deleting godown:", error);
-    toast.error("Failed to delete warehouse!");
-  }
-};
+    // ✅ Check if any changes were made before updating
+    const originalGodown = godown.find((g) => g.id === id);
+    if (
+      originalGodown &&
+      originalGodown.shop_name === shop_name.trim() &&
+      originalGodown.godown_name === godown_name.trim() &&
+      originalGodown.address === address.trim()
+    ) {
+      toast.error("⚠️ No changes were made!");
+      return;
+    }
 
+    try {
+      const response = await AxiosInstance.put(`/godowns/${id}/`, {
+        shop_name: shop_name.trim(),
+        godown_name: godown_name.trim(),
+        address: address.trim(),
+      });
+
+      if (response.status === 200) {
+        setGodown((prev) =>
+          prev.map((item) => (item.id === id ? response.data : item))
+        );
+        toast.success("✅ Warehouse updated successfully!");
+
+        // ✅ Reset state after successful edit
+        setEditableGodown(null);
+
+        // ✅ Close the modal
+        document.getElementById("my_modal_5").close();
+      } else {
+        toast.error("❌ Failed to update warehouse!");
+      }
+    } catch (error) {
+      console.error("Error updating godown:", error);
+      toast.error("❌ Failed to update warehouse!");
+    }
+  };
+
+  // ✅ Handle Delete Godown
+  const handleDeleteGodown = async (id) => {
+    try {
+      await AxiosInstance.delete(`/godowns/${id}/`);
+      setGodown((prev) => prev.filter((item) => item.id !== id));
+      toast.success("Warehouse deleted successfully!");
+    } catch (error) {
+      console.error("Error deleting godown:", error);
+      toast.error("Failed to delete warehouse!");
+    }
+  };
 
   // handlw search
-  const handleSearch = () => {
-    const searchTerm = document.getElementById("godownName").value;
+  const handleSearch = (e) => {
+    const term = e.target.value;
+    setSearchTerm(term);
+
+    if (!term.trim()) {
+      setGodown(backupGodown); // ✅ Reset data when search is cleared
+      return;
+    }
     const filtered = godown.filter(
       (item) =>
         item.godown_name &&
-        item.godown_name.toLowerCase().includes(searchTerm.toLowerCase())
+        item.godown_name.toLowerCase().includes(term.toLowerCase())
     );
     setGodown(filtered); // Update the divisions state with filtered data
   };
@@ -135,12 +149,13 @@ const handleDeleteGodown = async (id) => {
                 id="godownName"
                 placeholder="Enter warehouse name"
                 className="input input-bordered text-sm rounded-s-md h-[30px] join-item"
-                // className="  px-4 py-2 w-1/4 "
+                value={searchTerm}
+                onChange={handleSearch}
               />
               <div className="indicator">
                 <button
-                  className="btn btn-sm rounded-s-none join-item bg-blue-700 text-white"
-                  onClick={handleSearch} // Trigger the search when button is clicked
+                  className="btn btn-sm rounded-s-none join-item bg-blue-950 text-xs text-white"
+                  // Trigger the search when button is clicked
                 >
                   Search
                 </button>
@@ -149,10 +164,14 @@ const handleDeleteGodown = async (id) => {
           </div>
           <div>
             <button
-              className="btn btn-sm bg-blue-700 text-white"
-              onClick={() => document.getElementById("my_modal_5").showModal()}
+              className="btn btn-sm bg-blue-950 text-white"
+              onClick={() => {
+                setEditableGodown(null); // ✅ Clear previous edit data
+                setNewGodown({ shop_name: "", godown_name: "", address: "" }); // ✅ Reset input fields
+                document.getElementById("my_modal_5").showModal();
+              }}
             >
-              <TiPlus /> Add Warehouse
+              <TiPlus /> <span className="text-xs">Add Warehouse</span>
             </button>
           </div>
         </div>
@@ -166,7 +185,7 @@ const handleDeleteGodown = async (id) => {
         </div>
         <div className="overflow-x-auto ">
           <table className="table table-xs text-md table-zebra table-fixed table-compact w-3/4 mx-auto">
-            <thead className="bg-blue-700 text-white font-md font-normal">
+            <thead className="bg-blue-950 text-white font-md font-normal">
               <tr className="text-center">
                 <th className="px-4 py-2">SL</th>
                 <th className="px-4 py-2">Shop Name</th>
@@ -186,9 +205,9 @@ const handleDeleteGodown = async (id) => {
                     <td className="px-4 py-2">{item.address}</td>
                     <td className="px-4 py-2 text-center">
                       <button
-                        className="text-blue-500 hover:underline"
+                        className="text-blue-950 hover:underline"
                         onClick={() => {
-                          setEditableGodown(item);
+                          setEditableGodown(item); // ✅ Load item data into modal
                           document.getElementById("my_modal_5").showModal();
                         }}
                       >
@@ -302,7 +321,7 @@ const handleDeleteGodown = async (id) => {
           {/* Modal Action */}
           <div className="modal-action justify-center">
             <button
-              className="btn bg-blue-700 text-white mx-auto"
+              className="btn bg-blue-950 text-white mx-auto"
               onClick={editableGodown ? handleEditGodown : handleAddGodown} // Trigger appropriate action
             >
               {editableGodown ? "Update Godown" : "Add Godown"}
