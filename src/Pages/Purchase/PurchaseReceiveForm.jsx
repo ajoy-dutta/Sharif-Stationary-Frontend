@@ -521,7 +521,173 @@ function PurchaseReceiveForm() {
           <h3 className="text-xl font-semibold mb-4 text-center">
             Item Details
           </h3>
-          <div className=" rounded-md mt-2 w-full flex justify-center bg-white shadow-[0px_0px_30px_rgba(0,0,0,0.1)] ">
+
+          
+          <table className="w-full border-collapse border border-gray-300">
+  {/* Table Headings */}
+  <thead>
+    <tr className="bg-gray-200 text-center text-sm font-base">
+      <th rowSpan={2} className="border border-gray-300 p-2 font-medium">No</th>
+      <th rowSpan={2} className="border border-gray-300 p-2 font-medium">Item Code</th>
+      <th rowSpan={2} className="border border-gray-300 p-2 font-medium">Product Name</th>
+      <th rowSpan={2} className="border border-gray-300 p-2 font-medium">Purchase Information</th>
+      <th className="border border-gray-300 p-2 font-medium">Purchase Price</th>
+      <th className="border border-gray-300 p-2 font-medium">Rim</th>
+      <th className="border border-gray-300 p-2 font-medium">Dozen</th>
+      <th className="border border-gray-300 p-2 font-medium">Only Sheet/Piece</th>
+      <th className="border border-gray-300 p-2 font-medium">Total Sheet/Piece</th>
+      <th className="border border-gray-300 p-2 font-medium">Per Rim Price</th>
+      <th className="border border-gray-300 p-2 font-medium">Per Dozen Price</th>
+      <th className="border border-gray-300 p-2 font-medium">Per Sheet/Piece Price</th>
+    </tr>
+    <tr className=" text-center text-sm">
+      <td className="border border-gray-300 p-2">
+        <input type="number" className="w-full p-1 border rounded" placeholder="Purchase Price" />
+      </td>
+      <td className="border border-gray-300 p-2">
+        <input type="number" className="w-full p-1 border rounded" placeholder="Rim" />
+      </td>
+      <td className="border border-gray-300 p-2">
+        <input type="number" className="w-full p-1 border rounded" placeholder="Dozen" />
+      </td>
+      <td className="border border-gray-300 p-2">
+        <input type="number" className="w-full p-1 border rounded" placeholder="Only Sheet/Piece" />
+      </td>
+      <td className="border border-gray-300 p-2">
+        <input type="number" className="w-full p-1 border rounded" placeholder="Total Sheet/Piece" />
+      </td>
+      <td className="border border-gray-300 p-2">
+        <input type="number" className="w-full p-1 border rounded" placeholder="Per Rim Price" />
+      </td>
+      <td className="border border-gray-300 p-2">
+        <input type="number" className="w-full p-1 border rounded" placeholder="Per Dozen Price" />
+      </td>
+      <td className="border border-gray-300 p-2">
+        <input type="number" className="w-full p-1 border rounded" placeholder="Per Sheet/Piece Price" />
+      </td>
+    </tr>
+
+    
+
+
+  </thead>
+
+  {/* Table Body */}
+  <tbody>
+    <tr className="text-center text-sm ">
+      <td rowSpan={5} className="border border-gray-300 p-2">1</td>
+      <td rowSpan={5} className="border border-gray-300 p-2">
+        <input type="text" className="w-full p-1 border rounded" placeholder="Item Code" />
+      </td>
+      <td rowSpan={5} className="border border-gray-300 p-2">
+        <input type="text" className="w-full p-1 border rounded" placeholder="Product Name" />
+      </td>
+    </tr>
+
+        {/* Additional Cost Heading */}
+        <tr className="bg-gray-200 text-center text-sm">
+      <th rowSpan={2} colSpan={1} className="border border-gray-300 p-2 font-medium">
+        Additional Cost
+      </th>
+      <th className="border border-gray-300 p-2 font-medium">Transport Cost</th>
+      <th className="border border-gray-300 p-2 font-medium">Road Cost</th>
+      <th className="border border-gray-300 p-2 font-medium">Miscellaneous Cost</th>
+      <th colSpan={2} className="border border-gray-300 p-2 font-medium">Total Additional Cost</th>
+      <th className="border border-gray-300 p-2 font-medium">Per Rim Additional Cost</th>
+      <th className="border border-gray-300 p-2 font-medium">Per Dozen Additional Cost</th>
+      <th className="border border-gray-300 p-2 font-medium">Per Sheet/Piece Additional Cost</th>
+    </tr>
+
+    
+    <tr className="bg- text-center text-sm">
+      <td className="border border-gray-300 p-2">
+        <input type="number" className="w-full p-1 border rounded" placeholder="Transport Cost" />
+      </td>
+      <td className="border border-gray-300 p-2">
+        <input type="number" className="w-full p-1 border rounded" placeholder="Road Cost" />
+      </td>
+      <td className="border border-gray-300 p-2">
+        <input type="number" className="w-full p-1 border rounded" placeholder="Miscellaneous Cost" />
+      </td>
+      <td colSpan={2} className="border border-gray-300 p-2">
+        <input type="number" className="w-full p-1 border rounded" placeholder="Total Additional Cost" />
+      </td>
+      <td className="border border-gray-300 p-2">
+        <input type="number" className="w-full p-1 border rounded" placeholder="Per Rim Additional Cost" />
+      </td>
+
+      <td className="border border-gray-300 p-2">
+        <input type="number" className="w-full p-1 border rounded" placeholder="Per Dozen Additional Cost" />
+      </td>
+
+      <td className="border border-gray-300 p-2">
+        <input type="number" className="w-full p-1 border rounded" placeholder="Per Sheet/Piece Additional Cost" />
+      </td>
+
+      
+
+    </tr>
+
+    <tr className="bg-gray-200">
+    <th rowSpan={2} colSpan={1} className="border border-gray-300 p-2 font-medium">
+    Sales Price (Total Purchase Price + Profit)
+      </th>
+      <th  colSpan={4} className="border border-gray-300 p-2 font-medium">
+    Select Profit
+      </th>
+      <th  colSpan={1} className="border border-gray-300 p-2 font-medium">
+ Profit
+      </th>
+
+      <th  colSpan={1} className="border border-gray-300 p-2 font-medium">
+    Sales Price (Total Rim Cost + Profit)
+      </th>
+
+      <th colSpan={1} className="border border-gray-300 p-2 font-medium">
+    Sales Price (Total Dozen Cost + Profit)
+      </th>
+      <th colSpan={1} className="border border-gray-300 p-2 font-medium">
+    Sales Price (TotalSheet/Piece Cost + Profit)
+      </th>
+
+
+    </tr>
+
+    {/* Sales Price Calculation Row */}
+    <tr className="text-center text-sm ">
+   
+     
+      <td colSpan={4} className="border border-gray-300 p-2">
+        <input type="number" className="w-full p-1 border rounded" placeholder="5% Profit" />
+      </td>
+      <td className="border border-gray-300 p-2">
+        <input type="number" className="w-full p-1 border rounded" placeholder=" Profit" />
+      </td>
+
+      <td className="border border-gray-300 p-2">
+        <input type="number" className="w-full p-1 border rounded" placeholder="Per Rim Additional Cost" />
+      </td>
+
+      <td className="border border-gray-300 p-2">
+        <input type="number" className="w-full p-1 border rounded" placeholder="Per Dozen Additional Cost" />
+      </td>
+
+      <td className="border border-gray-300 p-2">
+        <input type="number" className="w-full p-1 border rounded" placeholder="Per Sheet/Piece Additional Cost" />
+      </td>
+   
+   
+    </tr>
+  </tbody>
+</table>
+
+
+
+      
+
+
+
+          <div className=" rounded-md mt-12 w-full flex justify-center bg-white shadow-[0px_0px_30px_rgba(0,0,0,0.1)] ">
           <div className="grid grid-cols-8 gap-2 p-4 rounded-md">
 
   {/* Product Code */}
@@ -815,10 +981,10 @@ function PurchaseReceiveForm() {
     />
   </div>
 
-<div className="flex flex-end items-center justify-end">
+<div className="flex flex-end items-center  justify-end">
 <button
       onClick={handleAddItem}
-      className="btn  bg-blue-500  text-white rounded hover:bg-green-600"
+      className="btn  bg-blue-500   text-white rounded hover:bg-green-600"
     >
       Add Item
     </button>
