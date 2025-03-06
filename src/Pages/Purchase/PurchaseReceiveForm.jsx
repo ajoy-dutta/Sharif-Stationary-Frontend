@@ -109,25 +109,11 @@ function PurchaseReceiveForm() {
     per_rim_price: "",
     per_sheet_or_piece_price: "",
 
-    transport_cost: "",
-    labour_cost: "",
-    road_cost: "",
-    other_cost: "",
-
-    total_extra_cost: "",
-
-    total_purchase_price: "",
-
-    per_rim_additional_cost: "",
-    per_dozen_additional_cost: "",
-    per_sheet_or_piece_additional_cost: "",
-
-    per_rim_or_dozen_total_cost: "",
-    per_sheet_or_piece_total_cost: "",
-
-    per_rim_or_dozen_percentage: "",
-    per_rim_or_dozen_sell_amount: "",
-    per_sheet_or_piece_sell_amount: "",
+    additional_cost: "",
+    profit: "",
+    per_rim_sale_price: "",
+    per_dozen_sale_price: "",
+    per_piece_or_sheet_sale_price: "",
   });
 
   const handleChange = (e) => {
@@ -185,57 +171,29 @@ function PurchaseReceiveForm() {
       (updatedItem.per_sheet_or_piece_price * 500).toFixed(2)
     );
 
-    // 🔹 Auto-calculate `total_extra_cost`
-    updatedItem.total_extra_cost = parseFloat(
-      (
-        (updatedItem.transport_cost || 0) +
-        (updatedItem.road_cost || 0) +
-        (updatedItem.labour_cost || 0) +
-        (updatedItem.other_cost || 0)
-      ).toFixed(2)
-    );
+    // 🔹 Calculate total cost including purchase price, additional cost, and profit
+    let totalCost =
+      (updatedItem.purchase_price || 0) +
+      (updatedItem.additional_cost || 0) +
+      (updatedItem.profit || 0);
 
-    // 🔹 Auto-calculate `per_sheet_or_piece_additional_cost`
+    // 🔹 Always update `per_sheet_or_piece_sale_price`
     if (updatedItem.total_sheet_piece > 0) {
-      updatedItem.per_sheet_or_piece_additional_cost = parseFloat(
-        (updatedItem.total_extra_cost / updatedItem.total_sheet_piece).toFixed(
-          2
-        )
+      updatedItem.per_piece_or_sheet_sale_price = parseFloat(
+        (totalCost / updatedItem.total_sheet_piece).toFixed(2)
       );
     } else {
-      updatedItem.per_sheet_or_piece_additional_cost = 0;
+      updatedItem.per_piece_or_sheet_sale_price = 0;
     }
 
-    // 🔹 Auto-calculate `per_rim_additional_cost`
-    updatedItem.per_rim_additional_cost = parseFloat(
-      (updatedItem.per_sheet_or_piece_additional_cost * 500).toFixed(2)
+    // 🔹 Always update `per_rim_sale_price` when `additional_cost` or `profit_amount` changes
+    updatedItem.per_rim_sale_price = parseFloat(
+      (updatedItem.per_piece_or_sheet_sale_price * 500).toFixed(2)
     );
 
-    // 🔹 Auto-calculate `per_rim_or_dozen_additional_cost`
-    updatedItem.per_dozen_additional_cost = parseFloat(
-      (updatedItem.per_sheet_or_piece_additional_cost * 12).toFixed(2)
-    );
-
-    // 🔹 Auto-calculate `per_rim_purchase_price_plus_cost`
-    updatedItem.per_rim_purchase_price_plus_cost = parseFloat(
-      (updatedItem.per_rim_price + updatedItem.per_rim_additional_cost).toFixed(
-        2
-      )
-    );
-
-    // 🔹 Auto-calculate `per_dozen_purchase_price_plus_cost`
-    updatedItem.per_dozen_purchase_price_plus_cost = parseFloat(
-      (
-        updatedItem.per_dozen_price + updatedItem.per_dozen_additional_cost
-      ).toFixed(2)
-    );
-
-    // 🔹 Auto-calculate `per_sheet_or_piece_purchase_price_plus_cost`
-    updatedItem.per_sheet_or_piece_purchase_price_plus_cost = parseFloat(
-      (
-        updatedItem.per_sheet_or_piece_price +
-        updatedItem.per_sheet_or_piece_additional_cost
-      ).toFixed(2)
+    // 🔹 Always update `per_dozen_sale_price` when `additional_cost` or `profit_amount` changes
+    updatedItem.per_dozen_sale_price = parseFloat(
+      (updatedItem.per_piece_or_sheet_sale_price * 12).toFixed(2)
     );
 
     setNewItem(updatedItem);
@@ -244,39 +202,30 @@ function PurchaseReceiveForm() {
   const handleAddItem = (e) => {
     e.preventDefault(); // Prevent accidental form submission
 
+    // Ensure all calculations are stored before adding to the list
     setFormData((prevData) => ({
       ...prevData,
       PurchaseItem: [...prevData.PurchaseItem, newItem], // Add new item
     }));
 
+    // Reset the new item fields after adding
     setNewItem({
       product: "",
+      product_name: "",
       purchase_price: "",
-      rim: 0,
-      dozen: 0,
-      only_sheet_piece: 0,
-      total_sheet_piece: 0,
-      per_rim_or_dozen_price: 0,
-      per_sheet_or_piece_price: 0,
+      rim: "",
+      dozen: "",
+      only_sheet_piece: "",
+      total_sheet_piece: "",
+      per_dozen_price: "",
+      per_rim_price: "",
+      per_sheet_or_piece_price: "",
 
-      transport_cost: 0.0,
-      labour_cost: 0.0,
-      road_cost: 0.0,
-      other_cost: 0.0,
-
-      total_extra_cost: 0.0,
-
-      total_purchase_price: 0.0,
-
-      per_rim_or_dozen_additional_cost: 0.0,
-      per_sheet_or_piece_additional_cost: 0.0,
-
-      per_rim_or_dozen_total_cost: 0.0,
-      per_sheet_or_piece_total_cost: 0.0,
-
-      per_rim_or_dozen_percentage: 0.0,
-      per_rim_or_dozen_sell_amount: 0.0,
-      per_sheet_or_piece_sell_amount: 0.0,
+      additional_cost: "",
+      profit: "",
+      per_rim_sale_price: "",
+      per_dozen_sale_price: "",
+      per_piece_or_sheet_sale_price: "",
     });
   };
 
@@ -648,12 +597,6 @@ function PurchaseReceiveForm() {
                   rowSpan={2}
                   className="border border-gray-300 p-2 font-medium"
                 >
-                  No
-                </th>
-                <th
-                  rowSpan={2}
-                  className="border border-gray-300 p-2 font-medium"
-                >
                   Item Code
                 </th>
                 <th
@@ -662,12 +605,7 @@ function PurchaseReceiveForm() {
                 >
                   Product Name
                 </th>
-                <th
-                  rowSpan={2}
-                  className="border border-gray-300 p-2 font-medium"
-                >
-                  Purchase Information
-                </th>
+
                 <th className="border border-gray-300 p-2 font-medium">
                   Purchase Price
                 </th>
@@ -690,9 +628,59 @@ function PurchaseReceiveForm() {
                 <th className="border border-gray-300 p-2 font-medium">
                   Per Sheet/Piece Price
                 </th>
-              </tr>
 
+                <th className="border border-gray-300 p-2 font-medium">
+                  Additional Cost
+                </th>
+
+                <th className="border border-gray-300 p-2 font-medium">
+                  Profit
+                </th>
+
+                <th className="border border-gray-300 p-2 font-medium">
+                  Per Rim sale Price
+                </th>
+
+                <th className="border border-gray-300 p-2 font-medium">
+                  Per Dozen sale Price
+                </th>
+
+                <th className="border border-gray-300 p-2 font-medium">
+                  Per Sheet/Piece Sale Price
+                </th>
+                <th className="border border-gray-300 p-2 font-medium">
+                  Action
+                </th>
+              </tr>
+            </thead>
+
+            {/* Table Body */}
+            <tbody>
               <tr className=" text-center text-sm">
+                <td rowSpan={7} className="border border-gray-300 p-2">
+                  {/* Product Code Input */}
+                  <input
+                    type="text"
+                    name="product"
+                    value={newItem.product}
+                    onChange={handleItemChange} // ✅ Updates product_name when product_code is entered
+                    className="mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs"
+                    placeholder="Enter product code"
+                  />
+                </td>
+
+                <td rowSpan={7} className="border border-gray-300 p-2">
+                  {/* Product Name Input (Read-Only) */}
+                  <input
+                    type="text"
+                    name="product_name"
+                    value={newItem.product_name}
+                    className="mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs bg-gray-100 text-gray-600"
+                    placeholder="Product Name"
+                    readOnly // ✅ Prevents user from editing manually
+                  />
+                </td>
+
                 <td className="border border-gray-300 p-2">
                   <input
                     type="number"
@@ -777,135 +765,37 @@ function PurchaseReceiveForm() {
                     readOnly
                   />
                 </td>
-              </tr>
-            </thead>
 
-            {/* Table Body */}
-            <tbody>
-              <tr className="text-center text-sm ">
-                <td rowSpan={7} className="border border-gray-300 p-2">
-                  1
-                </td>
-                <td rowSpan={7} className="border border-gray-300 p-2">
-                  {/* Product Code Input */}
+                <td className="border border-gray-300 p-2">
                   <input
-                    type="text"
-                    name="product"
-                    value={newItem.product}
-                    onChange={handleItemChange} // ✅ Updates product_name when product_code is entered
+                    type="number"
+                    name="additional_cost"
+                    value={newItem.additional_cost}
+                    onChange={handleItemChange}
                     className="mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs"
-                    placeholder="Enter product code"
+                    placeholder="Enter sheet/piece per price"
                   />
                 </td>
 
-                <td rowSpan={7} className="border border-gray-300 p-2">
-                  {/* Product Name Input (Read-Only) */}
+                <td className="border border-gray-300 p-2">
                   <input
-                    type="text"
-                    name="product_name"
-                    value={newItem.product_name}
-                    className="mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs bg-gray-100 text-gray-600"
-                    placeholder="Product Name"
-                    readOnly // ✅ Prevents user from editing manually
+                    type="number"
+                    name="profit"
+                    value={newItem.profit}
+                    onChange={handleItemChange}
+                    className="mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs"
+                    placeholder="Enter sheet/piece per price"
                   />
                 </td>
-              </tr>
 
-              {/* Additional Cost Heading */}
-              <tr className="bg-blue-300 text-center text-sm">
-                <th
-                  rowSpan={2}
-                  colSpan={1}
-                  className="border border-gray-300 p-2 font-medium"
-                >
-                  Additional Cost
-                </th>
-                <th className="border border-gray-300 p-2 font-medium">
-                  Transport Cost
-                </th>
-                <th className="border border-gray-300 p-2 font-medium">
-                  Road Cost
-                </th>
-                <th className="border border-gray-300 p-2 font-medium">
-                  Labour Cost
-                </th>
-                <th className="border border-gray-300 p-2 font-medium">
-                  Miscellaneous Cost
-                </th>
-                <th className="border border-gray-300 p-2 font-medium">
-                  Total Additional Cost
-                </th>
-                <th className="border border-gray-300 p-2 font-medium">
-                  Per Rim Additional Cost
-                </th>
-                <th className="border border-gray-300 p-2 font-medium">
-                  Per Dozen Additional Cost
-                </th>
-                <th className="border border-gray-300 p-2 font-medium">
-                  Per Sheet/Piece Additional Cost
-                </th>
-              </tr>
-
-              <tr className="bg- text-center text-sm">
                 <td className="border border-gray-300 p-2">
                   <input
                     type="number"
-                    name="transport_cost"
-                    value={newItem.transport_cost}
+                    name="per_rim_sale_price"
+                    value={newItem.per_rim_sale_price}
                     onChange={handleItemChange}
                     className="mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs"
-                    placeholder="Enter transport cost"
-                  />
-                </td>
-                <td className="border border-gray-300 p-2">
-                  <input
-                    type="number"
-                    name="road_cost"
-                    value={newItem.road_cost}
-                    onChange={handleItemChange}
-                    className="mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs"
-                    placeholder="Enter road cost"
-                  />
-                </td>
-                <td className="border border-gray-300 p-2">
-                  <input
-                    type="number"
-                    name="labour_cost"
-                    value={newItem.labour_cost}
-                    onChange={handleItemChange}
-                    className="mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs"
-                    placeholder="Enter labour cost"
-                  />
-                </td>
-                <td className="border border-gray-300 p-2">
-                  <input
-                    type="number"
-                    name="other_cost"
-                    value={newItem.other_cost}
-                    onChange={handleItemChange}
-                    className="mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs"
-                    placeholder="Enter other cost"
-                  />
-                </td>
-                <td className="border border-gray-300 p-2">
-                  <input
-                    type="number"
-                    name="total_extra_cost"
-                    value={newItem.total_extra_cost}
-                    onChange={handleItemChange}
-                    className="mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs"
-                    placeholder="Enter total additional cost"
-                    readOnly
-                  />
-                </td>
-                <td className="border border-gray-300 p-2">
-                  <input
-                    type="number"
-                    name="per_rim_additional_cost"
-                    value={newItem.per_rim_additional_cost}
-                    onChange={handleItemChange}
-                    className="mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs"
-                    placeholder="Enter per rim additional cost"
+                    placeholder="Enter sheet/piece per price"
                     readOnly
                   />
                 </td>
@@ -913,11 +803,11 @@ function PurchaseReceiveForm() {
                 <td className="border border-gray-300 p-2">
                   <input
                     type="number"
-                    name="per_rim_additional_cost"
-                    className="w-full p-1 border rounded"
-                    placeholder="Per Dozen Additional Cost"
-                    value={newItem.per_dozen_additional_cost}
+                    name="per_dozen_sale_price"
+                    value={newItem.per_dozen_sale_price}
                     onChange={handleItemChange}
+                    className="mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs"
+                    placeholder="Enter sheet/piece per price"
                     readOnly
                   />
                 </td>
@@ -925,192 +815,19 @@ function PurchaseReceiveForm() {
                 <td className="border border-gray-300 p-2">
                   <input
                     type="number"
-                    name="per_sheet_or_piece_additional_cost"
-                    value={newItem.per_sheet_or_piece_additional_cost}
+                    name="per_sheet_or_piece_sale_price"
+                    value={newItem.per_piece_or_sheet_sale_price}
                     onChange={handleItemChange}
                     className="mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs"
-                    placeholder="Enter per sheet/piece additional cost"
-                    readonly
-                  />
-                </td>
-              </tr>
-
-              {/* Purchase Section Heading */}
-              <tr className="bg-blue-100 text-center text-sm">
-                <th
-                  rowSpan={2}
-                  colSpan={1}
-                  className="border border-gray-300 p-2 font-medium"
-                >
-                  Total Purchase Price
-                </th>
-                <th
-                  colSpan={3}
-                  className="border border-gray-300 p-2 font-medium"
-                >
-                  Per Rim Purchase Price+Additional Cost
-                </th>
-                <th
-                  colSpan={3}
-                  className="border border-gray-300 p-2 font-medium"
-                >
-                  Per Dozen Purchase Price+Additional Cost
-                </th>
-                <th
-                  colSpan={2}
-                  className="border border-gray-300 p-2 font-medium"
-                >
-                  Per Sheet/Piece Purchase Price+Additional Cost
-                </th>
-              </tr>
-
-              <tr className="bg- text-center text-sm">
-                <td colSpan={3} className="border border-gray-300 p-2">
-                  <input
-                    type="number"
-                    name=" per_rim_purchase_price_plus_cost"
-                    value={newItem.per_rim_purchase_price_plus_cost}
-                    onChange={handleItemChange}
-                    className="mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs"
-                    placeholder="Enter rim purchase price + additional cost"
+                    placeholder="Enter sheet/piece per price"
                     readOnly
                   />
                 </td>
 
-                <td colSpan={3} className="border border-gray-300 p-2">
-                  <input
-                    type="number"
-                    name="per_dozen_purchase_price_plus_cost"
-                    value={newItem.per_dozen_purchase_price_plus_cost}
-                    onChange={handleItemChange}
-                    className="mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs"
-                    placeholder="Enter dozen purchase price + additional cost"
-                    readOnly
-                  />
-                </td>
-
-                <td colSpan={2} className="border border-gray-300 p-2">
-                  <input
-                    type="number"
-                    name="per_sheet_or_piece_purchase_price_plus_cost"
-                    value={newItem.per_sheet_or_piece_purchase_price_plus_cost}
-                    onChange={handleItemChange}
-                    className="mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs"
-                    placeholder="Enter per sheet/piece additional cost"
-                    readonly
-                  />
-                </td>
-              </tr>
-
-              {/* sale section Heading */}
-              <tr className="bg-blue-300">
-                <th
-                  rowSpan={2}
-                  colSpan={1}
-                  className="border border-gray-300 p-2 font-medium"
-                >
-                  Sales Price (Total Purchase Price + Profit)
-                </th>
-                <th
-                  colSpan={4}
-                  className="border border-gray-300 p-2 font-medium"
-                >
-                  Select Profit
-                </th>
-                <th
-                  colSpan={1}
-                  className="border border-gray-300 p-2 font-medium"
-                >
-                  Profit
-                </th>
-
-                <th
-                  colSpan={1}
-                  className="border border-gray-300 p-2 font-medium"
-                >
-                  Sales Price (Total Rim Cost + Profit)
-                </th>
-
-                <th
-                  colSpan={1}
-                  className="border border-gray-300 p-2 font-medium"
-                >
-                  Sales Price (Total Dozen Cost + Profit)
-                </th>
-                <th
-                  colSpan={1}
-                  className="border border-gray-300 p-2 font-medium"
-                >
-                  Sales Price (TotalSheet/Piece Cost + Profit)
-                </th>
-              </tr>
-
-              {/* Sales Price Calculation Row */}
-              <tr className="text-center text-sm ">
-                <td colSpan={4} className="border border-gray-300 p-2">
-                  <select className="w-full p-1 border rounded">
-                    <option value="" disabled selected>
-                      Select Profit Type
-                    </option>
-                    <option value="percent_purchase">
-                      % Profit (on the purchase price per rim/dozen)
-                    </option>
-                    <option value="percent_additional">
-                      % Profit (on the purchase price + additional cost per
-                      rim/dozen)
-                    </option>
-                    <option value="taka_purchase">
-                      Taka Profit (on the purchase price per rim/dozen)
-                    </option>
-                    <option value="taka_additional">
-                      Taka Profit (on the purchase price + additional cost per
-                      rim/dozen)
-                    </option>
-                  </select>
-                </td>
-
-                <td className="border border-gray-300 p-2">
-                  <input
-                    type="number"
-                    name="per_rim_or_dozen_percentage"
-                    value={newItem.per_rim_or_dozen_percentage}
-                    onChange={handleItemChange}
-                    className="mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs"
-                    placeholder="Enter profit"
-                  />
-                </td>
-
-                <td className="border border-gray-300 p-2">
-                  <input
-                    type="number"
-                    name="per_rim_or_dozen_sell_amount"
-                    value={newItem.per_rim_or_dozen_sell_amount}
-                    onChange={handleItemChange}
-                    className="mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs"
-                    placeholder="Enter rim sale price"
-                  />
-                </td>
-
-                <td className="border border-gray-300 p-2">
-                  <input
-                    type="number"
-                    name="per_rim_or_dozen_sell_amount"
-                    value={newItem.per_rim_or_dozen_sell_amount}
-                    onChange={handleItemChange}
-                    className="mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs"
-                    placeholder="Enter dozen sale price"
-                  />
-                </td>
-
-                <td className="border border-gray-300 p-2">
-                  <input
-                    type="number"
-                    name="per_sheet_or_piece_sell_amount"
-                    value={newItem.per_sheet_or_piece_sell_amount}
-                    onChange={handleItemChange}
-                    className="mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs"
-                    placeholder="Enter sheet/piece sale price"
-                  />
+                <td>
+                  <button className="btn btn-sm" onClick={handleAddItem}>
+                    Add
+                  </button>
                 </td>
               </tr>
             </tbody>
@@ -1119,141 +836,57 @@ function PurchaseReceiveForm() {
           {formData.PurchaseItem.length > 0 && (
             <div className="overflow-x-auto mt-6 bg-white shadow-lg rounded-md p-4">
               <table className="table-auto w-full border-collapse">
+                {/* Table Header */}
                 <thead>
-                  <tr className="bg-blue-500 text-white">
-                    <th className="border text-sm font-medium p-2">
-                      Product Code
-                    </th>
-                    <th className="border text-sm font-medium p-2">
-                      Product Description
-                    </th>
-                    <th className="border text-sm font-medium p-2">Rim</th>
-                    <th className="border text-sm font-medium p-2">Dozen</th>
-                    <th className="border text-sm font-medium p-2">
-                      Sheet/Piece
-                    </th>
-                    <th className="border text-sm font-medium p-2">
-                      Only Sheet Piece
-                    </th>
-                    <th className="border text-sm font-medium p-2">
-                      Total Sheet Piece
-                    </th>
-                    <th className="border text-sm font-medium p-2">
-                      Rim/Dozen Per Price
-                    </th>
-                    <th className="border text-sm font-medium p-2">
-                      Sheet/Piece Per Price
-                    </th>
-                    <th className="border text-sm font-medium p-2">
-                      Total Amount
-                    </th>
-                    <th className="border text-sm font-medium p-2">
-                      Transport Cost
-                    </th>
-                    <th className="border text-sm font-medium p-2">
-                      Labour Cost
-                    </th>
-                    <th className="border text-sm font-medium p-2">
-                      Road Cost
-                    </th>
-                    <th className="border text-sm font-medium p-2">
-                      Other Cost
-                    </th>
-                    <th className="border text-sm font-medium p-2">
-                      Total Extra Cost
-                    </th>
-                    <th className="border text-sm font-medium p-2">
-                      Total Per Rim Cost
-                    </th>
-                    <th className="border text-sm font-medium p-2">
-                      Total Per Sheet Cost
-                    </th>
-                    <th className="border text-sm font-medium p-2">
-                      Rim/Dozen Total Cost
-                    </th>
-                    <th className="border text-sm font-medium p-2">
-                      Sheet/Piece Total Cost
-                    </th>
-                    <th className="border text-sm font-medium p-2">
-                      Percentage (%)
-                    </th>
-                    <th className="border text-sm font-medium p-2">
-                      Rim/Dozen Sell Amount
-                    </th>
-                    <th className="border text-sm font-medium p-2">
-                      Sheet/Piece Sell Amount
-                    </th>
-                    <th className="border text-sm font-medium p-2">Remarks</th>
-                    <th className="border text-sm font-medium p-2">Actions</th>
+                  <tr className="bg-blue-500 text-white text-center text-sm font-medium">
+                    <th className="border p-2">SI</th> {/* New SI Column */}
+                    <th className="border p-2">Item Code</th>
+                    <th className="border p-2">Product Name</th>
+                    <th className="border p-2">Purchase Price</th>
+                    <th className="border p-2">Rim</th>
+                    <th className="border p-2">Dozen</th>
+                    <th className="border p-2">Only Sheet/Piece</th>
+                    <th className="border p-2">Total Sheet/Piece</th>
+                    <th className="border p-2">Per Rim Price</th>
+                    <th className="border p-2">Per Dozen Price</th>
+                    <th className="border p-2">Per Sheet/Piece Price</th>
+                    <th className="border p-2">Additional Cost</th>
+                    <th className="border p-2">Profit</th>
+                    <th className="border p-2">Per Rim Sale Price</th>
+                    <th className="border p-2">Per Dozen Sale Price</th>
+                    <th className="border p-2">Per Sheet/Piece Sale Price</th>
+                    <th className="border p-2">Action</th>
                   </tr>
                 </thead>
+
+                {/* Table Body */}
                 <tbody>
                   {formData.PurchaseItem.map((item, rowIndex) => (
-                    <tr key={rowIndex} className="border">
-                      <td className="border p-2 text-center">
-                        {item.product_code}
+                    <tr key={rowIndex} className="border text-center">
+                      <td className="border p-2">{rowIndex + 1}</td>{" "}
+                      {/* Serial Number */}
+                      <td className="border p-2">{item.product}</td>
+                      <td className="border p-2">{item.product_name}</td>
+                      <td className="border p-2">{item.purchase_price}</td>
+                      <td className="border p-2">{item.rim}</td>
+                      <td className="border p-2">{item.dozen}</td>
+                      <td className="border p-2">{item.only_sheet_piece}</td>
+                      <td className="border p-2">{item.total_sheet_piece}</td>
+                      <td className="border p-2">{item.per_rim_price}</td>
+                      <td className="border p-2">{item.per_dozen_price}</td>
+                      <td className="border p-2">
+                        {item.per_sheet_or_piece_price}
                       </td>
-                      <td className="border p-2 text-center">
-                        {item.product_description}
+                      <td className="border p-2">{item.additional_cost}</td>
+                      <td className="border p-2">{item.profit_amount}</td>
+                      <td className="border p-2">{item.per_rim_sale_price}</td>
+                      <td className="border p-2">
+                        {item.per_dozen_sale_price}
                       </td>
-                      <td className="border p-2 text-center">{item.rim}</td>
-                      <td className="border p-2 text-center">{item.dozen}</td>
-                      <td className="border p-2 text-center">
-                        {item.sheet_or_piece}
+                      <td className="border p-2">
+                        {item.per_piece_or_sheet_sale_price}
                       </td>
-                      <td className="border p-2 text-center">
-                        {item.only_sheet_piece}
-                      </td>
-                      <td className="border p-2 text-center">
-                        {item.total_sheet_piece}
-                      </td>
-                      <td className="border p-2 text-center">
-                        {item.rim_or_dozen_per_price}
-                      </td>
-                      <td className="border p-2 text-center">
-                        {item.sheet_or_piece_per_price}
-                      </td>
-                      <td className="border p-2 text-center">
-                        {item.total_amount}
-                      </td>
-                      <td className="border p-2 text-center">
-                        {item.transport_cost}
-                      </td>
-                      <td className="border p-2 text-center">
-                        {item.labour_cost}
-                      </td>
-                      <td className="border p-2 text-center">
-                        {item.road_cost}
-                      </td>
-                      <td className="border p-2 text-center">
-                        {item.other_cost}
-                      </td>
-                      <td className="border p-2 text-center">
-                        {item.total_extra_cost}
-                      </td>
-                      <td className="border p-2 text-center">
-                        {item.total_per_rim_cost}
-                      </td>
-                      <td className="border p-2 text-center">
-                        {item.total_per_sheet_cost}
-                      </td>
-                      <td className="border p-2 text-center">
-                        {item.rim_or_dozen_total_cost}
-                      </td>
-                      <td className="border p-2 text-center">
-                        {item.sheet_or_piece_total_cost}
-                      </td>
-                      <td className="border p-2 text-center">
-                        {item.rim_or_dozen_per_percentage}
-                      </td>
-                      <td className="border p-2 text-center">
-                        {item.rim_or_dozen_per_sell_amount}
-                      </td>
-                      <td className="border p-2 text-center">
-                        {item.sheet_or_piece_per_sell_amount}
-                      </td>
-                      <td className="border p-2 text-center">{item.remarks}</td>
-                      <td className="border p-2 text-center">
+                      <td className="border p-2">
                         <button
                           onClick={() =>
                             setFormData((prevData) => ({
