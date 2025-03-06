@@ -4,7 +4,7 @@ import { FaEdit } from "react-icons/fa";
 import { ImCross } from "react-icons/im";
 import { toast, Toaster } from "react-hot-toast";
 import AxiosInstance from "../../Components/AxiosInstance";
-import Swal from "sweetalert2";
+import Swal from "sweetalert2"
 
 const Products = () => {
   const [products, setProducts] = useState([]);

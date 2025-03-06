@@ -85,18 +85,18 @@ const Sales = () => {
       "Remarks",
     ];
 
-    // Map table rows using correct object keys
-    const tableRows = items.map((item) => [
-      item.no, // Auto-incremented No.
-      item.productDescription, // Product Description (Dropdown)
-      item.productCode, // Item/Product Code
-      item.rimQuantity, // Rim Quantity
-      item.sheetQuantity, // Sheet/Piece Quantity
-      item.rimPrice, // Rim/Dozen Price
-      item.sheetPrice, // Sheet/Piece Price
-      item.totalAmount, // Total Amount
-      item.remarks, // Remarks
-    ]);
+    // // Map table rows using correct object keys
+    // const tableRows = items.map((item) => [
+    //   item.no, // Auto-incremented No.
+    //   item.productDescription, // Product Description (Dropdown)
+    //   item.productCode, // Item/Product Code
+    //   item.rimQuantity, // Rim Quantity
+    //   item.sheetQuantity, // Sheet/Piece Quantity
+    //   item.rimPrice, // Rim/Dozen Price
+    //   item.sheetPrice, // Sheet/Piece Price
+    //   item.totalAmount, // Total Amount
+    //   item.remarks, // Remarks
+    // ]);
 
     // Add title to PDF
     doc.text("Purchase Items Report", 14, 15);
@@ -237,8 +237,8 @@ const Sales = () => {
             <div className="overflow-x-auto w-[100%]">
               <table className="table border-collapse w-full">
                 <tbody>
-                  {items.map((item, index) => (
-                    <React.Fragment key={index}>
+               
+                    
                       {/* First Row: Column Headings */}
                       <tr className="bg-gray-200 text-gray-700 text-sm">
                         <td className="p-2 text-center border">No</td>
@@ -271,7 +271,8 @@ const Sales = () => {
                         </td>
                         <td className="p-2 text-center border">Total Price</td>
                       </tr>
-
+                      {items.map((item, index) => (
+                        <React.Fragment key={index}>
                       {/* Second Row: Input Fields */}
                       <tr className="border">
                         <td className="border text-center">{index + 1}</td>

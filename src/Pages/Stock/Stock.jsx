@@ -1,265 +1,76 @@
-import { useState } from "react";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 
 const Stock = () => {
-  // State to manage rows
-  const [rows, setRows] = useState([
-    {
-      no: "",
-      itemCode: "",
-      description: "",
-      sheet: "",
-      rim: "",
-      purchaseRate: "",
-      sheetPurchaseRate: "",
-      amount: "",
-      rimSaleRate: "",
-      sheetSaleRate: "",
-      stockAmount: "",
-      remarks: "Stock thik ase", // Default option
-      customRemark: "", // For custom remarks
-    },
-  ]);
+  const [stocks, setStocks] = useState([]);
 
-  // Handle input changes
-  const handleInputChange = (index, event) => {
-    const values = [...rows];
-    values[index][event.target.name] = event.target.value;
-    setRows(values);
-  };
-
-  // Handle remarks change (dropdown)
-  const handleRemarksChange = (index, value) => {
-    const values = [...rows];
-    values[index].remarks = value;
-    setRows(values);
-  };
-
-  // Handle custom remarks
-  const handleCustomRemarkChange = (index, value) => {
-    const values = [...rows];
-    values[index].customRemark = value;
-    setRows(values);
-  };
+  useEffect(() => {
+    axios.get("/api/stocks") // Adjust the API endpoint as needed
+      .then(response => {
+        if (Array.isArray(response.data)) {
+          setStocks(response.data);
+        } else {
+          console.error("API response is not an array:", response.data);
+          setStocks([]); // Ensure it's an array to prevent map errors
+        }
+      })
+      .catch(error => {
+        console.error("Error fetching stock data:", error);
+        setStocks([]); // Fallback to an empty array
+      });
+  }, []);
 
   return (
-    <div className="flex flex-col items-center justify-center space-y-1 bg-blue-50">
-      <header className="text-center text-red-800 space-y-0.5">
-        <h1 className="text-4xl font-bold text-red-600 leading-tight">
-          Sharif Stationary
-        </h1>
-        <p className="text-md text-blue-700 leading-tight">
-          36, Gohata Road, Lohapotty, Jashore
-        </p>
-        <p className="text-md text-red-600 leading-tight">
-          Cell: 01854-341463, 01707-341463, 01711-334408
-        </p>
-        <p className="text-md text-gray-800 leading-tight">
-          Nagad & Bkash: 01707-341463 (Personal)
-        </p>
-      </header>
-
-      <div className="container mx-auto my-8 p-4 bg-white shadow-lg rounded-lg">
-        <h2 className="text-3xl font-bold text-center text-blue-700 mb-2">
-          Product Stock
-        </h2>
-
-        <table className="min-w-full table-fixed border-collapse">
-          <thead className="bg-blue-100">
-            <tr>
-              <th className="px-4 py-2 text-center border border-gray-300 w-4%]">
-                No
-              </th>
-              <th className="px-4 py-2 text-center border border-gray-300 w-[7%]">
-                Item Code
-              </th>
-              <th className="px-4 py-2 text-center border border-gray-300 w-[25%]">
-                Product Description
-              </th>
-              <th className="px-4 py-2 text-center border border-gray-300 w-[5%]">
-                Rim/Dozon
-              </th>
-              <th className="px-4 py-2 text-center border border-gray-300 w-[5%]">
-                Sheet/Piece
-              </th>
-              <th className="px-4 py-2 text-center border border-gray-300 w-[%]">
-                Rim/Dozon Purchase Amount
-              </th>
-              <th className="px-4 py-2 text-center border border-gray-300 w-[8%]">
-                Sheet/Piece Purchase Amount
-              </th>
-              <th className="px-4 py-2 text-center border border-gray-300 w-[8%]">
-                Total Purchase Amount
-              </th>
-              <th className="px-4 py-2 text-center border border-gray-300 w-[10%]">
-                Stock Amount by Today/Last Purchase Rate
-              </th>
-              <th className="px-4 py-2 text-center border border-gray-300 w-[25%]">
-                Remarks
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((row, index) => (
-              <tr key={index} className="text-xs -h-2">
-                <td className="px-4 py-0 h-2 text-center border border-gray-300">
-                  <input
-                    type="number"
-                    className="w-full text-center"
-                    placeholder="Enter No"
-                    name="no"
-                    value={row.no}
-                    onChange={(e) => handleInputChange(index, e)}
-                  />
-                </td>
-                <td className="px-4 py-2 text-center border border-gray-300">
-                  <input
-                    type="text"
-                    className="w-full text-center"
-                    name="itemCode"
-                    value={row.itemCode}
-                    onChange={(e) => handleInputChange(index, e)}
-                  />
-                </td>
-                <td className="px-4 py-2 text-center border border-gray-300">
-                  <input
-                    type="text"
-                    className="w-full text-center"
-                    name="description"
-                    value={row.description}
-                    onChange={(e) => handleInputChange(index, e)}
-                  />
-                </td>
-                <td className="px-4 py-2 text-center border border-gray-300">
-                  <input
-                    type="number"
-                    className="w-full text-center"
-                    placeholder="Enter Rim"
-                    name="rim"
-                    value={row.rim}
-                    onChange={(e) => handleInputChange(index, e)}
-                  />
-                </td>
-                <td className="px-4 py-2 text-center border border-gray-300">
-                  <input
-                    type="number"
-                    className="w-full text-center"
-                    placeholder="Enter Sheet"
-                    name="sheet"
-                    value={row.sheet}
-                    onChange={(e) => handleInputChange(index, e)}
-                  />
-                </td>
-                <td className="px-4 py-2 text-center border border-gray-300">
-                  <input
-                    type="number"
-                    className="w-full text-center"
-                    placeholder="Enter Purchase Rate"
-                    name="purchaseRate"
-                    value={row.purchaseRate}
-                    onChange={(e) => handleInputChange(index, e)}
-                  />
-                </td>
-                <td className="px-4 py-2 text-center border border-gray-300">
-                  <input
-                    type="number"
-                    className="w-full text-center"
-                    placeholder="Enter Sheet Purchase Rate"
-                    name="sheetPurchaseRate"
-                    value={row.sheetPurchaseRate}
-                    onChange={(e) => handleInputChange(index, e)}
-                  />
-                </td>
-                <td className="px-4 py-2 text-center border border-gray-300">
-                  <input
-                    type="number"
-                    className="w-full text-center"
-                    placeholder="Enter Rim Purchase Rate"
-                    name="rimPurchaseRate"
-                    value={row.rimPurchaseRate}
-                    onChange={(e) => handleInputChange(index, e)}
-                  />
-                </td>
-                {/* <td className="px-4 py-2 text-center border border-gray-300">
-                  <input
-                    type="number"
-                    className="w-full text-center"
-                    placeholder="Enter Amount"
-                    name="amount"
-                    value={row.amount}
-                    onChange={(e) => handleInputChange(index, e)}
-                  />
-                </td> */}
-                <td className="px-4 py-2 text-center border border-gray-300">
-                  <input
-                    type="number"
-                    className="w-full text-center"
-                    placeholder="Enter Stock Amount"
-                    name="stockAmount"
-                    value={row.stockAmount}
-                    onChange={(e) => handleInputChange(index, e)}
-                  />
-                </td>
-                <td className="px-4 py-2 text-center border border-gray-300">
-                  <select
-                    value={row.remarks}
-                    onChange={(e) => handleRemarksChange(index, e.target.value)}
-                    className="w-full px-4 py-{-2} border border-gray-300 rounded-lg text-xs"
-                  >
-                    <option value="স্টক ঠিক আছে">স্টক ঠিক আছে</option>
-                    <option value="মন্তব্য">মন্তব্য</option>
-                  </select>
-                  {row.remarks === "মন্তব্য" && (
-                    <textarea
-                      className="mt-2 w-full px-4 py-2 border border-gray-300 rounded-lg"
-                      placeholder="এখানে আপনার মন্তব্য লিখুন"
-                      value={row.customRemark}
-                      onChange={(e) =>
-                        handleCustomRemarkChange(index, e.target.value)
-                      }
-                    />
-                  )}
-                </td>
+    <div className="overflow-x-auto p-4">
+      <h2 className="text-blue-600 text-xl font-bold  text-center mb-4">Stock Details</h2>
+      <table className="w-full border  border-gray-200 border-collapse rounded-sm text-xs">
+        <thead>
+          <tr className="bg-gray-700 text-white rounded-sm border border-gray-100">
+            <td className="p-1 border border-gray-100">No</td>
+            <td className="p-1 border border-gray-200">Company Name</td>
+            <td className="p-1 border border-gray-200">Product Code</td>
+            <td className="p-1 border border-gray-200">Product Description</td>
+            <td className="p-1 border border-gray-200">Stock Rim</td>
+            <td className="p-1 border border-gray-200">Stock Dozen</td>
+            <td className="p-1 border border-gray-200">Stock Sheet/Piece</td>
+            <td className="p-1 border border-gray-200">Last Purchase Rate Wise Per Rim Cost</td>
+            <td className="p-1 border border-gray-200">Last Purchase+Additional Cost Wise Per Rim Cost</td>
+            <td className="p-1 border border-gray-200">Last Purchase Cost Wise Per Dozen Cost</td>
+            <td className="p-1 border border-gray-200">Last Purchase+Additional Cost Wise Per Dozen Cost</td>
+            <td className="p-1 border border-gray-200">Last Purchase Cost Wise Per Sheet/Piece Cost</td>
+            <td className="p-1 border border-gray-200">Last Purchase+Additional Cost Wise Per Sheet/Piece Cost</td>
+            <td className="p-1 border border-gray-200">Total Stock Amount</td>
+            <td className="p-1 border border-gray-200">Remarks</td>
+          </tr>
+        </thead>
+        <tbody>
+          {stocks.length > 0 ? (
+            stocks.map((stock, index) => (
+              <tr key={index} className="border border-gray-200">
+                <td className="p-1 border border-gray-200">{index + 1}</td>
+                <td className="p-1 border border-gray-200">{stock.companyName}</td>
+                <td className="p-1 border border-gray-200">{stock.productCode}</td>
+                <td className="p-1 border border-gray-200">{stock.productDescription}</td>
+                <td className="p-1 border border-gray-200">{stock.stockRim}</td>
+                <td className="p-1 border border-gray-200">{stock.stockDozen}</td>
+                <td className="p-1 border border-gray-200">{stock.stockSheetPiece}</td>
+                <td className="p-1 border border-gray-200">{stock.lastPurchaseRatePerRim}</td>
+                <td className="p-1 border border-gray-200">{stock.lastPurchaseAdditionalCostPerRim}</td>
+                <td className="p-1 border border-gray-200">{stock.lastPurchaseCostPerDozen}</td>
+                <td className="p-1 border border-gray-200">{stock.lastPurchaseAdditionalCostPerDozen}</td>
+                <td className="p-1 border border-gray-200">{stock.lastPurchaseCostPerSheetPiece}</td>
+                <td className="p-1 border border-gray-200">{stock.lastPurchaseAdditionalCostPerSheetPiece}</td>
+                <td className="p-1 border border-gray-200">{stock.totalStockAmount}</td>
+                <td className="p-1 border border-gray-200">{stock.remarks}</td>
               </tr>
-            ))}
-
+            ))
+          ) : (
             <tr>
-              <th className="px-4 py-2 text-center border border-gray-300 w-4%]">
-                Total:
-              </th>
-              <th className="px-4 py-2 text-center border border-gray-300 w-[7%]">
-                N/A
-              </th>
-              <th className="px-4 py-2 text-center border border-gray-300 w-[25%]">
-                N/A
-              </th>
-              <th className="px-4 py-2 text-center border border-gray-300 w-[5%]">
-                (ক্রয় এবং বিক্রয়ের ব্যালান্স হবে)
-              </th>
-              <th className="px-4 py-2 text-center border border-gray-300 w-[5%]">
-              (ক্রয় এবং বিক্রয়ের ব্যালান্স হবে)
-
-              </th>
-              <th className="px-4 py-2 text-center border border-gray-300 w-[%]">
-                N/A
-              </th>
-              <th className="px-4 py-2 text-center border border-gray-300 w-[8%]">
-                N/A
-              </th>
-              <th className="px-4 py-2 text-center border border-gray-300 w-[8%]">
-              (ক্রয় এবং বিক্রয়ের ব্যালান্স হবে)
-
-              </th>
-              <th className="px-4 py-2 text-center border border-gray-300 w-[10%]">
-              (ক্রয় এবং বিক্রয়ের ব্যালান্স হবে)
-
-              </th>
-              <th className="px-4 py-2 text-center border border-gray-300 w-[25%]">
-                N/A
-              </th>
+              <td colSpan="15" className="p-1 border border-gray-200 text-center">No stock data available</td>
             </tr>
-          </tbody>
-        </table>
-      </div>
+          )}
+        </tbody>
+      </table>
     </div>
   );
 };
