@@ -452,7 +452,7 @@ const Sales = () => {
                 <button
                   type="button"
                   onClick={addRow}
-                  className="bg-green-500 text-white px-4 rounded bg-blue-900 text-xs w-24 h-6"
+                  className="bg-blue-500 text-white px-4 rounded bg-blue-900 text-xs w-24 h-6"
                 >
                   Add
                 </button>
