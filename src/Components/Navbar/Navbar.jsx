@@ -122,6 +122,11 @@ const Navbar = () => {
                     Warehouse
                   </NavLink>
                 </li>
+                <li>
+                  <NavLink to="/customer" onClick={() => setIsOpen(false)}>
+                    Customer
+                  </NavLink>
+                </li>
               </ul>
             )}
           </li>

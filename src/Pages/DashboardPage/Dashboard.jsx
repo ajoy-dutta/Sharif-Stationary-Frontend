@@ -1,38 +1,65 @@
-import React from "react";
-import {
-  FaCubes,
-  FaUsers,
-  FaUserAlt,
-  FaHome,
-  FaLongArrowAltUp,
-} from "react-icons/fa";
+import React, { useState, useEffect } from "react";
+import { FaCubes, FaUsers, FaUserAlt, FaHome, FaLongArrowAltUp } from "react-icons/fa";
+import AxiosInstance from "../../Components/AxiosInstance"; // Import Axios instance
 
-// Reusable Card Component
+// Reusable Stat Card Component
 const StatCard = ({ icon, title, value, progressValue, progressColor }) => {
   return (
     <div className="h-28 bg-white py-4 px-5 rounded-lg shadow-md hover:shadow-lg transition-all">
       <div className="flex items-center justify-between">
-        <h2 className="text-gray-700 flex flex-col text-2xl">
+        <h2 className="text-gray-700 flex flex-col text-xl">
           {icon}
-          <span className="text-lg">{title}</span>
+          <span className="text-md">{title}</span>
         </h2>
         <h2 className={`text-3xl ${progressColor}`}>{value}</h2>
       </div>
-      <progress
-        className={`progress ${progressColor} w-full`}
-        value={progressValue}
-        max="100"
-      ></progress>
+      <progress className={`progress ${progressColor} w-full`} value={progressValue} max="100"></progress>
     </div>
   );
 };
 
 const Dashboard = () => {
+  // State variables to store fetched data
+  const [totalProducts, setTotalProducts] = useState(0);
+  const [totalSuppliers, setTotalSuppliers] = useState(0);
+  const [totalCustomers, setTotalCustomers] = useState(0);
+  const [totalDueAmount, setTotalDueAmount] = useState(0);
+
+  // Fetch Data from API when Component Mounts
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        // Fetch total products
+        const productResponse = await AxiosInstance.get("/products/count/");
+        setTotalProducts(productResponse.data.total_products);
+  
+        // Fetch total suppliers
+        // const supplierResponse = await AxiosInstance.get("/suppliers/count/");
+        // setTotalSuppliers(supplierResponse.data.total_suppliers);
+  
+        // Fetch total customers
+        const customerResponse = await AxiosInstance.get("/customers/count/");
+        console.log("API Response (Customers):", customerResponse.data); // ✅ Debugging log
+        setTotalCustomers(customerResponse.data.total_customers);
+  
+        // Fetch total due amount from customers
+        const dueResponse = await AxiosInstance.get("/customers/total-due/");
+        setTotalDueAmount(dueResponse.data.total_due);
+      } catch (error) {
+        console.error("Error fetching dashboard data:", error);
+      }
+    };
+  
+    fetchDashboardData();
+  }, []);
+  
+
+  // Dynamic Stats Data
   const stats = [
-    { icon: <FaCubes />, title: "Total Product", value: 1, progress: 70, color: "progress-error text-pink-400" },
-    { icon: <FaUsers />, title: "Total Suppliers", value: 1, progress: 65, color: "progress-info text-sky-500" },
-    { icon: <FaUserAlt />, title: "Total Customers", value: 100, progress: 40, color: "progress-success text-green-500" },
-    { icon: <FaHome />, title: "Total Houses", value: 130, progress: 70, color: "progress-primary text-purple-500" },
+    { icon: <FaCubes />, title: "Total Products", value: totalProducts, progress: 70, color: "progress-error text-pink-400" },
+    // { icon: <FaUsers />, title: "Total Suppliers", value: totalSuppliers, progress: 65, color: "progress-info text-sky-500" },
+    { icon: <FaUserAlt />, title: "Total Customers", value: totalCustomers, progress: 40, color: "progress-success text-green-500" },
+    { icon: <FaHome />, title: "Total Due Amount", value: `৳ ${totalDueAmount}`, progress: 70, color: "progress-primary text-purple-500" },
   ];
 
   return (
@@ -51,7 +78,7 @@ const Dashboard = () => {
         ))}
       </div>
 
-      {/* Info & Summary */}
+      {/* Info & Summary Section */}
       <div className="py-6 flex flex-col gap-5 lg:flex-row">
         {/* Info Section */}
         <div className="w-full lg:w-1/2 flex">
@@ -88,9 +115,9 @@ const Dashboard = () => {
         <div className="w-full lg:w-1/2 grid grid-cols-2 gap-5">
           {[
             { color: "bg-green-400", title: "Daily Total Purchase", value: 27 },
-            { color: "bg-sky-400", title: "Daily Total Purchase", value: 27 },
-            { color: "bg-red-400", title: "Daily Total Sale", value: 126 },
-            { color: "bg-orange-400", title: "Daily Total Due", value: 121 },
+            { color: "bg-sky-400", title: "Daily Total Sales", value: 126 },
+            { color: "bg-red-400", title: "Daily Total Due", value: `৳ ${totalDueAmount}` },
+            { color: "bg-orange-400", title: "Pending Payments", value: 121 },
           ].map((card, index) => (
             <div
               key={index}
