@@ -36,12 +36,12 @@ const Company = () => {
   }, []);
   const handleAddCompany = async () => {
     const { company_name, company_representative_name, phone_number, address, previous_due } = newCompany;
-  
+
     if (!company_name.trim() || !company_representative_name.trim() || !phone_number.trim() || !address.trim()) {
       toast.error("⚠️ All fields are required!");
       return;
     }
-  
+
     try {
       const response = await AxiosInstance.post("/companies/", {
         company_name,
@@ -50,13 +50,13 @@ const Company = () => {
         address,
         previous_due: previous_due ? parseFloat(previous_due) : 0.0, // Convert to float
       });
-  
+
       console.log("Server Response:", response); // ✅ Debugging response
-  
+
       if (response.status === 201) {
         // Add the new company directly to the company state
         setCompany((prev) => [...prev, response.data]);
-        toast.success("✅ Company added successfully!");
+        toast.success(" Company added successfully!");
         setNewCompany({ company_name: "", company_representative_name: "", phone_number: "", address: "", previous_due: "" });
         document.getElementById("my_modal_5").close(); // Close modal
       } else {
@@ -67,9 +67,9 @@ const Company = () => {
       toast.error("❌ Failed to add company!");
     }
   };
-  
-  
-  
+
+
+
 
   const handleEditCompany = async () => {
     if (!editableCompany) return;
@@ -99,7 +99,7 @@ const Company = () => {
       originalCompany.phone_number === phone_number.trim() &&
       originalCompany.company_name === company_name.trim() &&
       originalCompany.company_representative_name ===
-        company_representative_name.trim() &&
+      company_representative_name.trim() &&
       originalCompany.address === address.trim()
     ) {
       toast.error("⚠️ No changes were made!");
@@ -174,17 +174,28 @@ const Company = () => {
           />
           <div
             className="h-7 w-14 p-1 bg-blue-950 text-white"
-           
+
           >
             Search
           </div>
         </div>
         <button
           className="btn btn-sm bg-blue-950 text-white"
-          onClick={() => document.getElementById("my_modal_5")?.showModal()}
+          onClick={() => {
+            setEditableCompany(null); // Reset editing mode when adding a new company
+            setNewCompany({
+              company_name: "",
+              company_representative_name: "",
+              phone_number: "",
+              address: "",
+              previous_due: "",
+            }); // Clear form for new company
+            document.getElementById("my_modal_5").showModal(); // Open modal
+          }}
         >
           <TiPlus /> Add Company
         </button>
+
       </div>
       <div className="m-8 text-center font-bold text-gray-700 border-b-[1px] pb-2">
         <h2 className="text-lg"> List of Company </h2>
@@ -248,143 +259,144 @@ const Company = () => {
       </div>
 
       <dialog id="my_modal_5" className="modal modal-bottom sm:modal-middle">
-  <div className="modal-box relative p-6">
-    {/* Close Button */}
-    <button
-      className="absolute top-2 right-2 text-lg"
-      onClick={() => document.getElementById("my_modal_5").close()} // Close modal
-    >
-      <ImCross />
-    </button>
+        <div className="modal-box relative p-6">
+          {/* Close Button */}
+          <button
+            className="absolute top-2 right-2 text-lg"
+            onClick={() => document.getElementById("my_modal_5").close()} // Close modal
+          >
+            <ImCross />
+          </button>
 
-    <h3 className="font-bold text-lg my-5 text-center">
-      {editableCompany ? "Edit Company" : "Add Company"}
-    </h3>
+          <h3 className="font-bold text-lg my-5 text-center">
+            {editableCompany ? "Edit Company" : "Add Company"}
+          </h3>
 
-    {/* Company Name */}
-    <div className="flex flex-col">
-      <label className="text-sm font-medium text-gray-700 mb-1">Company Name</label>
-      <input
-        className="input input-bordered w-full p-2"
-        placeholder="Enter Company Name"
-        value={
-          editableCompany ? editableCompany.company_name : newCompany.company_name
-        }
-        onChange={(e) =>
-          editableCompany
-            ? setEditableCompany((prev) => ({
-                ...prev,
-                company_name: e.target.value,
-              }))
-            : setNewCompany((prev) => ({
-                ...prev,
-                company_name: e.target.value,
-              }))
-        }
-      />
-    </div>
+          {/* Company Name */}
+          <div className="flex flex-col">
+            <label className="text-sm font-medium text-gray-700 mb-1">Company Name</label>
+            <input
+              className="input input-bordered w-full p-2"
+              placeholder="Enter Company Name"
+              value={
+                editableCompany ? editableCompany.company_name : newCompany.company_name
+              }
+              onChange={(e) =>
+                editableCompany
+                  ? setEditableCompany((prev) => ({
+                    ...prev,
+                    company_name: e.target.value,
+                  }))
+                  : setNewCompany((prev) => ({
+                    ...prev,
+                    company_name: e.target.value,
+                  }))
+              }
+            />
+          </div>
 
-    {/* Representative Name */}
-    <div className="flex flex-col mt-4">
-      <label className="text-sm font-medium text-gray-700 mb-1">Representative Name</label>
-      <input
-        className="input input-bordered w-full p-2"
-        placeholder="Enter Representative Name"
-        value={
-          editableCompany
-            ? editableCompany.company_representative_name
-            : newCompany.company_representative_name
-        }
-        onChange={(e) =>
-          editableCompany
-            ? setEditableCompany((prev) => ({
-                ...prev,
-                company_representative_name: e.target.value,
-              }))
-            : setNewCompany((prev) => ({
-                ...prev,
-                company_representative_name: e.target.value,
-              }))
-        }
-      />
-    </div>
+          {/* Representative Name */}
+          <div className="flex flex-col mt-4">
+            <label className="text-sm font-medium text-gray-700 mb-1">Representative Name</label>
+            <input
+              className="input input-bordered w-full p-2"
+              placeholder="Enter Representative Name"
+              value={
+                editableCompany
+                  ? editableCompany.company_representative_name
+                  : newCompany.company_representative_name
+              }
+              onChange={(e) =>
+                editableCompany
+                  ? setEditableCompany((prev) => ({
+                    ...prev,
+                    company_representative_name: e.target.value,
+                  }))
+                  : setNewCompany((prev) => ({
+                    ...prev,
+                    company_representative_name: e.target.value,
+                  }))
+              }
+            />
+          </div>
 
-    {/* Phone Number */}
-    <div className="flex flex-col mt-4">
-      <label className="text-sm font-medium text-gray-700 mb-1">Phone Number</label>
-      <input
-        className="input input-bordered w-full p-2"
-        placeholder="Enter Phone Number"
-        value={editableCompany ? editableCompany.phone_number : newCompany.phone_number}
-        onChange={(e) =>
-          editableCompany
-            ? setEditableCompany((prev) => ({
-                ...prev,
-                phone_number: e.target.value,
-              }))
-            : setNewCompany((prev) => ({
-                ...prev,
-                phone_number: e.target.value,
-              }))
-        }
-      />
-    </div>
+          {/* Phone Number */}
+          <div className="flex flex-col mt-4">
+            <label className="text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+            <input
+              className="input input-bordered w-full p-2"
+              placeholder="Enter Phone Number"
+              value={editableCompany ? editableCompany.phone_number : newCompany.phone_number}
+              onChange={(e) =>
+                editableCompany
+                  ? setEditableCompany((prev) => ({
+                    ...prev,
+                    phone_number: e.target.value,
+                  }))
+                  : setNewCompany((prev) => ({
+                    ...prev,
+                    phone_number: e.target.value,
+                  }))
+              }
+            />
+          </div>
 
-    {/* Address */}
-    <div className="flex flex-col mt-4">
-      <label className="text-sm font-medium text-gray-700 mb-1">Company Address</label>
-      <input
-        className="input input-bordered w-full p-2"
-        placeholder="Enter Company Address"
-        value={editableCompany ? editableCompany.address : newCompany.address}
-        onChange={(e) =>
-          editableCompany
-            ? setEditableCompany((prev) => ({
-                ...prev,
-                address: e.target.value,
-              }))
-            : setNewCompany((prev) => ({
-                ...prev,
-                address: e.target.value,
-              }))
-        }
-      />
-    </div>
+          {/* Address */}
+          <div className="flex flex-col mt-4">
+            <label className="text-sm font-medium text-gray-700 mb-1">Company Address</label>
+            <input
+              className="input input-bordered w-full p-2"
+              placeholder="Enter Company Address"
+              value={editableCompany ? editableCompany.address : newCompany.address}
+              onChange={(e) =>
+                editableCompany
+                  ? setEditableCompany((prev) => ({
+                    ...prev,
+                    address: e.target.value,
+                  }))
+                  : setNewCompany((prev) => ({
+                    ...prev,
+                    address: e.target.value,
+                  }))
+              }
+            />
+          </div>
 
-    {/* Previous Due */}
-    <div className="flex flex-col mt-4">
-      <label className="text-sm font-medium text-gray-700 mb-1">Previous Due</label>
-      <input
-        className="input input-bordered w-full p-2"
-        type="number"
-        placeholder="Enter Previous Due Amount"
-        value={editableCompany ? editableCompany.previous_due : newCompany.previous_due}
-        onChange={(e) =>
-          editableCompany
-            ? setEditableCompany((prev) => ({
-                ...prev,
-                previous_due: e.target.value,
-              }))
-            : setNewCompany((prev) => ({
-                ...prev,
-                previous_due: e.target.value,
-              }))
-        }
-      />
-    </div>
+          {/* Previous Due */}
+          <div className="flex flex-col mt-4">
+            <label className="text-sm font-medium text-gray-700 mb-1">Previous Due</label>
+            <input
+              className="input input-bordered w-full p-2"
+              type="number"
+              placeholder="Enter Previous Due Amount"
+              value={editableCompany ? editableCompany.previous_due : newCompany.previous_due}
+              onChange={(e) =>
+                editableCompany
+                  ? setEditableCompany((prev) => ({
+                    ...prev,
+                    previous_due: e.target.value,
+                  }))
+                  : setNewCompany((prev) => ({
+                    ...prev,
+                    previous_due: e.target.value,
+                  }))
+              }
+            />
+          </div>
 
-    {/* Modal Actions */}
-    <div className="modal-action justify-center mt-6">
-      <button
-        className="btn bg-blue-950 text-white w-full p-2"
-        onClick={editableCompany ? handleEditCompany : handleAddCompany}
-      >
-        {editableCompany ? "Update Company" : "Add Company"}
-      </button>
-    </div>
-  </div>
-  <Toaster position="top-center" reverseOrder={false} />
-</dialog>
+          {/* Modal Actions */}
+          <div className="modal-action justify-center mt-6">
+            <button
+              className="btn bg-blue-950 text-white w-full p-2"
+              onClick={editableCompany ? handleEditCompany : handleAddCompany}
+            >
+              {editableCompany ? "Update Company" : "Add Company"}
+            </button>
+          </div>
+        </div>
+        <Toaster position="top-center" reverseOrder={false} />
+      </dialog>
+
 
 
       <Toaster position="top-center" reverseOrder={false} />

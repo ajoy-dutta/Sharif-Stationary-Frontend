@@ -47,7 +47,7 @@ const PaymentType = () => {
       // ✅ Clear input and close modal
       setNewPaymentMethod("");
       document.getElementById("my_modal_5").close();
-      toast.success("✅ Payment method added successfully!");
+      toast.success(" Payment method added successfully!");
     } catch (error) {
       console.error("Error adding payment method:", error);
 
@@ -90,7 +90,7 @@ const PaymentType = () => {
 
       setEditMethod(null);
       document.getElementById("my_modal_5").close();
-      toast.success("✅ Payment method updated successfully!");
+      toast.success("Payment method updated successfully!");
     } catch (error) {
       console.error("Error updating payment method:", error);
       toast.error("❌ Failed to update payment method!");
