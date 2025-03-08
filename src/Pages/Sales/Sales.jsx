@@ -70,45 +70,132 @@ const Sales = () => {
   };
 
   const handlePDFExport = () => {
-    const doc = new jsPDF();
-
-    // Define table columns
-    const tableColumn = [
-      "No",
-      "Product Description",
-      "Item/Product Code",
-      "Rim Quantity",
-      "Sheet/Piece Quantity",
-      "Rim/Dozen Price",
-      "Sheet/Piece Price",
-      "Total Amount",
-      "Remarks",
-    ];
-
-    // // Map table rows using correct object keys
-    // const tableRows = items.map((item) => [
-    //   item.no, // Auto-incremented No.
-    //   item.productDescription, // Product Description (Dropdown)
-    //   item.productCode, // Item/Product Code
-    //   item.rimQuantity, // Rim Quantity
-    //   item.sheetQuantity, // Sheet/Piece Quantity
-    //   item.rimPrice, // Rim/Dozen Price
-    //   item.sheetPrice, // Sheet/Piece Price
-    //   item.totalAmount, // Total Amount
-    //   item.remarks, // Remarks
-    // ]);
-
-    // Add title to PDF
-    doc.text("Purchase Items Report", 14, 15);
-    doc.autoTable({
-      head: [tableColumn],
-      body: tableRows,
-      startY: 20,
-    });
-
-    // Save the PDF
-    doc.save("purchase_items.pdf");
+    const invoiceWindow = window.open("", "_blank"); // Open new window
+  
+    invoiceWindow.document.write(`
+      <html>
+        <head>
+          <title>Sales Invoice</title>
+          <style>
+            body { font-family: Arial, sans-serif; padding: 20px; }
+            .container { width: 80%; margin: auto; border: 1px solid #ddd; padding: 20px; }
+            .header { text-align: center; }
+            .title { font-size: 20px; font-weight: bold; }
+            .details { margin-top: 20px; }
+            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+            th, td { border: 1px solid #ddd; padding: 10px; text-align: center; }
+            .total { font-size: 16px; font-weight: bold; margin-top: 20px; text-align: right; }
+            .buttons { text-align: center; margin-top: 20px; }
+            .buttons button { padding: 10px 15px; margin: 5px; cursor: pointer; }
+            .total-row td { font-weight: bold; background-color: #f2f2f2; }
+            .total-text { text-align: center; } /* Total text alignment */
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <h2>SHARIF PAPER & STATIONARY</h2>
+              <p>36-GOHATA ROAD, LOHAPOTTY, JASHORE</p>
+              <p>Shop Contact: 01854-341463</p>
+            </div>
+  
+            <div class="title">SALES INVOICE</div>
+  
+            <div class="details">
+              <p><strong>Served By:</strong> YEASIN ARAFAT</p>
+              <p><strong>Date & Time:</strong> 29/01/25 10:35 PM</p>
+              <p><strong>Invoice No:</strong> SSP.INV.00003210.25</p>
+              <p><strong>Pay Method:</strong> Cash</p>
+            </div>
+  
+            <div class="details">
+              <p><strong>Customer:</strong> Likhoni</p>
+              <p><strong>Address:</strong> RAZGONG-AMINUR</p>
+              <p><strong>Phone No:</strong> 01545545555</p>
+            </div>
+  
+            <table id="invoiceTable">
+              <thead>
+                <tr>
+                  <th>Sl. No</th>
+                  <th>Item Code</th>
+                  <th>Title</th>
+                  <th>Unit Qty</th>
+                  <th>Name</th>
+                  <th>Discount %</th>
+                  <th>Conversion Qty</th>
+                  <th>Rim Rate</th>
+                  <th>Sheet Rate</th>
+                  <th>Amount</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>1</td>
+                  <td>00000368</td>
+                  <td>16 OFFSET REGISTER</td>
+                  <td>2</td>
+                  <td>Dz</td>
+                  <td>Dz</td>
+                  <td>Dz</td>
+                  <td>Dz</td>
+                  <td>624.00</td>
+                  <td class="amount">1248.00</td>
+                </tr>
+                <!-- Additional rows can be added dynamically -->
+              </tbody>
+              <tfoot>
+                <tr class="total-row">
+                  <td colspan="9" class="total-text">Total</td>
+                  <td id="totalAmount">0.00</td>
+                </tr>
+              </tfoot>
+            </table>
+  
+            <div class="total">
+              <p>Net Amount: <span id="netAmount">1248.00</span></p>
+              <p>Due Amount: 1248.00</p>
+              <p>Previous Due: 0.00</p>
+              <p>Current Due: 1248.00</p>
+            </div>
+  
+            <div class="buttons">
+              <button onclick="window.print()">Print</button>
+              <button onclick="downloadPDF()">Download PDF</button>
+            </div>
+  
+            <script>
+              function calculateTotal() {
+                let total = 0;
+                document.querySelectorAll(".amount").forEach(cell => {
+                  total += parseFloat(cell.innerText) || 0;
+                });
+                document.getElementById("totalAmount").innerText = total.toFixed(2);
+                document.getElementById("netAmount").innerText = total.toFixed(2);
+              }
+  
+              function downloadPDF() {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                doc.text("Sales Invoice", 14, 15);
+                doc.autoTable({ html: "#invoiceTable" });
+                doc.save("invoice.pdf");
+              }
+  
+              calculateTotal(); // Call function to calculate total
+            </script>
+          </div>
+        </body>
+      </html>
+    `);
+  
+    invoiceWindow.document.close();
   };
+  
+  
+  
+  
+  
 
   const handleSubmit = async (e) => {
     e.preventDefault(); // Prevent default form submission
