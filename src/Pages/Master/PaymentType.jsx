@@ -54,8 +54,7 @@ const PaymentType = () => {
       if (error.response) {
         // Server responded with an error
         toast.error(
-          `❌ Server error: ${
-            error.response.data.message || "Something went wrong!"
+          `❌ Server error: ${error.response.data.message || "Something went wrong!"
           }`
         );
       } else {
@@ -110,26 +109,26 @@ const PaymentType = () => {
     }
   };
 
- 
- // Search functionality (does not modify original data)
-const handleSearch = (e) => {
+
+  // Search functionality (does not modify original data)
+  const handleSearch = (e) => {
     const term = e.target.value;
     setSearchTerm(term); // ✅ Update the search term state
-  
+
     if (!term.trim()) {
       setPayment(backupPayment); // ✅ Reset data when search is cleared
       return;
     }
-  
+
     const filtered = backupPayment.filter(
       (item) =>
         item.payment_type &&
         item.payment_type.toLowerCase().includes(term.toLowerCase())
     );
-  
+
     setPayment(filtered); // ✅ Update the displayed data
   };
-  
+
 
   return (
     <div className="m-8">
@@ -164,51 +163,55 @@ const handleSearch = (e) => {
 
       {/* Table */}
       <div className="overflow-x-auto mt-8">
-        <table className="table table-xs text-sm table-zebra table-compact w-3/4 mx-auto">
-          <thead className="bg-gray-200 text-black font-md font-normal">
-            <tr>
-              <th>SL</th>
-              <th>Payment Type</th>
-              <th>Edit</th>
-              <th>Delete</th>
-            </tr>
-          </thead>
-          <tbody>
-            {payment.length > 0 ? (
-              payment.map((item, index) => (
-                <tr key={item.id}>
-                  <td>{index + 1}</td>
-                  <td>{item.payment_type}</td>
-                  <td>
-                    <button
-                      className="text-blue-500 hover:underline"
-                      onClick={() => {
-                        setEditMethod(item);
-                        document.getElementById("my_modal_5").showModal();
-                      }}
-                    >
-                      <FaEdit />
-                    </button>
-                  </td>
-                  <td>
-                    <button
-                      className="text-red-500 hover:underline"
-                      onClick={() => handleDeletePayment(item.id)}
-                    >
-                      <ImCross />
-                    </button>
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="4" className="text-center py-4 text-gray-500">
-                  No Payment Methods Found
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+      {/* Table */}
+<div className="overflow-x-auto mt-8">
+  <table className="table table-xs text-xs table-zebra table-compact w-3/4 mx-auto">
+    <thead className="bg-blue-950 text-white font-medium">
+      <tr>
+        <th className="p-2 w-10">SL</th> {/* Reduced padding for SL */}
+        <th className="p-2 w-20">Payment Type</th> {/* Adjusted width for Payment Type */}
+        <th className="p-2 w-14">Edit</th> {/* Reduced padding for Edit */}
+        <th className="p-2 w-14">Delete</th> {/* Reduced padding for Delete */}
+      </tr>
+    </thead>
+    <tbody>
+      {payment.length > 0 ? (
+        payment.map((item, index) => (
+          <tr key={item.id} className="hover:bg-gray-100">
+            <td className="p-2">{index + 1}</td> {/* Reduced padding for SL column */}
+            <td className="p-2">{item.payment_type}</td> {/* Adjusted width for Payment Type column */}
+            <td className="p-2">
+              <button
+                className="text-blue-500 hover:underline"
+                onClick={() => {                                 
+                  setEditMethod(item);
+                  document.getElementById("my_modal_5").showModal();
+                }}
+              >
+                <FaEdit />
+              </button>
+            </td>
+            <td className="p-2">
+              <button
+                className="text-red-500 hover:underline"
+                onClick={() => handleDeletePayment(item.id)}
+              >
+                <ImCross />
+              </button>
+            </td>
+          </tr>
+        ))
+      ) : (
+        <tr>
+          <td colSpan="4" className="p-4 text-center text-gray-500">
+            No Payment Methods Found
+          </td>
+        </tr>
+      )}
+    </tbody>
+  </table>
+</div>
+
       </div>
 
       {/* Add/Edit Modal */}
@@ -231,9 +234,9 @@ const handleSearch = (e) => {
               onChange={(e) =>
                 editMethod
                   ? setEditMethod({
-                      ...editMethod,
-                      payment_type: e.target.value,
-                    })
+                    ...editMethod,
+                    payment_type: e.target.value,
+                  })
                   : setNewPaymentMethod(e.target.value)
               }
             />
