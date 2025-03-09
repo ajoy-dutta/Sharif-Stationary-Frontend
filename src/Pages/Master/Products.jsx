@@ -4,7 +4,7 @@ import { FaEdit } from "react-icons/fa";
 import { ImCross } from "react-icons/im";
 import { toast, Toaster } from "react-hot-toast";
 import AxiosInstance from "../../Components/AxiosInstance";
-import Swal from "sweetalert2"
+import Swal from "sweetalert2";
 
 const Products = () => {
   const [products, setProducts] = useState([]);
@@ -20,16 +20,16 @@ const Products = () => {
   const [companies, setCompanies] = useState([]);
   const [productCodes, setProductCodes] = useState([]); // ✅ Add this
   const [selectedCode, setSelectedCode] = useState(""); // ✅ Fix: Add this state
-const [searchTerm, setSearchTerm] = useState(""); // ✅ Add this
-const [company, setCompany] = useState([]); // List of companies
-const [backupCompany, setBackupCompany] = useState([]); // To store original company list
+  const [searchTerm, setSearchTerm] = useState(""); // ✅ Add this
+  const [company, setCompany] = useState([]); // List of companies
+  const [backupCompany, setBackupCompany] = useState([]); // To store original company list
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         const response = await AxiosInstance.get("/products/");
         setProducts(response.data);
-        setOriginalProducts(response.data)
+        setOriginalProducts(response.data);
       } catch (error) {
         console.error("Error fetching products:", error);
       }
@@ -40,10 +40,10 @@ const [backupCompany, setBackupCompany] = useState([]); // To store original com
         const response = await AxiosInstance.get("/companies/"); // ✅ Fetch from products API
         // const uniqueCompanies = response.data.map((product) => product.id); // ✅ Extract unique companies
         setCompanies(response.data);
-        setBackupCompany(response.data); 
-         // ✅ Extract unique product codes from the fetched product list
-   
-      // ✅ Store original data for reset// ✅ Store original products for reset
+        setBackupCompany(response.data);
+        // ✅ Extract unique product codes from the fetched product list
+
+        // ✅ Store original data for reset// ✅ Store original products for reset
       } catch (error) {
         console.error("Error fetching companies:", error);
       }
@@ -95,14 +95,20 @@ const [backupCompany, setBackupCompany] = useState([]); // To store original com
       toast.error("No product selected for editing!");
       return;
     }
-  
-    const { company, product_code, product_description, date, id } = editableProduct;
-  
-    if (!company?.id || !product_code.trim() || !product_description.trim() || !date.trim()) {
+
+    const { company, product_code, product_description, date, id } =
+      editableProduct;
+
+    if (
+      !company?.id ||
+      !product_code.trim() ||
+      !product_description.trim() ||
+      !date.trim()
+    ) {
       toast.error("⚠️ All fields are required!");
       return;
     }
-  
+
     try {
       const updatedProduct = {
         company_id: company.id, // Ensure correct company ID is sent
@@ -110,10 +116,13 @@ const [backupCompany, setBackupCompany] = useState([]); // To store original com
         product_description,
         date,
       };
-  
+
       // ✅ Make the API call to update the product
-      const response = await AxiosInstance.put(`/products/${id}/`, updatedProduct);
-  
+      const response = await AxiosInstance.put(
+        `/products/${id}/`,
+        updatedProduct
+      );
+
       if (response.status === 200) {
         // ✅ Update the product in the frontend state
         setProducts((prev) =>
@@ -130,7 +139,6 @@ const [backupCompany, setBackupCompany] = useState([]); // To store original com
       toast.error("Error updating product!");
     }
   };
-  
 
   // Delete product
   const handleDeleteProduct = async (id) => {
@@ -144,79 +152,60 @@ const [backupCompany, setBackupCompany] = useState([]); // To store original com
     }
   };
 
+  // Handle Search
+  // Handle search functionality
+  // Handle search functionality
+  const handleSearch = (e) => {
+    const term = e.target.value.toLowerCase(); // Get the search term and convert it to lowercase
+    setSearchTerm(term); // Update the `searchTerm` state
 
-
-// Handle Search
-// Handle search functionality
-// Handle search functionality
-const handleSearch = (e) => {
-  const term = e.target.value.toLowerCase(); // Get the search term and convert it to lowercase
-  setSearchTerm(term); // Update the `searchTerm` state
-
-  if (!term.trim()) {
-    setSearchResult(null);  // Reset search result when search is cleared
-    setProducts(originalProducts); // Reset to show all products when search is cleared
-    return;
-  }
-
-  // Filter products based on company_name
-  const filteredProducts = originalProducts.filter(
-    (item) =>
-      item.company?.company_name?.toLowerCase().includes(term) // Check if company name contains search term
-  );
-
-  setSearchResult(filteredProducts); // Set the filtered list to `searchResult`
-};
-
-
-
-
-
-
-const confirmDelete = (id) => {
-  Swal.fire({
-    title: "Are you sure?",
-    text: "This action cannot be undone!",
-    icon: "warning",
-    showCancelButton: true,
-    confirmButtonColor: "#d33",
-    cancelButtonColor: "#3085d6",
-    confirmButtonText: "Yes, delete it!",
-  }).then((result) => {
-    if (result.isConfirmed) {
-      handleDeleteProduct(id); // Call the actual delete function
-      Swal.fire("Deleted!", "The product has been deleted.", "success");
+    if (!term.trim()) {
+      setSearchResult(null); // Reset search result when search is cleared
+      setProducts(originalProducts); // Reset to show all products when search is cleared
+      return;
     }
-  });
-};
 
+    // Filter products based on company_name
+    const filteredProducts = originalProducts.filter(
+      (item) => item.company?.company_name?.toLowerCase().includes(term) // Check if company name contains search term
+    );
 
+    setSearchResult(filteredProducts); // Set the filtered list to `searchResult`
+  };
 
-
-
-
+  const confirmDelete = (id) => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "This action cannot be undone!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, delete it!",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        handleDeleteProduct(id); // Call the actual delete function
+        Swal.fire("Deleted!", "The product has been deleted.", "success");
+      }
+    });
+  };
 
   return (
     <div className="m-8">
       <h2 className="text-sm">Search Product:*</h2>
       <div className="flex justify-between items-center">
-      <div className="join items-center">
-      <input
-  type="text"
-  id="companyName"
-  placeholder="Enter company name"
-  value={searchTerm}
-  onChange={handleSearch}
-  className="input input-bordered text-sm rounded-s-md h-[30px] join-item"
-/>
+        <div className="join items-center">
+          <input
+            type="text"
+            id="companyName"
+            placeholder="Enter company name"
+            value={searchTerm}
+            onChange={handleSearch}
+            className="input input-bordered text-sm rounded-s-md h-[30px] join-item"
+          />
 
-         <div
-            className="h-7 w-14 p-1 bg-blue-950 text-white"
-           
-          >
-            Search
-          </div>
-  </div>
+          <div className="h-7 w-14 p-1 bg-blue-950 text-white">Search</div>
+        </div>
         <button
           className="btn btn-sm bg-blue-950 text-white"
           onClick={() => {
@@ -252,80 +241,75 @@ const confirmDelete = (id) => {
             </tr>
           </thead>
           <tbody className="text-center">
-  {searchResult && searchResult.length > 0 ? (
-    searchResult.map((item, index) => (
-      <tr key={index}>
-        <td>{index + 1}</td>
-        <td>{item.company?.company_name || "No Company"}</td>
-        <td>{item.date || "No Date"}</td>
-        <td>{item.product_code || "No Product Code"}</td>
-        <td>{item.product_description || "No Description"}</td>
-        <td>
-          <button
-            className="text-blue-500 hover:underline"
-            onClick={() => {
-              setEditableProduct({
-                ...item,
-                company: { id: item.company?.id }, // Ensure company ID is preserved
-              });
-              document.getElementById("product_modal").showModal();
-            }}
-          >
-            <FaEdit />
-          </button>
-        </td>
-        <td>
-          <button
-            className="text-red-500 hover:underline"
-            onClick={() => confirmDelete(item.id)}
-          >
-            <ImCross />
-          </button>
-        </td>
-      </tr>
-    ))
-  ) : products.length > 0 ? (
-    products.map((item, index) => (
-      <tr key={index}>
-        <td>{index + 1}</td>
-        <td>{item.company?.company_name || "No Company"}</td>
-        <td>{item.date || "No Date"}</td>
-        <td>{item.product_code || "No Product Code"}</td>
-        <td>{item.product_description || "No Description"}</td>
-        <td>
-          <button
-            className="text-blue-500 hover:underline"
-            onClick={() => {
-              setEditableProduct(item);
-              document.getElementById("product_modal").showModal();
-            }}
-          >
-            <FaEdit />
-          </button>
-        </td>
-        <td>
-          <button
-            className="text-red-500 hover:underline"
-            onClick={() => confirmDelete(item.id)}
-          >
-            <ImCross />
-          </button>
-        </td>
-      </tr>
-    ))
-  ) : (
-    <tr>
-      <td colSpan="7" className="px-4 py-6 text-gray-500">
-        No products found!
-      </td>
-    </tr>
-  )}
-</tbody>
-
-
-
-
-
+            {searchResult && searchResult.length > 0 ? (
+              searchResult.map((item, index) => (
+                <tr key={index}>
+                  <td>{index + 1}</td>
+                  <td>{item.company?.company_name || "No Company"}</td>
+                  <td>{item.date || "No Date"}</td>
+                  <td>{item.product_code || "No Product Code"}</td>
+                  <td>{item.product_description || "No Description"}</td>
+                  <td>
+                    <button
+                      className="text-blue-500 hover:underline"
+                      onClick={() => {
+                        setEditableProduct({
+                          ...item,
+                          company: { id: item.company?.id }, // Ensure company ID is preserved
+                        });
+                        document.getElementById("product_modal").showModal();
+                      }}
+                    >
+                      <FaEdit />
+                    </button>
+                  </td>
+                  <td>
+                    <button
+                      className="text-red-500 hover:underline"
+                      onClick={() => confirmDelete(item.id)}
+                    >
+                      <ImCross />
+                    </button>
+                  </td>
+                </tr>
+              ))
+            ) : products.length > 0 ? (
+              products.map((item, index) => (
+                <tr key={index}>
+                  <td>{index + 1}</td>
+                  <td>{item.company?.company_name || "No Company"}</td>
+                  <td>{item.date || "No Date"}</td>
+                  <td>{item.product_code || "No Product Code"}</td>
+                  <td>{item.product_description || "No Description"}</td>
+                  <td>
+                    <button
+                      className="text-blue-500 hover:underline"
+                      onClick={() => {
+                        setEditableProduct(item);
+                        document.getElementById("product_modal").showModal();
+                      }}
+                    >
+                      <FaEdit />
+                    </button>
+                  </td>
+                  <td>
+                    <button
+                      className="text-red-500 hover:underline"
+                      onClick={() => confirmDelete(item.id)}
+                    >
+                      <ImCross />
+                    </button>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="7" className="px-4 py-6 text-gray-500">
+                  No products found!
+                </td>
+              </tr>
+            )}
+          </tbody>
         </table>
       </div>
 
@@ -351,34 +335,35 @@ const confirmDelete = (id) => {
             {/* Debugging - Log editableProduct to check data */}
 
             {/* 🔹 Company Name Dropdown */}
-            <label className="text-sm font-medium text-gray-700 mb-1">Company Name</label>
-<select
-  className="select select-bordered w-full p-2"
-  value={
-    editableProduct
-      ? editableProduct.company.id // For editing product
-      : newProduct.company_id // For adding new product
-  }
-  onChange={(e) =>
-    editableProduct
-      ? setEditableProduct((prev) => ({
-          ...prev,
-          company: { ...prev.company, id: e.target.value },
-        }))
-      : setNewProduct((prev) => ({
-          ...prev,
-          company_id: e.target.value,
-        }))
-  }
->
-  <option value="">Select Company</option>
-  {companies.map((company) => (
-    <option key={company.id} value={company.id}>
-      {company.company_name}
-    </option>
-  ))}
-</select>
-
+            <label className="text-sm font-medium text-gray-700 mb-1">
+              Company Name
+            </label>
+            <select
+              className="select select-bordered w-full p-2"
+              value={
+                editableProduct
+                  ? editableProduct.company.id // For editing product
+                  : newProduct.company_id // For adding new product
+              }
+              onChange={(e) =>
+                editableProduct
+                  ? setEditableProduct((prev) => ({
+                      ...prev,
+                      company: { ...prev.company, id: e.target.value },
+                    }))
+                  : setNewProduct((prev) => ({
+                      ...prev,
+                      company_id: e.target.value,
+                    }))
+              }
+            >
+              <option value="">Select Company</option>
+              {companies.map((company) => (
+                <option key={company.id} value={company.id}>
+                  {company.company_name}
+                </option>
+              ))}
+            </select>
 
             {/* 🔹 Product Code */}
             <div className="flex flex-col">
