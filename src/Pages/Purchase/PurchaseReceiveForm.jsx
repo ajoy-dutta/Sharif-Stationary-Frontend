@@ -16,7 +16,21 @@ function PurchaseReceiveForm() {
   const [showAddButton, setShowAddButton] = useState(false);
   const [showInputForm, setShowInputForm] = useState(true);
   const { user } = useUser();
+  const [searchQuery, setSearchQuery] = useState(""); // 🔹 Fix: Define searchQuery
+  const [filteredProducts, setFilteredProducts] = useState([]);
+  const [selectedProduct, setSelectedProduct] = useState(null); // Store selected product
 
+
+
+
+
+  const handleOpenModal = () => setIsModalOpen(true); // ✅ Open modal
+  const handleCloseModal = () => setIsModalOpen(false); // ✅ Close modal
+
+  const handleProductSelection = (product) => {
+    setSelectedProduct(product); // ✅ Store selected product
+    setIsModalOpen(false); // ✅ Close modal after selection
+  };
   // 🔹 Fetch Companies & Godowns on Component Mount
   useEffect(() => {
     const fetchData = async () => {
@@ -41,22 +55,27 @@ function PurchaseReceiveForm() {
   }, []);
 
   console.log(companies);
+  // Function to get today's date in the required format (YYYY-MM-DD)
+  // const getTodayDate = () => {
+  //   const today = new Date();
+  //   return today.toISOString().split("T")[0]; // Format: YYYY-MM-DD
+  // };
 
   const [formData, setFormData] = useState({
     // Purchase Details
     company: "", // ForeignKey (Company ID)
-    order_date: "",
+    order_date: new Date().toISOString().split("T")[0], // Default to today's date
     order_no: "",
-    invoice_challan_date: "",
+    invoice_challan_date: new Date().toISOString().split("T")[0], // No default, can be empty
     invoice_challan_no: "",
-    transport_type: "",
-    delivery_date: new Date().toISOString().split("T")[0],
+    transport_type: "Company Transport",
+    delivery_date: new Date().toISOString().split("T")[0], // Default to today's date
     delivery_no: "",
     driver_name: "",
     driver_mobile_no: "",
     vehicle_no: "",
     godown: "", // ForeignKey (Godown ID)
-    entry_by: user ? user.username : "",
+    entry_by: user ? user.username : "", // If user exists, set entry_by to username
     remarks: "",
 
     // Payment Information
@@ -70,11 +89,30 @@ function PurchaseReceiveForm() {
     cheque_date: "",
     balance_amount: 0.0,
 
-    // ✅ Item Details (Array of Objects) - Renamed to `PurchaseItem`
+    // Item Details (Array of Objects) - Renamed to `PurchaseItem`
     PurchaseItem: [],
   });
 
+
   console.log(formData);
+  // 🔹 Function to Filter Products Based on Search Query
+  const handleSearchProduct = (e) => {
+    const query = e.target.value.toLowerCase();
+    setSearchQuery(query);
+
+    if (!query.trim()) {
+      setFilteredProducts([]); // Reset when empty
+      return;
+    }
+
+    const results = products.filter(
+      (item) =>
+        item.product_name.toLowerCase().includes(query) ||
+        item.company_name.toLowerCase().includes(query)
+    );
+
+    setFilteredProducts(results);
+  };
 
   // 🔹 Handle Change for Company
   const handleCompanyChange = (e) => {
@@ -138,20 +176,20 @@ function PurchaseReceiveForm() {
   // ✅ Handle Change for New Item Inputs
   const handleItemChange = (e) => {
     const { name, value } = e.target;
-  
+
     // Convert input values to numbers where needed
     const numericValue = value === "" ? "" : parseFloat(value) || 0;
-  
+
     let updatedItem = { ...newItem, [name]: numericValue };
 
-    
+
     if (name === "product") {
       const selectedProduct = products.find((p) => p.product_code.toString() === value);
       updatedItem.product_name = selectedProduct
         ? selectedProduct.product_description
         : "";
     }
-  
+
     // 🔹 Disable 'dozen' if 'rim' is entered and vice versa
     if (name === "rim" && numericValue > 0) {
       updatedItem.dozen = 0;
@@ -159,7 +197,7 @@ function PurchaseReceiveForm() {
     if (name === "dozen" && numericValue > 0) {
       updatedItem.rim = 0;
     }
-  
+
     // 🔹 Calculate total sheet/piece count
     if (updatedItem.rim > 0) {
       updatedItem.total_sheet_piece =
@@ -170,10 +208,10 @@ function PurchaseReceiveForm() {
     } else {
       updatedItem.total_sheet_piece = updatedItem.only_sheet_piece || 0;
     }
-  
+
     // Avoid division by zero
     const totalSheetPiece = updatedItem.total_sheet_piece || 1;
-  
+
     // 🔹 Calculate per sheet/piece price
     if (updatedItem.purchase_price > 0) {
       updatedItem.per_sheet_or_piece_price = parseFloat(
@@ -182,7 +220,7 @@ function PurchaseReceiveForm() {
     } else {
       updatedItem.per_sheet_or_piece_price = 0;
     }
-  
+
     // 🔹 Calculate **per sheet/piece sell price FIRST**
     if (updatedItem.total_sheet_piece > 0) {
       updatedItem.per_sheet_or_piece_sell_price = parseFloat(
@@ -194,7 +232,7 @@ function PurchaseReceiveForm() {
     } else {
       updatedItem.per_sheet_or_piece_sell_price = 0;
     }
-  
+
     // 🔹 Calculate per rim and per dozen prices based on input
     if (updatedItem.rim > 0) {
       updatedItem.per_rim_price = parseFloat(
@@ -207,7 +245,7 @@ function PurchaseReceiveForm() {
       updatedItem.per_rim_price = 0;
       updatedItem.per_rim_sale_price = 0;
     }
-  
+
     if (updatedItem.dozen > 0) {
       updatedItem.per_dozen_price = parseFloat(
         (updatedItem.per_sheet_or_piece_price * 12).toFixed(2)
@@ -219,29 +257,35 @@ function PurchaseReceiveForm() {
       updatedItem.per_dozen_price = 0;
       updatedItem.per_dozen_sale_price = 0;
     }
-  
+
     setNewItem(updatedItem);
   };
-  
-  
+
+  const selectProduct = (product) => {
+    setSelectedProduct(product);
+    setSearchQuery(""); // Clear search
+    setFilteredProducts([]); // Reset filtered list
+    document.getElementById("productDetailsModal").close();
+  };
+
 
   const handleSaveItem = (e) => {
     e.preventDefault(); // Prevent any form submission behavior
-  
+
     if (!newItem.product || !newItem.product_name) {
       alert("Please enter a valid product and product name.");
       return; // Prevent adding incomplete items
     }
-  
+
     setFormData((prevData) => {
       const updatedPurchaseItems = [...prevData.PurchaseItem, newItem];
-  
+
       return {
         ...prevData,
         PurchaseItem: updatedPurchaseItems, // ✅ Properly update state
       };
     });
-  
+
     // Clear the input form
     setNewItem({
       product: "",
@@ -260,10 +304,10 @@ function PurchaseReceiveForm() {
       per_dozen_sale_price: "",
       per_sheet_or_piece_sell_price: "",
     });
-  
+
     setShowInputForm(false); // Hide the form after saving
   };
-  
+
 
   const handleRemoveRow = (indexToRemove) => {
     // Filter out the row to be removed
@@ -287,60 +331,7 @@ function PurchaseReceiveForm() {
     return new Date(date).toISOString().split("T")[0];
   };
 
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
 
-  //   console.log(formData);
-
-  //   try {
-  //     const response = await AxiosInstance.post("/purchases/", {
-  //       ...formData,
-  //       order_date: formatDate(formData.order_date),
-  //       invoice_challan_date: formatDate(formData.invoice_challan_date),
-  //       delivery_date: formatDate(formData.delivery_date),
-  //       cheque_date: formatDate(formData.cheque_date), // Ensuring correct format
-  //       PurchaseItem: [...formData.PurchaseItem], // Ensure array format
-  //     });
-
-  //     console.log("✅ Purchase Data Submitted Successfully:", response.data);
-  //     alert("Purchase data submitted successfully!");
-
-  //     // Optionally, reset form after successful submission
-  //     setFormData({
-  //       company: "", // ForeignKey (Company ID)
-  //       order_date: "",
-  //       order_no: "",
-  //       invoice_challan_date: "",
-  //       invoice_challan_no: "",
-  //       transport_type: "",
-  //       delivery_date: new Date().toISOString().split("T")[0],
-  //       delivery_no: "",
-  //       driver_name: "",
-  //       driver_mobile_no: "",
-  //       vehicle_no: "",
-  //       godown: "", // ForeignKey (Godown ID)
-  //       entry_by: "",
-  //       remarks: "",
-
-  //       // Payment Information
-  //       previous_due: 0.0,
-  //       invoice_challan_Amount: 0.0,
-  //       today_paid_amount: 0.0,
-  //       payment_type: "",
-  //       bank_name: "",
-  //       account_no: "",
-  //       cheque_no: "",
-  //       cheque_date: "",
-  //       balance_amount: 0.0,
-
-  //       // ✅ Item Details (Array of Objects) - Renamed to `PurchaseItem`
-  //       PurchaseItem: [],
-  //     });
-  //   } catch (error) {
-  //     console.error("❌ Error submitting purchase data:", error);
-  //     alert("Failed to submit purchase data. Please try again.");
-  //   }
-  // };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -359,7 +350,7 @@ function PurchaseReceiveForm() {
       alert("Please fill all required fields and add at least one purchase item.");
       return;
     }
-    
+
 
     try {
       const response = await AxiosInstance.post("/purchases/", {
@@ -379,9 +370,10 @@ function PurchaseReceiveForm() {
       // Optionally reset form
       setFormData({
         company: "",
-        order_date: "",
+        // order_date: "",
+        order_date: new Date().toISOString().split("T")[0],
         order_no: "",
-        invoice_challan_date: "",
+        invoice_challan_date: getTodayDate(),
         invoice_challan_no: "",
         transport_type: "",
         delivery_date: new Date().toISOString().split("T")[0],
@@ -449,21 +441,39 @@ function PurchaseReceiveForm() {
     // Save the PDF
     doc.save("purchase_items.pdf");
   };
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault(); // ✅ Prevent form submission
+
+      // ✅ Select all input and select fields
+      const formElements = Array.from(document.querySelectorAll(".form-input"));
+
+      // ✅ Find the current focused field
+      const currentIndex = formElements.indexOf(e.target);
+
+      // ✅ Move focus to the next field if available
+      if (currentIndex !== -1 && currentIndex < formElements.length - 1) {
+        formElements[currentIndex + 1].focus();
+      }
+    }
+  };
 
   return (
     <div className="m-8 mb-0 mx-12">
       <h2 className="text-xl font-semibold mb-4 -mt-6 text-center">
         Purchase & Invoice Information
       </h2>
-      <form onSubmit={handleSubmit}>
-        <div className="p-4 rounded-xl grid grid-cols-8 gap-2 text-sm bg-white shadow-[0px_0px_30px_rgba(0,0,0,0.1)]">
+      <form onSubmit={handleSubmit} onKeyDown={handleKeyDown} className="form-input" >
+        <div className="p-4 rounded-xl grid grid-cols-7 gap-2 text-sm bg-white shadow-[0px_0px_30px_rgba(0,0,0,0.1) ] ">
+
           {/* 🔹 Company Selection (Dropdown) */}
-          <div>
+          <div>  
             <label className="block text-center">Company*</label>
             <select
               name="company"
               value={formData.company}
               onChange={handleCompanyChange}
+              onKeyDown={handleKeyDown} // ✅ Handle Enter Key
               className="input h-7 input-bordered w-full input-md"
             >
               <option value="">Select Company</option>
@@ -481,7 +491,7 @@ function PurchaseReceiveForm() {
             <input
               type="text"
               name="invoice_challan_no"
-              className="mt-1 p-2 w-full border input-sm border-gray-300 rounded h-7 text-sm"
+              className="mt-1 p-2 w-full border input-sm border-gray-300 rounded h-7 text-sm form-input"
               placeholder="Enter Invoice/Challan No"
               value={formData.invoice_challan_no}
               onChange={handleChange}
@@ -494,30 +504,30 @@ function PurchaseReceiveForm() {
             <input
               type="date"
               name="invoice_challan_date"
-              className="mt-1 p-2 w-full border input-sm border-gray-300 rounded h-7 text-sm"
+              className="mt-1 p-2 w-full border input-sm border-gray-300 rounded h-7 text-sm form-input"
               value={formData.invoice_challan_date}
               onChange={handleChange}
+              onKeyDown={handleKeyDown}
             />
           </div>
 
           {/* 4. Transport Type */}
           <div>
-            <label className="block text-center">Transport Type*</label>
-            <input
-              type="text"
+            <label className="block text-center">Transport Type</label>
+            <select
               name="transport_type"
-              list="transportOptions"
-              className="mt-1 p-2 w-full border input-sm border-gray-300 rounded h-7 text-sm"
-              placeholder="Select Transport Type"
-              value={formData.transport_type}
+              className="mt-1 text-xs w-full border input-sm border-gray-300 rounded h-7 text-sm form-input"
+              value={formData.transport_type || "Company Transport"}
               onChange={handleChange}
-            />
-            <datalist id="transportOptions">
-              <option value="Company Transport" />
-              <option value="Sharif Paper & Stationary Transport" />
-              <option value="Other Transport" />
-            </datalist>
+              onKeyDown={handleKeyDown}
+            >
+              <option value="Company Transport">Company Transport</option>
+              <option value="Sharif Paper & Stationary Transport">Sharif Paper & Stationary Transport</option>
+              <option value="Other Transport">Other Transport</option>
+            </select>
           </div>
+
+
 
           {/* 5. Order Date */}
           <div>
@@ -525,50 +535,27 @@ function PurchaseReceiveForm() {
             <input
               type="date"
               name="order_date"
-              className="mt-1 p-2 w-full border input-sm border-gray-300 rounded h-7 text-sm"
+              className="mt-1 p-2 w-full border input-sm border-gray-300 rounded h-7 text-sm form-input"
               value={formData.order_date}
               onChange={handleChange}
+              onKeyDown={handleKeyDown}
             />
           </div>
 
           {/* 6. Order No */}
           <div>
-            <label className="block text-center">Order No*</label>
+            <label className="block text-center">Order No</label>
             <input
               type="text"
               name="order_no"
-              className="mt-1 p-2 w-full border input-sm border-gray-300 rounded h-7 text-sm"
+              className="mt-1 p-2 w-full border input-sm border-gray-300 rounded h-7 text-sm form-input"
               placeholder="Enter Order No"
               value={formData.order_no}
               onChange={handleChange}
+              onKeyDown={handleKeyDown}
             />
           </div>
 
-          {/* 7. Driver Name */}
-          <div>
-            <label className="block text-center">Driver Name</label>
-            <input
-              type="text"
-              name="driver_name"
-              className="mt-1 p-2 w-full border input-sm border-gray-300 rounded h-7 text-sm"
-              placeholder="Enter Driver Name"
-              value={formData.driver_name}
-              onChange={handleChange}
-            />
-          </div>
-
-          {/* 8. Driver Mobile No */}
-          <div>
-            <label className="block text-center">Driver Mobile No</label>
-            <input
-              type="text"
-              name="driver_mobile_no"
-              className="mt-1 p-2 w-full border input-sm border-gray-300 rounded h-7 text-sm"
-              placeholder="Enter Driver Mobile No"
-              value={formData.driver_mobile_no}
-              onChange={handleChange}
-            />
-          </div>
 
           {/* 9. Delivery Date */}
           <div>
@@ -576,22 +563,24 @@ function PurchaseReceiveForm() {
             <input
               type="date"
               name="delivery_date"
-              className="mt-1 p-2 w-full border input-sm border-gray-300 rounded h-7 text-sm"
+              className="mt-1 p-2 w-full border input-sm border-gray-300 rounded h-7 text-sm form-input"
               value={formData.delivery_date}
               onChange={handleChange}
+              onKeyDown={handleKeyDown}
             />
           </div>
 
           {/* 10. Delivery No */}
           <div>
-            <label className="block text-center">Delivery No*</label>
+            <label className="block text-center">Delivery No</label>
             <input
               type="text"
               name="delivery_no"
-              className="mt-1 p-2 w-full border input-sm border-gray-300 rounded h-7 text-sm"
+              className="mt-1 p-2 w-full border input-sm border-gray-300 rounded h-7 text-sm form-input"
               placeholder="Enter Delivery No"
               value={formData.delivery_no}
               onChange={handleChange}
+              onKeyDown={handleKeyDown}
             />
           </div>
 
@@ -601,21 +590,24 @@ function PurchaseReceiveForm() {
             <input
               type="text"
               name="vehicle_no"
-              className="mt-1 p-2 w-full border input-sm border-gray-300 rounded h-7 text-sm"
+              className="mt-1 p-2 w-full border input-sm border-gray-300 rounded h-7 text-sm form-input"
               placeholder="Enter Vehicle No"
               value={formData.vehicle_no}
               onChange={handleChange}
+              onKeyDown={handleKeyDown}
             />
           </div>
 
           {/* 12. Godown (ForeignKey - ID) */}
           <div>
-            <label className="block text-center">Godown*</label>
+            <label className="block text-center">Godown</label>
             <select
               name="godown"
               value={formData.godown}
               onChange={handleGodownChange}
-              className="input h-7 input-bordered w-full input-md"
+              onKeyDown={handleKeyDown}
+
+              className="mt-1 w-full border input-sm border-gray-300 rounded h-7 text-sm form-input"
             >
               <option value="">Select Godown</option>
               {godowns.map((godown) => (
@@ -632,10 +624,11 @@ function PurchaseReceiveForm() {
             <input
               type="text"
               name="entry_by"
-              className="mt-1 p-2 w-full border input-sm border-gray-300 rounded h-7 text-sm"
+              className="mt-1 p-2 w-full border input-sm border-gray-300 rounded h-7 text-sm form-input"
               placeholder="Enter Entry By"
               value={formData.entry_by}
               onChange={handleChange}
+              onKeyDown={handleKeyDown}
             />
           </div>
 
@@ -645,22 +638,24 @@ function PurchaseReceiveForm() {
             <input
               type="text"
               name="remarks"
-              className="mt-1 p-2 w-full border input-sm border-gray-300 rounded h-7 text-sm"
+              className="mt-1 p-2 w-full border input-sm border-gray-300 rounded h-7 text-sm form-input"
               placeholder="Enter Remarks"
               value={formData.remarks}
               onChange={handleChange}
+              onKeyDown={handleKeyDown}
             />
           </div>
         </div>
+
 
         <div className="mt-4">
           <h3 className="text-xl font-semibold mb-4 text-center">
             Item Details
           </h3>
 
-          <div className="container mx-auto shadow-[0px_0px_30px_rgba(0,0,0,0.1)  ">
+          <div className="container mx-auto shadow-[0px_0px_30px_rgba(0,0,0,0.1) ">
             {/* Single Table for Input and Saved Data */}
-            <table className="w-full border-collapse border border-gray-300 shadow-md shadow-[0px_0px_30px_rgba(0,0,0,0.1)">
+            <table className="w-full border-collapse border border-gray-300 shadow-md shadow-[0px_0px_30px_rgba(0,0,0,0.1) form-input">
               {/* Table Headings */}
               <thead>
                 <tr className="bg-blue-100 text-center text-sm font-base">
@@ -671,7 +666,7 @@ function PurchaseReceiveForm() {
                   <th className="border border-gray-300 p-2 font-medium">
                     Product Name
                   </th>
-          
+
                   <th className="border border-gray-300 p-2 font-medium">
                     Rim
                   </th>
@@ -729,22 +724,22 @@ function PurchaseReceiveForm() {
                       name="product"
                       value={newItem.product}
                       onChange={handleItemChange}
-                      className="mt-1 p-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs"
+                      className="mt-1 p-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs form-input"
+                      onKeyDown={handleKeyDown}
                       placeholder="Enter product code"
                     />
                   </td>
+                  {/* 
+                  <input
+  type="text"
+  name="product_name"
+  value={newItem.product_name}
+  className="mt-1  input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs bg-gray-100 text-gray-600 p-1 cursor-pointer"
+  placeholder="Click to Search Product"
+  readOnly
+  onClick={() => document.getElementById("productDetailsModal").showModal()}
+/>
 
-                  <td className="border border-gray-300 p-2">
-                    {/* Product Name Input (Read-Only) */}
-                    <input
-                      type="text"
-                      name="product_name"
-                      value={newItem.product_name}
-                      className="mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs bg-gray-100 text-gray-600 p-1"
-                      placeholder="Product Name"
-                      readOnly
-                    />
-                  </td>
 
                
                   <td className="border border-gray-300 p-2">
@@ -753,10 +748,37 @@ function PurchaseReceiveForm() {
                       name="rim"
                       value={newItem.rim}
                       onChange={handleItemChange}
-                      className="mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs p-1"
+                      className="mt-1  input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs p-1"
                       placeholder="Enter rim quantity"
                       disabled={newItem.dozen}
                     />
+                    
+                  </td> */}
+                  <td className="border border-gray-300 p-2">
+                    {/* Product Name Input (Read-Only) */}
+                    <input
+                      type="text"
+                      name="product_name"
+                      value={newItem.product_name}
+                      className="mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs bg-gray-100 text-gray-600 p-1 form-input"
+                      onChange={handleItemChange}
+                      onKeyDown={handleKeyDown}
+                      placeholder="Product Name"
+                      readOnly
+                    />
+                  </td>
+                  <td className="border border-gray-300 p-2">
+                    <input
+                      type="number"
+                      name="rim"
+                      value={newItem.rim}
+                      onChange={handleItemChange}
+                      onKeyDown={handleKeyDown}
+                      className="mt-1  input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs p-1 form-input"
+                      placeholder="Enter rim quantity"
+                      disabled={newItem.dozen}
+                    />
+
                   </td>
                   <td className="border border-gray-300 p-2">
                     <input
@@ -764,7 +786,8 @@ function PurchaseReceiveForm() {
                       name="dozen"
                       value={newItem.dozen}
                       onChange={handleItemChange}
-                      className="mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs p-1"
+                      onKeyDown={handleKeyDown}
+                      className="mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs p-1 form-input"
                       placeholder="Enter dozen quantity"
                       disabled={newItem.rim}
                     />
@@ -775,6 +798,7 @@ function PurchaseReceiveForm() {
                       name="only_sheet_piece"
                       value={newItem.only_sheet_piece}
                       onChange={handleItemChange}
+                      onKeyDown={handleKeyDown}
                       className="mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs p-1"
                       placeholder="Enter sheet/piece quantity"
                     />
@@ -785,7 +809,8 @@ function PurchaseReceiveForm() {
                       name="total_sheet_piece"
                       value={newItem.total_sheet_piece}
                       onChange={handleItemChange}
-                      className="mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs p-1"
+                      onKeyDown={handleKeyDown}
+                      className="mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs p-1 form-input"
                       placeholder="Enter total sheet piece"
                       readOnly
                     />
@@ -797,7 +822,8 @@ function PurchaseReceiveForm() {
                       name="purchase_price"
                       value={newItem.purchase_price}
                       onChange={handleItemChange}
-                      className="mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs p-1"
+                      onKeyDown={handleKeyDown}
+                      className="mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs p-1 form-input"
                       placeholder="Enter purchase price"
                     />
                   </td>
@@ -809,7 +835,8 @@ function PurchaseReceiveForm() {
                       name="per_rim_or_dozen_price"
                       value={newItem.per_rim_price}
                       onChange={handleItemChange}
-                      className="mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs p-1"
+                      onKeyDown={handleKeyDown}
+                      className="mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs p-1 form-input"
                       placeholder="Enter rim per price"
                       readOnly
                     />
@@ -820,7 +847,8 @@ function PurchaseReceiveForm() {
                       name="per_rim_or_dozen_price"
                       value={newItem.per_dozen_price}
                       onChange={handleItemChange}
-                      className="mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs p-1"
+                      onKeyDown={handleKeyDown}
+                      className="mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs p-1 form-input"
                       placeholder="Enter dozen per price"
                       readOnly
                     />
@@ -831,7 +859,8 @@ function PurchaseReceiveForm() {
                       name="per_sheet_or_piece_price"
                       value={newItem.per_sheet_or_piece_price}
                       onChange={handleItemChange}
-                      className="mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs p-1"
+                      onKeyDown={handleKeyDown}
+                      className="mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs p-1 form-input"
                       placeholder="Enter sheet/piece per price"
                       readOnly
                     />
@@ -842,7 +871,8 @@ function PurchaseReceiveForm() {
                       name="additional_cost"
                       value={newItem.additional_cost}
                       onChange={handleItemChange}
-                      className="mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs p-1"
+                      onKeyDown={handleKeyDown}
+                      className="mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs p-1 form-input"
                       placeholder="Enter additional cost"
                     />
                   </td>
@@ -852,7 +882,8 @@ function PurchaseReceiveForm() {
                       name="profit"
                       value={newItem.profit}
                       onChange={handleItemChange}
-                      className="mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs p-1"
+                      onKeyDown={handleKeyDown}
+                      className="mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs p-1 form-input"
                       placeholder="Enter profit"
                     />
                   </td>
@@ -862,7 +893,8 @@ function PurchaseReceiveForm() {
                       name="per_rim_sale_price"
                       value={newItem.per_rim_sale_price}
                       onChange={handleItemChange}
-                      className="mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs p-1"
+                      onKeyDown={handleKeyDown}
+                      className="mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs p-1 form-input"
                       placeholder="Per rim sale price"
                       readOnly
                     />
@@ -873,7 +905,8 @@ function PurchaseReceiveForm() {
                       name="per_dozen_sale_price"
                       value={newItem.per_dozen_sale_price}
                       onChange={handleItemChange}
-                      className="mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs p-1"
+                      onKeyDown={handleKeyDown}
+                      className="mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs p-1 form-input"
                       placeholder="Per dozen sale price"
                       readOnly
                     />
@@ -884,7 +917,8 @@ function PurchaseReceiveForm() {
                       name="per_sheet_or_piece_sale_price"
                       value={newItem.per_sheet_or_piece_sell_price}
                       onChange={handleItemChange}
-                      className="mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs p-1"
+                      onKeyDown={handleKeyDown}
+                      className="mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs p-1 form-input"
                       placeholder="Per sheet/piece sale price"
                       readOnly
                     />
@@ -958,6 +992,7 @@ function PurchaseReceiveForm() {
             </table>
           </div>
         </div>
+        {/* Modal for Searching & Selecting a Product */}
 
         <h3 className="text-xl font-semibold my-4 text-center">
           Payment Information
@@ -972,9 +1007,10 @@ function PurchaseReceiveForm() {
               <input
                 type="text"
                 name="company_name"
-                className="mt-1 p-2 w-full border input-sm border-gray-300 rounded h-7 text-sm bg-gray-100"
+                className="mt-1 p-2 w-full border input-sm border-gray-300 rounded h-7 text-sm bg-gray-100 form-input"
                 placeholder="Company Name"
                 value={formData.company_name || ""}
+                onKeyDown={handleKeyDown}
                 readOnly
               />
             </div>
@@ -985,8 +1021,9 @@ function PurchaseReceiveForm() {
               <input
                 type="number"
                 name="previous_due"
-                className="mt-1 p-2 w-full border border-gray-300 rounded h-9 bg-gray-100 placeholder:text-xs"
+                className="mt-1 p-2 w-full border border-gray-300 rounded h-9 bg-gray-100 placeholder:text-xs form-input"
                 value={formData.previous_due}
+                onKeyDown={handleKeyDown}
                 readOnly
               />
             </div>
@@ -999,9 +1036,10 @@ function PurchaseReceiveForm() {
               <input
                 type="number"
                 name="invoice_challan_amount"
-                className="mt-1 p-2 w-full border border-gray-300 rounded h-9 placeholder:text-xs"
+                className="mt-1 p-2 w-full border border-gray-300 rounded h-9 placeholder:text-xs form-input"
                 placeholder="Enter amount"
                 value={formData.invoice_challan_amount}
+                onKeyDown={handleKeyDown}
                 onChange={handleChange}
               />
             </div>
@@ -1014,10 +1052,11 @@ function PurchaseReceiveForm() {
               <input
                 type="number"
                 name="today_paid_amount"
-                className="mt-1 p-2 w-full border border-gray-300 rounded h-9 placeholder:text-xs"
+                className="mt-1 p-2 w-full border border-gray-300 rounded h-9 placeholder:text-xs form-input"
                 placeholder="Enter paid amount"
                 value={formData.today_paid_amount}
                 onChange={handleChange}
+                onKeyDown={handleKeyDown}
               />
             </div>
 
@@ -1030,10 +1069,11 @@ function PurchaseReceiveForm() {
                 type="text"
                 name="payment_type"
                 list="paymentOptions"
-                className="mt-1 p-2 w-full border border-gray-300 rounded h-9 text-sm"
+                className="mt-1 p-2 w-full border border-gray-300 rounded h-9 text-sm form-input"
                 placeholder="Select Payment Type"
                 value={formData.payment_type}
                 onChange={handleChange}
+                onKeyDown={handleKeyDown}
               />
               <datalist id="paymentOptions">
                 {/* First option as a placeholder */}
@@ -1055,11 +1095,12 @@ function PurchaseReceiveForm() {
               <input
                 type="text"
                 name="bank_name"
-                className="mt-1 p-2 w-full border border-gray-300 rounded h-9 placeholder:text-xs"
+                className="mt-1 p-2 w-full border border-gray-300 rounded h-9 placeholder:text-xs form-input"
                 placeholder="Enter bank name"
                 value={formData.bank_name}
                 onChange={handleChange}
                 disabled={!isBankPayment}
+                onKeyDown={handleKeyDown}
               />
             </div>
 
