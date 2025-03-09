@@ -68,10 +68,10 @@ const Navbar = () => {
               <NavLink to="/production">Production</NavLink>
             </li>
             <li>
-              <NavLink to="/sales">Wholesale</NavLink>
+              <NavLink to="/sales">Sale</NavLink>
             </li>
             <li>
-              <NavLink to="/salesNew">Retail Sale</NavLink>
+              <NavLink to="/salesNew">Retail</NavLink>
             </li>
             <li>
               <NavLink to="/report">Report</NavLink>
@@ -122,6 +122,11 @@ const Navbar = () => {
                     Warehouse
                   </NavLink>
                 </li>
+                <li>
+                  <NavLink to="/customer" onClick={() => setIsOpen(false)}>
+                    Customer
+                  </NavLink>
+                </li>
               </ul>
             )}
           </li>
@@ -135,7 +140,7 @@ const Navbar = () => {
             <NavLink to="/production">Production</NavLink>
           </li>
           <li>
-            <NavLink to="/sales">Wholesale</NavLink>
+            <NavLink to="/sales">Sale</NavLink>
           </li>
           <li>
             <NavLink to="/salesNew">Retail Sale</NavLink>
