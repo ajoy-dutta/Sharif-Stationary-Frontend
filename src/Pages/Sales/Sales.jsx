@@ -1,9 +1,11 @@
-import { useState , useEffect} from "react";
+import { useState, useEffect } from "react";
 import React from "react";
+import axios from "axios";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
-import { ChevronDown } from 'lucide-react';
+import axiosInstance from "../../Components/AxiosInstance";
 
+import { ChevronDown } from "lucide-react";
 
 const Sales = () => {
   // State Variables
@@ -12,8 +14,10 @@ const Sales = () => {
   const [invoiceNo, setInvoiceNo] = useState("");
   const [remarks, setRemarks] = useState("");
   const [customerID, setCustomerID] = useState("");
+  const [customers, setCustomers] = useState([]);
   const [customerAddress, setCustomerAddress] = useState("");
   const [customerName, setCustomerName] = useState("");
+  const [customerPhone, setCustomerPhone] = useState("");
   const [chequeNo, setChequeNo] = useState("");
   const [chequeDate, setChequeDate] = useState("");
   const [orderDate, setOrderDate] = useState("");
@@ -28,8 +32,6 @@ const Sales = () => {
   const [balanceAmount, setBalanceAmount] = useState("");
   const [showDropdown, setShowDropdown] = useState(false);
   const [showTable, setshowTable] = useState(false);
-
-
 
   const [items, setItems] = useState([
     {
@@ -82,7 +84,7 @@ const Sales = () => {
 
   const handlePDFExport = () => {
     const invoiceWindow = window.open("", "_blank"); // Open new window
-  
+
     invoiceWindow.document.write(`
       <html>
         <head>
@@ -199,51 +201,52 @@ const Sales = () => {
         </body>
       </html>
     `);
-  
+
     invoiceWindow.document.close();
   };
-  
-  
-  
-  
-  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     alert("Purchase, Items, and Payment Information Saved Successfully!");
-  };;
+  };
 
   useEffect(() => {
-    setOrderDate(new Date().toISOString().split('T')[0]);
+    setOrderDate(new Date().toISOString().split("T")[0]);
   }, []);
 
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
       e.preventDefault();
-      const formElements = Array.from(document.querySelectorAll("input, select"));
+      const formElements = Array.from(
+        document.querySelectorAll("input, select")
+      );
       const index = formElements.indexOf(e.target);
       if (index >= 0 && index < formElements.length - 1) {
         formElements[index + 1].focus();
       }
     }
   };
-  const handleSelectCashSale = () => {
-    setCustomerName('Cash Sale');
-    setShowDropdown(false);
-    setshowTable(true);
-  };
-  
-    // "Cash Sale" সিলেক্টের পর অন্য কাজ থাকলে এখানে লিখুন
 
-  
+  // Fetch customers from API using axiosInstance
+  useEffect(() => {
+    const fetchCustomers = async () => {
+      try {
+        const response = await axiosInstance.get("/customers/");
+        setCustomers(response.data); // Store customer list in state
+      } catch (error) {
+        console.error("Error fetching customers:", error);
+      }
+    };
+
+    fetchCustomers();
+  }, []);
+
   return (
     <div className="m-8 mb-0 mx-12">
       <h2 className="text-xl font-semibold mb-2 -mt-4 text-center">Sale</h2>
-      <form onSubmit={handleSubmit}
-                    onKeyDown={handleKeyDown}
->
+      <form onSubmit={handleSubmit} onKeyDown={handleKeyDown}>
         {/* sale */}
-        <div className="p-4 rounded-xl grid grid-cols-8 gap-2 text-sm bg-white shadow-[0px_0px_30px_rgba(0,0,0,0.1)]">
+        <div className="p-4 rounded-xl grid grid-cols-8 gap-2 text-sm ]">
           <div>
             <label className="block text-center">Date</label>
             <input
@@ -255,94 +258,67 @@ const Sales = () => {
             />
           </div>
           <div>
-            <label className="block text-center">Customer ID</label>
-            <input
-              type="text"
-              className="mt-1 p-2 w-full border border-gray-300 rounded h-7 bg-gray-200"
-              value={customerID}
-              readOnly
-              placeholder="Auto-generated"
-              onKeyDown={handleKeyDown}
-            />
-          </div>
-          <div className="relative">
-  <label className="block text-center">Customer Name</label>
-  <input
-    type="text"
-    className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
+  <label className="block text-center ">Customer Name</label>
+  <select
+    className="mt-1 p-2 w-full border border-gray-300 rounded h-9"
     value={customerName}
-    onChange={(e) => setCustomerName(e.target.value)}
-    onKeyDown={handleKeyDown}
-  />
-  <button
-    type="button"
-    className="absolute right-2 top-7"
-    onClick={() => setShowDropdown((prev) => !prev)}
+    onChange={(e) => {
+      const selectedCustomer = customers.find(
+        (c) => c.customer_name === e.target.value
+      );
+      if (selectedCustomer) {
+        setCustomerID(selectedCustomer.id); // Auto-generate Customer ID
+        setCustomerName(selectedCustomer.customer_name);
+        setCustomerAddress(selectedCustomer.customer_address); // Auto-fill Address
+        setCustomerPhone(selectedCustomer.customer_phone_no); // Auto-fill Phone No
+      }
+    }}
   >
-    <ChevronDown size={18} />
-  </button>
-
-  {showDropdown && (
-    <div className="absolute bg-white border border-gray-300 rounded w-full mt-1 shadow-md">
-      <div
-        className="p-2 hover:bg-gray-200 cursor-pointer"
-        onClick={handleSelectCashSale}
-      >
-        Cash Sale
-      </div>
-    </div>
-  )}
-
-  {showTable && (
-    <div className="mt-4 p-4 border rounded shadow">
-      <table className="w-full border-collapse">
-        <thead>
-          <tr>
-            <th className="border border-gray-300 p-2">Customer Name</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td className="border border-gray-300 p-2">
-              {/* backend data here */}
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  )}
+    <option value="">Select Customer</option>
+    {customers.map((customer) => (
+      <option key={customer.id} value={customer.customer_name}>
+        {customer.customer_name}
+      </option>
+    ))}
+  </select>
 </div>
 
-          <div>
-            <label className="block text-center">Customer Address</label>
-            <input
-              type="text"
-              className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
-              value={customerAddress}
-              onChange={(e) => setCustomerAddress(e.target.value)}
-              onKeyDown={handleKeyDown}
-            />
-          </div>
-          <div>
-            <label className="block text-center">Phone No</label>
-            <input
-              type="number"
-              className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
-              value={driverMobile}
-              onChange={(e) => setDriverMobile(e.target.value)}
-              onKeyDown={handleKeyDown}
-            />
-          </div>
-          <div>
-            <label className="block text-center">Reference</label>
-            <input
-              type="text"
-              className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
-              value={reference}
-              onChange={(e) => setReference(e.target.value)}
-              onKeyDown={handleKeyDown}
-            />
-          </div>
+<div>
+  <label className="block text-center">Customer ID</label>
+  <input
+    type="text"
+    className="mt-1 p-2 w-full border border-gray-300 rounded h-7 bg-gray-200"
+    value={customerID || ""}
+    readOnly
+    placeholder="Auto-generated"
+  />
+</div>
+
+<div>
+  <label className="block text-center">Customer Address</label>
+  <input
+    type="text"
+    className="mt-1 p-2 w-full border border-gray-300 rounded h-7 bg-gray-200"
+    value={customerAddress || ""}
+    readOnly
+    placeholder="Auto-filled"
+  />
+</div>
+
+<div>
+  <label className="block text-center">Phone No</label>
+  <input
+    type="text"
+    className="mt-1 p-2 w-full border border-gray-300 rounded h-7 bg-gray-200"
+    value={customerPhone || ""}
+    readOnly
+    placeholder="Auto-filled"
+  />
+</div>
+
+
+
+
           <div>
             <label className="block text-center">Remarks</label>
             <input
@@ -363,47 +339,45 @@ const Sales = () => {
             <div className="overflow-x-auto w-[100%]">
               <table className="table border-collapse w-full">
                 <tbody>
-               
-                    
-                      {/* First Row: Column Headings */}
-                      <tr className="bg-gray-200 text-gray-700 text-sm">
-                        <td className="p-2 text-center border">No</td>
-                        <td className="p-2 text-center border">
-                          Product Description
-                        </td>
-                        <td className="p-2 text-center border">Product Code</td>
-                        
-                        <td className="p-2 text-center border">Stock(Rim)</td>
-                        <td className="p-2 text-center border">Stock(Dozen)</td>
-                        <td className="p-2 text-center border">
-                          Stock(Sheet/Piece)
-                        </td>
-                        <td className="p-2 text-center border">
-                          Rim/Dozen Purchase Price with Additional Cost
-                        </td>
-                        <td className="p-2 text-center border">
-                          Sheet/Piece Purchase Price with Additional Cost
-                        </td>
-                        <td className="p-2 text-center border">
-                          Input Rim/Dozen Quantity
-                        </td>
-                        <td className="p-2 text-center border">
-                          Input Sheet/Piece Quantity
-                        </td>
-                        <td className="p-2 text-center border">
-                          Input Rim/Dozen Price
-                        </td>
-                        <td className="p-2 text-center border">
-                          Input only sheet/piece Price
-                        </td>
-                        <td className="p-2 text-center border">Total Price</td>
-                      </tr>
-                      {items.map((item, index) => (
-                        <React.Fragment key={index}>
+                  {/* First Row: Column Headings */}
+                  <tr className="bg-gray-200 text-gray-700 text-sm">
+                    <td className="p-2 text-center border">No</td>
+                    <td className="p-2 text-center border">
+                      Product Description
+                    </td>
+                    <td className="p-2 text-center border">Product Code</td>
+
+                    <td className="p-2 text-center border">Stock(Rim)</td>
+                    <td className="p-2 text-center border">Stock(Dozen)</td>
+                    <td className="p-2 text-center border">
+                      Stock(Sheet/Piece)
+                    </td>
+                    <td className="p-2 text-center border">
+                      Rim/Dozen Purchase Price with Additional Cost
+                    </td>
+                    <td className="p-2 text-center border">
+                      Sheet/Piece Purchase Price with Additional Cost
+                    </td>
+                    <td className="p-2 text-center border">
+                      Input Rim/Dozen Quantity
+                    </td>
+                    <td className="p-2 text-center border">
+                      Input Sheet/Piece Quantity
+                    </td>
+                    <td className="p-2 text-center border">
+                      Input Rim/Dozen Price
+                    </td>
+                    <td className="p-2 text-center border">
+                      Input only sheet/piece Price
+                    </td>
+                    <td className="p-2 text-center border">Total Price</td>
+                  </tr>
+                  {items.map((item, index) => (
+                    <React.Fragment key={index}>
                       {/* Second Row: Input Fields */}
                       <tr className="border">
                         <td className="border text-center">{index + 1}</td>
-                       
+
                         <td className="border">
                           <select
                             className="p-1 border border-gray-300 rounded w-full h-8"
@@ -454,7 +428,6 @@ const Sales = () => {
                             />
                           )}
                         </td>
-
 
                         <td className="border">
                           <input
@@ -740,6 +713,6 @@ const Sales = () => {
       </form>
     </div>
   );
-}
+};
 
 export default Sales;
