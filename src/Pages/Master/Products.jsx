@@ -331,10 +331,13 @@ const Products = () => {
           </h3>
 
           <div className="space-y-4">
+<<<<<<< HEAD
             {/* 🔹 Company Name Dropdown */}
             {/* Debugging - Log editableProduct to check data */}
 
             {/* 🔹 Company Name Dropdown */}
+=======
+>>>>>>> 0c91d036ae95c591587d5017bd63ac90db767c90
             <label className="text-sm font-medium text-gray-700 mb-1">
               Company Name
             </label>

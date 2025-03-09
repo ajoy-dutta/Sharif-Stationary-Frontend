@@ -4,19 +4,30 @@ import { FaEdit } from "react-icons/fa";
 import { ImCross } from "react-icons/im";
 import { toast, Toaster } from "react-hot-toast";
 import axios from "axios";
-import AxiosInstance from '../../Components/AxiosInstance'
-
+import AxiosInstance from "../../Components/AxiosInstance";
+import { Link } from "react-router-dom";
 
 const Company = () => {
   const [company, setCompany] = useState([]);
   const [backupCompany, setBackupCompany] = useState([]); // Stores original company list
   const [searchTerm, setSearchTerm] = useState(""); // Stores search term
+  const [selectedCompany, setSelectedCompany] = useState(null); // Track selected company for product add
+
   const [newCompany, setNewCompany] = useState({
     company_name: "",
     company_representative_name: "",
     phone_number: "",
     address: "",
   });
+
+    // State for product modal inputs
+    const [productData, setProductData] = useState({
+      product_name: "",
+      product_type: "",
+  
+    });
+
+
   const [companies, setCompanies] = useState([]); // ✅ Ensure this is included
 
   const [editableCompany, setEditableCompany] = useState(null);
@@ -27,18 +38,25 @@ const Company = () => {
         const response = await AxiosInstance.get("/companies/"); // Base URL already in AxiosInstance
         setCompany(response.data);
         console.log(response.data);
-        setBackupCompany(response.data)
+        setBackupCompany(response.data);
       } catch (error) {
         console.error("Error fetching companies:", error);
       }
     };
     fetchCompany();
   }, []);
-  const handleAddCompany = async () => {
-    const { company_name, company_representative_name, phone_number, address, previous_due } = newCompany;
 
-    if (!company_name.trim() || !company_representative_name.trim() || !phone_number.trim() || !address.trim()) {
-      toast.error("⚠️ All fields are required!");
+  const handleAddCompany = async () => {
+    const {
+      company_name,
+      company_representative_name,
+      phone_number,
+      address,
+      previous_due,
+    } = newCompany;
+
+    if (!company_name.trim()) {
+      toast.error("⚠️ Please fill up Company Name!");
       return;
     }
 
@@ -57,19 +75,25 @@ const Company = () => {
         // Add the new company directly to the company state
         setCompany((prev) => [...prev, response.data]);
         toast.success(" Company added successfully!");
-        setNewCompany({ company_name: "", company_representative_name: "", phone_number: "", address: "", previous_due: "" });
+        setNewCompany({
+          company_name: "",
+          company_representative_name: "",
+          phone_number: "",
+          address: "",
+          previous_due: "",
+        });
         document.getElementById("my_modal_5").close(); // Close modal
       } else {
         toast.error("❌ Failed to add company!");
       }
     } catch (error) {
-      console.error("Error adding company:", error.response ? error.response.data : error.message);
+      console.error(
+        "Error adding company:",
+        error.response ? error.response.data : error.message
+      );
       toast.error("❌ Failed to add company!");
     }
   };
-
-
-
 
   const handleEditCompany = async () => {
     if (!editableCompany) return;
@@ -82,13 +106,8 @@ const Company = () => {
       id,
     } = editableCompany;
 
-    if (
-      !phone_number.trim() ||
-      !company_representative_name.trim() ||
-      !company_name.trim() ||
-      !address.trim()
-    ) {
-      toast.error("⚠️ All fields are required!");
+    if (!phone_number.trim()) {
+      toast.error("⚠️Please fill up Company Name!");
       return;
     }
 
@@ -99,7 +118,7 @@ const Company = () => {
       originalCompany.phone_number === phone_number.trim() &&
       originalCompany.company_name === company_name.trim() &&
       originalCompany.company_representative_name ===
-      company_representative_name.trim() &&
+        company_representative_name.trim() &&
       originalCompany.address === address.trim()
     ) {
       toast.error("⚠️ No changes were made!");
@@ -130,16 +149,70 @@ const Company = () => {
     }
   };
 
-  const handleDeleteCompany = async (id) => {
-    try {
-      await AxiosInstance.delete(`/companies/${id}/`);
-      setCompany((prev) => prev.filter((item) => item.id !== id));
-      toast.success("Company deleted successfully!");
-    } catch (error) {
-      console.error("Error deleting company:", error);
-      toast.error("Failed to delete company!");
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.key === "Enter") {
+        const activeElement = document.activeElement;
+
+        // Check if the active element is a table row or within a table row
+        const row =
+          activeElement.tagName === "TR"
+            ? activeElement
+            : activeElement.closest("tr");
+
+        if (row && row.hasAttribute("data-company-id")) {
+          const companyId = row.getAttribute("data-company-id");
+          const selectedCompany = company.find((c) => c.id == companyId);
+
+          if (selectedCompany) {
+            console.log(
+              "Opening modal for company:",
+              selectedCompany.company_name
+            ); // Debug log
+            setSelectedCompany(selectedCompany);
+
+            // Use setTimeout to ensure state is updated before opening modal
+            setTimeout(() => {
+              const modal = document.getElementById("product_modal");
+              if (modal) {
+                modal.showModal();
+              } else {
+                console.error("Product modal element not found");
+              }
+            }, 0);
+          }
+        }
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [company]);
+
+
+   // Handle product addition (Logs data to console)
+   const handleAddProduct = () => {
+    if (!productData.product_name ) {
+      toast.error("⚠️ Please fill the Product Name all fields!");
+      return;
     }
+
+    const newProduct = {
+      company: selectedCompany,
+      product_name: productData.product_name,
+      product_type: productData.product_type,
+
+    };
+
+    console.log("Product Data:", newProduct);
+
+    // Close modal after logging data
+    document.getElementById("product_modal").close();
+
+    // Clear product form
+    setProductData({ product_name: "", product_type: "", date: "" });
   };
+
 
   // Handle search
   const handleSearch = (e) => {
@@ -153,8 +226,7 @@ const Company = () => {
 
     const filtered = backupCompany.filter(
       (item) =>
-        item.company_name &&
-        item.company_name.toLowerCase().includes(term)
+        item.company_name && item.company_name.toLowerCase().includes(term)
     );
 
     setCompany(filtered);
@@ -172,12 +244,7 @@ const Company = () => {
             onChange={handleSearch}
             className="input input-bordered text-sm rounded-s-md h-[30px] join-item"
           />
-          <div
-            className="h-7 w-14 p-1 bg-blue-950 text-white"
-
-          >
-            Search
-          </div>
+          <div className="h-7 w-14 p-1 bg-blue-950 text-white">Search</div>
         </div>
         <button
           className="btn btn-sm bg-blue-950 text-white"
@@ -195,7 +262,6 @@ const Company = () => {
         >
           <TiPlus /> Add Company
         </button>
-
       </div>
       <div className="m-8 text-center font-bold text-gray-700 border-b-[1px] pb-2">
         <h2 className="text-lg"> List of Company </h2>
@@ -210,40 +276,49 @@ const Company = () => {
               <th>Phone Number</th>
               <th>Address</th>
               <th> Due</th>
-
-              <th>Edit</th>
-              <th>Delete</th>
+              <th>Actions</th> 
             </tr>
           </thead>
           <tbody className="text-center">
             {company.length > 0 ? (
               company.map((item, index) => (
-                <tr key={index}>
+                <tr
+                  key={index}
+                  data-company-id={item.id}
+                  className="cursor-pointer hover:bg-gray-100 focus:bg-blue-100 focus:outline-none"
+                  tabIndex="0" // This makes the row focusable
+                  onClick={() => {
+                    // Optional: Add click handling too
+                    setSelectedCompany(item);
+                    document.getElementById("product_modal").showModal();
+                  }}
+                >
                   <td>{item.id}</td>
                   <td>{item.company_name}</td>
                   <td>{item.company_representative_name}</td>
                   <td>{item.phone_number}</td>
                   <td>{item.address}</td>
                   <td>{item.previous_due}</td>
-
-                  <td>
-                    <button
-                      className="text-blue-500 hover:underline"
-                      onClick={() => {
+                  <td className="flex items-center gap-5">
+                  <button
+                      className="text-blue-9500 "
+                      onClick={(e) => {
+                        e.stopPropagation(); // Prevents row click conflict
                         setEditableCompany(item);
                         document.getElementById("my_modal_5").showModal();
                       }}
                     >
                       <FaEdit />
                     </button>
-                  </td>
-                  <td>
-                    <button
-                      className="text-red-500 hover:underline"
-                      onClick={() => handleDeleteCompany(item.id)}
+
+                  <Link
+                      to={`/products/${item.id}`} // ✅ Navigate to Product page of this company
+                      className=""
                     >
-                      <ImCross />
-                    </button>
+                     <button className="text-white btn text-xs btn-sm bg-blue-950"> View Products</button>
+                    </Link>
+
+                
                   </td>
                 </tr>
               ))
@@ -274,30 +349,36 @@ const Company = () => {
 
           {/* Company Name */}
           <div className="flex flex-col">
-            <label className="text-sm font-medium text-gray-700 mb-1">Company Name</label>
+            <label className="text-sm font-medium text-gray-700 mb-1">
+              Company Name
+            </label>
             <input
               className="input input-bordered w-full p-2"
               placeholder="Enter Company Name"
               value={
-                editableCompany ? editableCompany.company_name : newCompany.company_name
+                editableCompany
+                  ? editableCompany.company_name
+                  : newCompany.company_name
               }
               onChange={(e) =>
                 editableCompany
                   ? setEditableCompany((prev) => ({
-                    ...prev,
-                    company_name: e.target.value,
-                  }))
+                      ...prev,
+                      company_name: e.target.value,
+                    }))
                   : setNewCompany((prev) => ({
-                    ...prev,
-                    company_name: e.target.value,
-                  }))
+                      ...prev,
+                      company_name: e.target.value,
+                    }))
               }
             />
           </div>
 
           {/* Representative Name */}
           <div className="flex flex-col mt-4">
-            <label className="text-sm font-medium text-gray-700 mb-1">Representative Name</label>
+            <label className="text-sm font-medium text-gray-700 mb-1">
+              Representative Name
+            </label>
             <input
               className="input input-bordered w-full p-2"
               placeholder="Enter Representative Name"
@@ -309,77 +390,93 @@ const Company = () => {
               onChange={(e) =>
                 editableCompany
                   ? setEditableCompany((prev) => ({
-                    ...prev,
-                    company_representative_name: e.target.value,
-                  }))
+                      ...prev,
+                      company_representative_name: e.target.value,
+                    }))
                   : setNewCompany((prev) => ({
-                    ...prev,
-                    company_representative_name: e.target.value,
-                  }))
+                      ...prev,
+                      company_representative_name: e.target.value,
+                    }))
               }
             />
           </div>
 
           {/* Phone Number */}
           <div className="flex flex-col mt-4">
-            <label className="text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+            <label className="text-sm font-medium text-gray-700 mb-1">
+              Phone Number
+            </label>
             <input
               className="input input-bordered w-full p-2"
               placeholder="Enter Phone Number"
-              value={editableCompany ? editableCompany.phone_number : newCompany.phone_number}
+              value={
+                editableCompany
+                  ? editableCompany.phone_number
+                  : newCompany.phone_number
+              }
               onChange={(e) =>
                 editableCompany
                   ? setEditableCompany((prev) => ({
-                    ...prev,
-                    phone_number: e.target.value,
-                  }))
+                      ...prev,
+                      phone_number: e.target.value,
+                    }))
                   : setNewCompany((prev) => ({
-                    ...prev,
-                    phone_number: e.target.value,
-                  }))
+                      ...prev,
+                      phone_number: e.target.value,
+                    }))
               }
             />
           </div>
 
           {/* Address */}
           <div className="flex flex-col mt-4">
-            <label className="text-sm font-medium text-gray-700 mb-1">Company Address</label>
+            <label className="text-sm font-medium text-gray-700 mb-1">
+              Company Address
+            </label>
             <input
               className="input input-bordered w-full p-2"
               placeholder="Enter Company Address"
-              value={editableCompany ? editableCompany.address : newCompany.address}
+              value={
+                editableCompany ? editableCompany.address : newCompany.address
+              }
               onChange={(e) =>
                 editableCompany
                   ? setEditableCompany((prev) => ({
-                    ...prev,
-                    address: e.target.value,
-                  }))
+                      ...prev,
+                      address: e.target.value,
+                    }))
                   : setNewCompany((prev) => ({
-                    ...prev,
-                    address: e.target.value,
-                  }))
+                      ...prev,
+                      address: e.target.value,
+                    }))
               }
             />
           </div>
 
           {/* Previous Due */}
           <div className="flex flex-col mt-4">
-            <label className="text-sm font-medium text-gray-700 mb-1">Previous Due</label>
+            <label className="text-sm font-medium text-gray-700 mb-1">
+              Previous Due
+            </label>
             <input
               className="input input-bordered w-full p-2"
               type="number"
               placeholder="Enter Previous Due Amount"
-              value={editableCompany ? editableCompany.previous_due : newCompany.previous_due}
+              value={
+                editableCompany
+                  ? editableCompany.previous_due
+                  : newCompany.previous_due
+              }
               onChange={(e) =>
                 editableCompany
                   ? setEditableCompany((prev) => ({
-                    ...prev,
-                    previous_due: e.target.value,
-                  }))
+                      ...prev,
+                      previous_due: e.target.value,
+                    }))
                   : setNewCompany((prev) => ({
-                    ...prev,
-                    previous_due: e.target.value,
-                  }))
+                      ...prev,
+                      previous_due: e.target.value,
+                    }))
               }
             />
           </div>
@@ -397,7 +494,44 @@ const Company = () => {
         <Toaster position="top-center" reverseOrder={false} />
       </dialog>
 
+      <dialog id="product_modal" className="modal modal-bottom sm:modal-middle">
+        <div className="modal-box relative p-6">
+          <button
+            className="absolute top-2 right-2 text-lg"
+            onClick={() => document.getElementById("product_modal").close()}
+          >
+            <ImCross />
+          </button>
+          <h3 className="font-bold text-lg my-5 text-center">
+            Add Product to {selectedCompany?.company_name}
+          </h3>
 
+          <input
+            className="input input-bordered w-full p-2"
+            placeholder="Product Name"
+            value={productData.product_name}
+            onChange={(e) =>
+              setProductData({ ...productData, product_name: e.target.value })
+            }
+          />
+          <input
+            className="input input-bordered w-full p-2 mt-4"
+            placeholder="Product Type"
+            value={productData.product_type}
+            onChange={(e) =>
+              setProductData({ ...productData, product_type: e.target.value })
+            }
+          />
+   
+
+          <button
+            className="btn bg-blue-950 text-white w-full p-2 mt-6"
+            onClick={handleAddProduct}
+          >
+            Add Product
+          </button>
+        </div>
+      </dialog>
 
       <Toaster position="top-center" reverseOrder={false} />
     </div>
