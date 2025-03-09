@@ -1,20 +1,28 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import React from "react";
-
+import axios from "axios";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
+import axiosInstance from "../../Components/AxiosInstance";
+
+import { ChevronDown } from "lucide-react";
 
 const Sales = () => {
-  const [remarks, setremarks] = useState("");
-  const [customerID, setcustomerID] = useState("");
-  const [customerAddress, setcustomerAddress] = useState("");
-  const [customerName, setcustomerName] = useState("");
+  // State Variables
+  const [companyName, setCompanyName] = useState("");
+  const [orderNo, setOrderNo] = useState("");
+  const [invoiceNo, setInvoiceNo] = useState("");
+  const [remarks, setRemarks] = useState("");
+  const [customerID, setCustomerID] = useState("");
+  const [customers, setCustomers] = useState([]);
+  const [customerAddress, setCustomerAddress] = useState("");
+  const [customerName, setCustomerName] = useState("");
+  const [customerPhone, setCustomerPhone] = useState("");
   const [chequeNo, setChequeNo] = useState("");
   const [chequeDate, setChequeDate] = useState("");
   const [orderDate, setOrderDate] = useState("");
-
   const [driverMobile, setDriverMobile] = useState("");
-  // const [productEntryDate, setProductEntryDate] = useState("");
+  const [reference, setReference] = useState("");
   const [previousDue, setPreviousDue] = useState(0);
   const [todayBill, setTodayBill] = useState(0);
   const [todayPaid, setTodayPaid] = useState(0);
@@ -22,56 +30,61 @@ const Sales = () => {
   const [bankName, setBankName] = useState("");
   const [accountNo, setAccountNo] = useState("");
   const [balanceAmount, setBalanceAmount] = useState("");
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [showTable, setshowTable] = useState(false);
 
   const [items, setItems] = useState([
     {
-      no: "", // No (Row Number)
-      productDescription: "", // Product Description (Dropdown)
-      productCode: "", // Item/Product Code
-      rimQuantity: "", // Rim Quantity
-      sheetQuantity: "", // Sheet/Piece Quantity
-      rimPrice: "", // Rim/Dozen Price
-      sheetPrice: "", // Sheet/Piece Price
-      totalAmount: "", // Total Amount
-      remarks: "", // Remarks
+      no: 1,
+      productDescription: "",
+      productCode: "",
+      stockRim: "",
+      stockDozen: "",
+      stockSheetPiece: "",
+      rimDozenPrice: "",
+      sheetPiecePrice: "",
+      inputRimDozenQty: "",
+      inputSheetPieceQty: "",
+      inputRimDozenPrice: "",
+      inputSheetPiecePrice: "",
+      totalPrice: "",
     },
   ]);
 
-  // Handle input change for dynamic rows
   const handleChange = (e, index, field) => {
     const updatedItems = [...items];
     updatedItems[index][field] = e.target.value;
-
     setItems(updatedItems);
   };
 
-  // Add a new row
   const addRow = () => {
     setItems([
       ...items,
       {
-        no: items.length + 1, // Auto-increment row number
-        productDescription: "", // Product Description (Dropdown)
-        productCode: "", // Item/Product Code
-        rimQuantity: "", // Rim Quantity
-        sheetQuantity: "", // Sheet/Piece Quantity
-        rimPrice: "", // Rim/Dozen Price
-        sheetPrice: "", // Sheet/Piece Price
-        totalAmount: "", // Total Amount
-        remarks: "", // Remarks
+        no: items.length + 1,
+        productDescription: "",
+        productCode: "",
+        stockRim: "",
+        stockDozen: "",
+        stockSheetPiece: "",
+        rimDozenPrice: "",
+        sheetPiecePrice: "",
+        inputRimDozenQty: "",
+        inputSheetPieceQty: "",
+        inputRimDozenPrice: "",
+        inputSheetPiecePrice: "",
+        totalPrice: "",
       },
     ]);
   };
 
-  // Remove a row
   const removeRow = (index) => {
-    const updatedItems = items.filter((_, i) => i !== index);
-    setItems(updatedItems);
+    setItems(items.filter((_, i) => i !== index));
   };
 
   const handlePDFExport = () => {
     const invoiceWindow = window.open("", "_blank"); // Open new window
-  
+
     invoiceWindow.document.write(`
       <html>
         <head>
@@ -188,60 +201,52 @@ const Sales = () => {
         </body>
       </html>
     `);
-  
+
     invoiceWindow.document.close();
   };
-  
-  
-  
-  
-  
 
   const handleSubmit = async (e) => {
-    e.preventDefault(); // Prevent default form submission
+    e.preventDefault();
+    alert("Purchase, Items, and Payment Information Saved Successfully!");
+  };
 
-    try {
-      // ✅ 1. Save Purchase Receive Data
-      const purchaseData = {
-        company_name: companyName,
-        order_date: orderDate,
-        order_no: orderNo,
-        invoice_no: invoiceNo,
-      };
+  useEffect(() => {
+    setOrderDate(new Date().toISOString().split("T")[0]);
+  }, []);
 
-      alert("Purchase, Items, and Payment Information Saved Successfully!");
-    } catch (error) {
-      console.error("Error submitting form", error);
-      alert("Error while saving data. Please try again.");
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      const formElements = Array.from(
+        document.querySelectorAll("input, select")
+      );
+      const index = formElements.indexOf(e.target);
+      if (index >= 0 && index < formElements.length - 1) {
+        formElements[index + 1].focus();
+      }
     }
   };
-  const handleSubmitRow = (index) => {
-    const submittedRow = items[index]; // Get the specific row data
 
-    // Example: Send data to backend via API
-    fetch("http://127.0.0.1:8000/submit", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(submittedRow),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        console.log("Success:", data);
-        alert(`Row ${index + 1} submitted successfully!`);
-      })
-      .catch((error) => {
-        console.error("Error submitting row:", error);
-      });
-  };
+  // Fetch customers from API using axiosInstance
+  useEffect(() => {
+    const fetchCustomers = async () => {
+      try {
+        const response = await axiosInstance.get("/customers/");
+        setCustomers(response.data); // Store customer list in state
+      } catch (error) {
+        console.error("Error fetching customers:", error);
+      }
+    };
+
+    fetchCustomers();
+  }, []);
 
   return (
     <div className="m-8 mb-0 mx-12">
       <h2 className="text-xl font-semibold mb-2 -mt-4 text-center">Sale</h2>
-      <form onSubmit={handleSubmit}>
-        <div className="p-4 rounded-xl grid grid-cols-8 gap-2 text-sm bg-white  shadow-[0px_0px_30px_rgba(0,0,0,0.1)]">
-          {/*  Date */}
+      <form onSubmit={handleSubmit} onKeyDown={handleKeyDown}>
+        {/* sale */}
+        <div className="p-4 rounded-xl grid grid-cols-8 gap-2 text-sm ]">
           <div>
             <label className="block text-center">Date</label>
             <input
@@ -249,69 +254,79 @@ const Sales = () => {
               className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
               value={orderDate}
               onChange={(e) => setOrderDate(e.target.value)}
+              onKeyDown={handleKeyDown}
             />
           </div>
-          {/* Customer Id*/}
           <div>
-            <label className="block text-center">Customer ID</label>
-            <input
-              type="text"
-              className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
-              value={customerID}
-              onChange={(e) => setcustomerID(e.target.value)}
-            />
-          </div>
-          {/* Customer Name */}
-          <div>
-            <label className="block text-center">Customer Name</label>
-            <input
-              type="text"
-              className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
-              value={customerName}
-              onChange={(e) => setcustomerName(e.target.value)}
-            />
-          </div>
+  <label className="block text-center ">Customer Name</label>
+  <select
+    className="mt-1 p-2 w-full border border-gray-300 rounded h-9"
+    value={customerName}
+    onChange={(e) => {
+      const selectedCustomer = customers.find(
+        (c) => c.customer_name === e.target.value
+      );
+      if (selectedCustomer) {
+        setCustomerID(selectedCustomer.id); // Auto-generate Customer ID
+        setCustomerName(selectedCustomer.customer_name);
+        setCustomerAddress(selectedCustomer.customer_address); // Auto-fill Address
+        setCustomerPhone(selectedCustomer.customer_phone_no); // Auto-fill Phone No
+      }
+    }}
+  >
+    <option value="">Select Customer</option>
+    {customers.map((customer) => (
+      <option key={customer.id} value={customer.customer_name}>
+        {customer.customer_name}
+      </option>
+    ))}
+  </select>
+</div>
 
-          {/**Customer Address */}
-          <div>
-            <label className="block text-center">Customer Address</label>
-            <input
-              type="text"
-              className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
-              value={customerAddress}
-              onChange={(e) => setcustomerAddress(e.target.value)}
-            />
-          </div>
+<div>
+  <label className="block text-center">Customer ID</label>
+  <input
+    type="text"
+    className="mt-1 p-2 w-full border border-gray-300 rounded h-7 bg-gray-200"
+    value={customerID || ""}
+    readOnly
+    placeholder="Auto-generated"
+  />
+</div>
 
-          {/* 8. Driver Mobile No */}
-          <div>
-            <label className="block text-center">Phone No</label>
-            <input
-              type="number"
-              className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
-              value={driverMobile}
-              onChange={(e) => setDriverMobile(e.target.value)}
-            />
-          </div>
-          {/* Reference */}
-          <div>
-            <label className="block text-center">Reference</label>
-            <input
-              type="text"
-              className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
-              value={driverMobile}
-              onChange={(e) => setDriverMobile(e.target.value)}
-            />
-          </div>
+<div>
+  <label className="block text-center">Customer Address</label>
+  <input
+    type="text"
+    className="mt-1 p-2 w-full border border-gray-300 rounded h-7 bg-gray-200"
+    value={customerAddress || ""}
+    readOnly
+    placeholder="Auto-filled"
+  />
+</div>
 
-          {/* 12. Remarks */}
+<div>
+  <label className="block text-center">Phone No</label>
+  <input
+    type="text"
+    className="mt-1 p-2 w-full border border-gray-300 rounded h-7 bg-gray-200"
+    value={customerPhone || ""}
+    readOnly
+    placeholder="Auto-filled"
+  />
+</div>
+
+
+
+
           <div>
             <label className="block text-center">Remarks</label>
             <input
               type="text"
               className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
               value={remarks}
-              onChange={(e) => setremarks(e.target.value)}
+              onChange={(e) => setRemarks(e.target.value)}
+              onKeyDown={handleKeyDown}
             />
           </div>
         </div>
@@ -324,68 +339,44 @@ const Sales = () => {
             <div className="overflow-x-auto w-[100%]">
               <table className="table border-collapse w-full">
                 <tbody>
-               
-                    
-                      {/* First Row: Column Headings */}
-                      <tr className="bg-gray-200 text-gray-700 text-sm">
-                        <td className="p-2 text-center border">No</td>
-                        <td className="p-2 text-center border">Product Code</td>
-                        <td className="p-2 text-center border">
-                          Product Description
-                        </td>
-                        <td className="p-2 text-center border">Stock(Rim)</td>
-                        <td className="p-2 text-center border">Stock(Dozen)</td>
-                        <td className="p-2 text-center border">
-                          Stock(Sheet/Piece)
-                        </td>
-                        <td className="p-2 text-center border">
-                          Rim/Dozen Purchase Price with Additional Cost
-                        </td>
-                        <td className="p-2 text-center border">
-                          Sheet/Piece Purchase Price with Additional Cost
-                        </td>
-                        <td className="p-2 text-center border">
-                          Input Rim/Dozen Quantity
-                        </td>
-                        <td className="p-2 text-center border">
-                          Input Sheet/Piece Quantity
-                        </td>
-                        <td className="p-2 text-center border">
-                          Input Rim/Dozen Price
-                        </td>
-                        <td className="p-2 text-center border">
-                          Input only sheet/piece Price
-                        </td>
-                        <td className="p-2 text-center border">Total Price</td>
-                      </tr>
-                      {items.map((item, index) => (
-                        <React.Fragment key={index}>
+                  {/* First Row: Column Headings */}
+                  <tr className="bg-gray-200 text-gray-700 text-sm">
+                    <td className="p-2 text-center border">No</td>
+                    <td className="p-2 text-center border">
+                      Product Description
+                    </td>
+                    <td className="p-2 text-center border">Product Code</td>
+
+                    <td className="p-2 text-center border">Stock(Rim)</td>
+                    <td className="p-2 text-center border">Stock(Dozen)</td>
+                    <td className="p-2 text-center border">
+                      Stock(Sheet/Piece)
+                    </td>
+                    <td className="p-2 text-center border">
+                      Rim/Dozen Purchase Price with Additional Cost
+                    </td>
+                    <td className="p-2 text-center border">
+                      Sheet/Piece Purchase Price with Additional Cost
+                    </td>
+                    <td className="p-2 text-center border">
+                      Input Rim/Dozen Quantity
+                    </td>
+                    <td className="p-2 text-center border">
+                      Input Sheet/Piece Quantity
+                    </td>
+                    <td className="p-2 text-center border">
+                      Input Rim/Dozen Price
+                    </td>
+                    <td className="p-2 text-center border">
+                      Input only sheet/piece Price
+                    </td>
+                    <td className="p-2 text-center border">Total Price</td>
+                  </tr>
+                  {items.map((item, index) => (
+                    <React.Fragment key={index}>
                       {/* Second Row: Input Fields */}
                       <tr className="border">
                         <td className="border text-center">{index + 1}</td>
-                        <td className="border">
-                          <select
-                            className="p-1 border border-gray-300 rounded w-full h-8"
-                            value={item.productCode}
-                            onChange={(e) =>
-                              handleChange(e, index, "productCode")
-                            }
-                          >
-                            <option value="">Select</option>
-                            <option value="Other">Other</option>
-                          </select>
-                          {item.productCode === "Other" && (
-                            <input
-                              type="text"
-                              className="p-1 border border-gray-300 rounded w-full h-8 mt-1"
-                              placeholder="Enter custom product code"
-                              value={item.customProductCode || ""}
-                              onChange={(e) =>
-                                handleChange(e, index, "customProductCode")
-                              }
-                            />
-                          )}
-                        </td>
 
                         <td className="border">
                           <select
@@ -410,6 +401,29 @@ const Sales = () => {
                                   index,
                                   "customProductDescription"
                                 )
+                              }
+                            />
+                          )}
+                        </td>
+                        <td className="border">
+                          <select
+                            className="p-1 border border-gray-300 rounded w-full h-8"
+                            value={item.productCode}
+                            onChange={(e) =>
+                              handleChange(e, index, "productCode")
+                            }
+                          >
+                            <option value="">Select</option>
+                            <option value="Other">Other</option>
+                          </select>
+                          {item.productCode === "Other" && (
+                            <input
+                              type="text"
+                              className="p-1 border border-gray-300 rounded w-full h-8 mt-1"
+                              placeholder="Enter custom product code"
+                              value={item.customProductCode || ""}
+                              onChange={(e) =>
+                                handleChange(e, index, "customProductCode")
                               }
                             />
                           )}
@@ -539,7 +553,7 @@ const Sales = () => {
                 <button
                   type="button"
                   onClick={addRow}
-                  className="bg-green-500 text-white px-4 rounded bg-blue-900 text-xs w-24 h-6"
+                  className="bg-blue-500 text-white px-4 rounded bg-blue-900 text-xs w-24 h-6"
                 >
                   Add
                 </button>
@@ -699,6 +713,6 @@ const Sales = () => {
       </form>
     </div>
   );
-}
+};
 
 export default Sales;

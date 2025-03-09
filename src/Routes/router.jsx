@@ -31,6 +31,7 @@ import ProtectedRoute from "../Provider/ProtectedRoute.jsx"
 import Customer from "../Pages/Master/Customer.jsx";
 // import ProtectedRoute from "../Provider/ProtectedRoute.jsx"
 import Dashboard from "../Pages/DashboardPage/Dashboard.jsx"
+import CompanyProducts from "../Pages/Master/CompanyProducts.jsx";
 
 
 export const router = createBrowserRouter([
@@ -62,6 +63,11 @@ export const router = createBrowserRouter([
       {
         path: "/company",
         element: <Company></Company>,
+      },
+
+      {
+        path:"/products/:companyId",
+        element: <CompanyProducts></CompanyProducts>,
       },
       
       {
