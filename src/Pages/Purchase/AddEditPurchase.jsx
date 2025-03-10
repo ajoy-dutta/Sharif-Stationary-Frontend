@@ -115,42 +115,50 @@ const AddEditPurchase = () => {
                 </div>
               )
           )}
+{/* Company Dropdown */}
+<div>
+  <label className="block mb-1 text-gray-700 font-medium">Company*</label>
+  <select
+    name="company"
+    value={formData.company || ""}
+    onChange={handleChange}
+    className="border p-2 w-full bg-white text-black"
+  >
+    <option value="">Select Company</option>
+    {companies.length > 0 ? (
+      companies.map((c) => (
+        <option key={c.id} value={c.id} className="text-black">
+          {c.name}
+        </option>
+      ))
+    ) : (
+      <option disabled className="text-black">Loading...</option>
+    )}
+  </select>
+</div>
 
-          {/* Company Dropdown */}
-          <div>
-            <label className="block mb-1">Company*</label>
-            <select
-              name="company"
-              value={formData.company}
-              onChange={handleChange}
-              className="border p-2 w-full"
-            >
-              <option value="">Select Company</option>
-              {companies.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
-          </div>
+{/* Godown Dropdown */}
+<div>
+  <label className="block mb-1 text-gray-700 font-medium">Godown*</label>
+  <select
+    name="godown"
+    value={formData.godown || ""}
+    onChange={handleChange}
+    className="border p-2 w-full bg-white text-black"
+  >
+    <option value="">Select Godown</option>
+    {godowns.length > 0 ? (
+      godowns.map((g) => (
+        <option key={g.id} value={g.id} className="text-black">
+          {g.name}
+        </option>
+      ))
+    ) : (
+      <option disabled className="text-black">Loading...</option>
+    )}
+  </select>
+</div>
 
-          {/* Godown Dropdown */}
-          <div>
-            <label className="block mb-1">Godown*</label>
-            <select
-              name="godown"
-              value={formData.godown}
-              onChange={handleChange}
-              className="border p-2 w-full"
-            >
-              <option value="">Select Godown</option>
-              {godowns.map((g) => (
-                <option key={g.id} value={g.id}>
-                  {g.name}
-                </option>
-              ))}
-            </select>
-          </div>
         </div>
 
         {/* Submit Button */}
