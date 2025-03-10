@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
-import AxiosInstance from "../../Components/AxiosInstance";
-
+import AxiosInstance from "../../components/AxiosInstance"; 
+import { useNavigate } from "react-router-dom";
 import { useUser } from "../../Provider/UserProvider";
 
 function PurchaseReceiveForm() {
@@ -19,6 +19,7 @@ function PurchaseReceiveForm() {
   const [searchQuery, setSearchQuery] = useState(""); // 🔹 Fix: Define searchQuery
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null); // Store selected product
+  const navigate = useNavigate();
 
   const handleOpenModal = () => setIsModalOpen(true); // ✅ Open modal
   const handleCloseModal = () => setIsModalOpen(false); // ✅ Close modal
@@ -34,6 +35,9 @@ function PurchaseReceiveForm() {
         const companyResponse = await AxiosInstance.get("/companies/");
         setCompanies(companyResponse.data);
         console.log(companyResponse.data);
+        const purchaseResponse = await AxiosInstance.get("/purchases/");
+        setPurchases(purchaseResponse.data);
+        console.log(setPurchases)
 
         const godownResponse = await AxiosInstance.get("/godowns/");
         setGodowns(godownResponse.data);
@@ -503,9 +507,16 @@ function PurchaseReceiveForm() {
 
   return (
     <div className="m-8 mb-0 mx-12">
-      <h2 className="text-xl font-semibold mb-4 -mt-6 text-center">
-        Purchase & Invoice Information
-      </h2>
+      <div className="flex justify-between items-center mb-4">
+  <h2 className="text-xl font-bold">Purchase & Invoice Information</h2>
+  <button
+    onClick={() => navigate("/purchase-list")} // Adjust the path as needed
+    className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
+  >
+    Go to List
+  </button>
+</div>
+
       <form
         onSubmit={handleSubmit}
         onKeyDown={handleKeyDown}
