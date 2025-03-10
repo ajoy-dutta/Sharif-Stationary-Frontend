@@ -20,10 +20,6 @@ function PurchaseReceiveForm() {
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null); // Store selected product
 
-
-
-
-
   const handleOpenModal = () => setIsModalOpen(true); // ✅ Open modal
   const handleCloseModal = () => setIsModalOpen(false); // ✅ Close modal
 
@@ -55,11 +51,6 @@ function PurchaseReceiveForm() {
   }, []);
 
   console.log(companies);
-  // Function to get today's date in the required format (YYYY-MM-DD)
-  // const getTodayDate = () => {
-  //   const today = new Date();
-  //   return today.toISOString().split("T")[0]; // Format: YYYY-MM-DD
-  // };
 
   const [formData, setFormData] = useState({
     // Purchase Details
@@ -93,26 +84,7 @@ function PurchaseReceiveForm() {
     PurchaseItem: [],
   });
 
-
   console.log(formData);
-  // 🔹 Function to Filter Products Based on Search Query
-  const handleSearchProduct = (e) => {
-    const query = e.target.value.toLowerCase();
-    setSearchQuery(query);
-
-    if (!query.trim()) {
-      setFilteredProducts([]); // Reset when empty
-      return;
-    }
-
-    const results = products.filter(
-      (item) =>
-        item.product_name.toLowerCase().includes(query) ||
-        item.company_name.toLowerCase().includes(query)
-    );
-
-    setFilteredProducts(results);
-  };
 
   // 🔹 Handle Change for Company
   const handleCompanyChange = (e) => {
@@ -144,6 +116,7 @@ function PurchaseReceiveForm() {
   const [newItem, setNewItem] = useState({
     product: "",
     product_name: "",
+    product_type: "",
     purchase_price: "",
     rim: "",
     dozen: "",
@@ -173,7 +146,6 @@ function PurchaseReceiveForm() {
     }
   };
 
-  // ✅ Handle Change for New Item Inputs
   const handleItemChange = (e) => {
     const { name, value } = e.target;
 
@@ -182,92 +154,165 @@ function PurchaseReceiveForm() {
 
     let updatedItem = { ...newItem, [name]: numericValue };
 
-
+    // 🔹 Auto-fill `product_name` and `product_type` based on `product_code`
     if (name === "product") {
-      const selectedProduct = products.find((p) => p.product_code.toString() === value);
-      updatedItem.product_name = selectedProduct
-        ? selectedProduct.product_description
-        : "";
+      const selectedProduct = products.find((p) => p.product_code === value);
+      if (selectedProduct) {
+        updatedItem.product_name = selectedProduct.product_name;
+        updatedItem.product_type = selectedProduct.product_type;
+      } else {
+        updatedItem.product_name = "";
+        updatedItem.product_type = "";
+      }
     }
 
-    // 🔹 Disable 'dozen' if 'rim' is entered and vice versa
-    if (name === "rim" && numericValue > 0) {
-      updatedItem.dozen = 0;
-    }
-    if (name === "dozen" && numericValue > 0) {
-      updatedItem.rim = 0;
-    }
+    const isRimA4 = updatedItem.product_type === "RIM-A4";
+    const isRimLegal = updatedItem.product_type === "RIM-LEGAL";
+    const isDozen = updatedItem.product_type === "DOZEN";
 
-    // 🔹 Calculate total sheet/piece count
-    if (updatedItem.rim > 0) {
+    // 🔹 Handle Total Sheet/Piece Calculation
+    if (isRimLegal) {
+      // Convert Rim to Sheets for "RIM-LEGAL"
       updatedItem.total_sheet_piece =
-        updatedItem.rim * 500 + (updatedItem.only_sheet_piece || 0);
-    } else if (updatedItem.dozen > 0) {
-      updatedItem.total_sheet_piece =
-        updatedItem.dozen * 12 + (updatedItem.only_sheet_piece || 0);
+        (updatedItem.rim || 0) * 500 + (updatedItem.only_sheet_piece || 0);
+    } else if (isDozen) {
+      // Convert Dozen to Sheets (1 Dozen = 12 Sheets)
+      updatedItem.total_sheet_piece = (updatedItem.dozen || 0) * 12;
     } else {
-      updatedItem.total_sheet_piece = updatedItem.only_sheet_piece || 0;
+      updatedItem.total_sheet_piece = updatedItem.rim || 0; // No sheet conversion for "RIM-A4"
     }
 
     // Avoid division by zero
     const totalSheetPiece = updatedItem.total_sheet_piece || 1;
 
-    // 🔹 Calculate per sheet/piece price
-    if (updatedItem.purchase_price > 0) {
+    // 🔹 Calculate Prices Based on Product Type
+    if (isRimLegal) {
+      // If "RIM-LEGAL", calculate per sheet price and all values
       updatedItem.per_sheet_or_piece_price = parseFloat(
-        (updatedItem.purchase_price / totalSheetPiece).toFixed(2)
+        ((updatedItem.purchase_price || 0) / totalSheetPiece).toFixed(2)
       );
-    } else {
-      updatedItem.per_sheet_or_piece_price = 0;
-    }
 
-    // 🔹 Calculate **per sheet/piece sell price FIRST**
-    if (updatedItem.total_sheet_piece > 0) {
-      updatedItem.per_sheet_or_piece_sell_price = parseFloat(
-        ((updatedItem.purchase_price +
-          (updatedItem.additional_cost || 0) +
-          (updatedItem.profit || 0)) /
-          totalSheetPiece).toFixed(2)
-      );
-    } else {
-      updatedItem.per_sheet_or_piece_sell_price = 0;
-    }
-
-    // 🔹 Calculate per rim and per dozen prices based on input
-    if (updatedItem.rim > 0) {
       updatedItem.per_rim_price = parseFloat(
         (updatedItem.per_sheet_or_piece_price * 500).toFixed(2)
       );
-      updatedItem.per_rim_sale_price = parseFloat(
-        (updatedItem.per_sheet_or_piece_sell_price * 500).toFixed(2)
+
+      updatedItem.per_piece_or_sheet_sale_price = parseFloat(
+        (
+          (updatedItem.purchase_price +
+            updatedItem.additional_cost +
+            updatedItem.profit) /
+          totalSheetPiece
+        ).toFixed(2)
       );
-    } else {
-      updatedItem.per_rim_price = 0;
+
+      updatedItem.per_rim_sale_price = parseFloat(
+        (updatedItem.per_piece_or_sheet_sale_price * 500).toFixed(2)
+      );
+
+      updatedItem.per_dozen_price = 0; // Not applicable for RIM-LEGAL
+      updatedItem.per_dozen_sale_price = 0;
+    } else if (isRimA4) {
+      updatedItem.only_sheet_piece = 0; // No need for sheet count
+      updatedItem.total_sheet_piece = 0;
+      // If "RIM-A4", calculate only rim price and sale price
+      updatedItem.per_rim_price = parseFloat(
+        (updatedItem.purchase_price / (updatedItem.rim || 1)).toFixed(2)
+      );
+
+      updatedItem.per_rim_sale_price = parseFloat(
+        (
+          (updatedItem.purchase_price +
+            updatedItem.additional_cost +
+            updatedItem.profit) /
+          (updatedItem.rim || 1)
+        ).toFixed(2)
+      );
+
+      updatedItem.per_sheet_or_piece_price = 0; // No sheet conversion needed
+      updatedItem.per_piece_or_sheet_sale_price = 0;
+      updatedItem.per_dozen_price = 0; // Not applicable for RIM-A4
+      updatedItem.per_dozen_sale_price = 0;
+    } else if (isDozen) {
+      // If "DOZEN", calculate per dozen price and per sheet price
+      updatedItem.per_dozen_price = parseFloat(
+        (updatedItem.purchase_price / (updatedItem.dozen || 1)).toFixed(2)
+      );
+
+      updatedItem.per_sheet_or_piece_price = parseFloat(
+        ((updatedItem.purchase_price || 0) / totalSheetPiece).toFixed(2)
+      );
+
+      updatedItem.per_dozen_sale_price = parseFloat(
+        (
+          (updatedItem.purchase_price +
+            updatedItem.additional_cost +
+            updatedItem.profit) /
+          (updatedItem.dozen || 1)
+        ).toFixed(2)
+      );
+
+      updatedItem.per_sheet_or_piece_sale_price = parseFloat(
+        (
+          (updatedItem.purchase_price +
+            updatedItem.additional_cost +
+            updatedItem.profit) /
+          totalSheetPiece
+        ).toFixed(2)
+      );
+
+      updatedItem.per_rim_price = 0; // Not applicable for DOZEN
       updatedItem.per_rim_sale_price = 0;
     }
 
-    if (updatedItem.dozen > 0) {
-      updatedItem.per_dozen_price = parseFloat(
-        (updatedItem.per_sheet_or_piece_price * 12).toFixed(2)
-      );
-      updatedItem.per_dozen_sale_price = parseFloat(
-        (updatedItem.per_sheet_or_piece_sell_price * 12).toFixed(2)
-      );
-    } else {
-      updatedItem.per_dozen_price = 0;
-      updatedItem.per_dozen_sale_price = 0;
+    // 🔹 Disable Fields Based on Product Type
+    if (isRimA4) {
+      updatedItem.only_sheet_piece = 0; // Disable only_sheet_piece
+      updatedItem.dozen = 0; // Disable dozen
+    } else if (isDozen) {
+      updatedItem.rim = 0; // Disable rim
+      updatedItem.only_sheet_piece = 0; // Disable only_sheet_piece
     }
 
     setNewItem(updatedItem);
   };
 
-  const selectProduct = (product) => {
-    setSelectedProduct(product);
-    setSearchQuery(""); // Clear search
-    setFilteredProducts([]); // Reset filtered list
-    document.getElementById("productDetailsModal").close();
+  // 🔹 Function to Filter Products Based on Search Query
+  const handleSearchProduct = (e) => {
+    const query = e.target.value.toLowerCase();
+    setSearchQuery(query);
+
+    // ✅ Update only `product_name` in newItem so the user can type
+    setNewItem((prevItem) => ({
+      ...prevItem,
+      product_name: query,
+    }));
+
+    if (!query.trim()) {
+      setFilteredProducts([]); // Reset when input is empty
+      return;
+    }
+
+    const results = products.filter(
+      (item) =>
+        item.product_name.toLowerCase().includes(query) ||
+        item.company_name.toLowerCase().includes(query)
+    );
+
+    setFilteredProducts(results);
   };
 
+  // 🔹 Function to Select a Product from Search Results
+  const selectProduct = (product) => {
+    setNewItem((prevItem) => ({
+      ...prevItem,
+      product_name: product.product_name, // ✅ Set selected product
+      product: product.id, // ✅ Store product ID (if needed)
+      product_type: product.product_type,
+    }));
+
+    setSearchQuery(""); // ✅ Clear search query
+    setFilteredProducts([]); // ✅ Hide dropdown
+  };
 
   const handleSaveItem = (e) => {
     e.preventDefault(); // Prevent any form submission behavior
@@ -308,7 +353,6 @@ function PurchaseReceiveForm() {
     setShowInputForm(false); // Hide the form after saving
   };
 
-
   const handleRemoveRow = (indexToRemove) => {
     // Filter out the row to be removed
     const updatedTables = tables.filter((_, index) => index !== indexToRemove);
@@ -331,8 +375,6 @@ function PurchaseReceiveForm() {
     return new Date(date).toISOString().split("T")[0];
   };
 
-
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -347,10 +389,11 @@ function PurchaseReceiveForm() {
       formData.PurchaseItem.length === 0
     ) {
       console.error("❌ Missing required fields.");
-      alert("Please fill all required fields and add at least one purchase item.");
+      alert(
+        "Please fill all required fields and add at least one purchase item."
+      );
       return;
     }
-
 
     try {
       const response = await AxiosInstance.post("/purchases/", {
@@ -463,11 +506,14 @@ function PurchaseReceiveForm() {
       <h2 className="text-xl font-semibold mb-4 -mt-6 text-center">
         Purchase & Invoice Information
       </h2>
-      <form onSubmit={handleSubmit} onKeyDown={handleKeyDown} className="form-input" >
+      <form
+        onSubmit={handleSubmit}
+        onKeyDown={handleKeyDown}
+        className="form-input"
+      >
         <div className="p-4 rounded-xl grid grid-cols-7 gap-2 text-sm bg-white shadow-[0px_0px_30px_rgba(0,0,0,0.1) ] ">
-
           {/* 🔹 Company Selection (Dropdown) */}
-          <div>  
+          <div>
             <label className="block text-center">Company*</label>
             <select
               name="company"
@@ -522,12 +568,12 @@ function PurchaseReceiveForm() {
               onKeyDown={handleKeyDown}
             >
               <option value="Company Transport">Company Transport</option>
-              <option value="Sharif Paper & Stationary Transport">Sharif Paper & Stationary Transport</option>
+              <option value="Sharif Paper & Stationary Transport">
+                Sharif Paper & Stationary Transport
+              </option>
               <option value="Other Transport">Other Transport</option>
             </select>
           </div>
-
-
 
           {/* 5. Order Date */}
           <div>
@@ -555,7 +601,6 @@ function PurchaseReceiveForm() {
               onKeyDown={handleKeyDown}
             />
           </div>
-
 
           {/* 9. Delivery Date */}
           <div>
@@ -606,7 +651,6 @@ function PurchaseReceiveForm() {
               value={formData.godown}
               onChange={handleGodownChange}
               onKeyDown={handleKeyDown}
-
               className="mt-1 w-full border input-sm border-gray-300 rounded h-7 text-sm form-input"
             >
               <option value="">Select Godown</option>
@@ -647,7 +691,6 @@ function PurchaseReceiveForm() {
           </div>
         </div>
 
-
         <div className="mt-4">
           <h3 className="text-xl font-semibold mb-4 text-center">
             Item Details
@@ -661,10 +704,10 @@ function PurchaseReceiveForm() {
                 <tr className="bg-blue-100 text-center text-sm font-base">
                   <th className="border border-gray-300 p-2 font-medium">SI</th>
                   <th className="border border-gray-300 p-2 font-medium">
-                    Item Code
+                    Product Name
                   </th>
                   <th className="border border-gray-300 p-2 font-medium">
-                    Product Name
+                    Item Code
                   </th>
 
                   <th className="border border-gray-300 p-2 font-medium">
@@ -716,71 +759,65 @@ function PurchaseReceiveForm() {
               <tbody>
                 {/* New Item Input Row */}
                 <tr className="text-sm text-center">
-                  <td className="border border-gray-300 p-2">New</td>
-                  <td className="border border-gray-300 p-2">
-                    {/* Product Code Input */}
+                  <td className="border border-gray-300 p-1">New</td>
+
+                  {/* Product Name Search & Selection */}
+                  <td className="border border-gray-300 p-1">
+                    <div className="relative">
+                      <input
+                        type="text"
+                        name="product_name"
+                        value={newItem.product_name}
+                        className="mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs bg-white text-gray-600 p-1 form-input"
+                        onChange={handleSearchProduct}
+                        onKeyDown={handleKeyDown}
+                        placeholder="Search Product..."
+                      />
+                      {searchQuery && filteredProducts.length > 0 && (
+                        <ul className="absolute left-0 mt-1 w-full bg-white border border-gray-300 rounded shadow-lg max-h-48 overflow-y-auto z-10">
+                          {filteredProducts.map((product) => (
+                            <li
+                              key={product.id}
+                              className="p-2 cursor-pointer hover:bg-blue-100"
+                              onClick={() => selectProduct(product)}
+                            >
+                              {product.product_name}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  </td>
+
+                  {/* Product Code */}
+                  <td className="border border-gray-300 p-1">
                     <input
                       type="text"
                       name="product"
                       value={newItem.product}
-                      onChange={handleItemChange}
                       className="mt-1 p-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs form-input"
                       onKeyDown={handleKeyDown}
                       placeholder="Enter product code"
-                    />
-                  </td>
-                  {/* 
-                  <input
-  type="text"
-  name="product_name"
-  value={newItem.product_name}
-  className="mt-1  input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs bg-gray-100 text-gray-600 p-1 cursor-pointer"
-  placeholder="Click to Search Product"
-  readOnly
-  onClick={() => document.getElementById("productDetailsModal").showModal()}
-/>
-
-
-               
-                  <td className="border border-gray-300 p-2">
-                    <input
-                      type="number"
-                      name="rim"
-                      value={newItem.rim}
-                      onChange={handleItemChange}
-                      className="mt-1  input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs p-1"
-                      placeholder="Enter rim quantity"
-                      disabled={newItem.dozen}
-                    />
-                    
-                  </td> */}
-                  <td className="border border-gray-300 p-2">
-                    {/* Product Name Input (Read-Only) */}
-                    <input
-                      type="text"
-                      name="product_name"
-                      value={newItem.product_name}
-                      className="mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs bg-gray-100 text-gray-600 p-1 form-input"
-                      onChange={handleItemChange}
-                      onKeyDown={handleKeyDown}
-                      placeholder="Product Name"
                       readOnly
                     />
                   </td>
-                  <td className="border border-gray-300 p-2">
+
+                  {/* Rim Input - Disabled if DOZEN */}
+                  <td className="border border-gray-300 p-1">
                     <input
                       type="number"
                       name="rim"
                       value={newItem.rim}
                       onChange={handleItemChange}
                       onKeyDown={handleKeyDown}
-                      className="mt-1  input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs p-1 form-input"
+                      className="mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs p-1 form-input"
                       placeholder="Enter rim quantity"
-                      disabled={newItem.dozen}
+                      disabled={newItem.product_type === "DOZEN"}
                     />
-
                   </td>
-                  <td className="border border-gray-300 p-2">
+
+                  {/* Dozen Input - Disabled if RIM */}
+                  <td className="border border-gray-300 p-1">
                     <input
                       type="number"
                       name="dozen"
@@ -789,34 +826,39 @@ function PurchaseReceiveForm() {
                       onKeyDown={handleKeyDown}
                       className="mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs p-1 form-input"
                       placeholder="Enter dozen quantity"
-                      disabled={newItem.rim}
+                      disabled={
+                        newItem.product_type === "RIM-A4" ||
+                        newItem.product_type === "RIM-LEGAL"
+                      }
                     />
                   </td>
-                  <td className="border border-gray-300 p-2">
+
+                  {/* Only Sheet/Piece Input - Disabled for RIM-A4 */}
+                  <td className="border border-gray-300 p-1">
                     <input
                       type="number"
                       name="only_sheet_piece"
                       value={newItem.only_sheet_piece}
                       onChange={handleItemChange}
                       onKeyDown={handleKeyDown}
-                      className="mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs p-1"
-                      placeholder="Enter sheet/piece quantity"
-                    />
-                  </td>
-                  <td className="border border-gray-300 p-2">
-                    <input
-                      type="number"
-                      name="total_sheet_piece"
-                      value={newItem.total_sheet_piece}
-                      onChange={handleItemChange}
-                      onKeyDown={handleKeyDown}
                       className="mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs p-1 form-input"
-                      placeholder="Enter total sheet piece"
-                      readOnly
+                      placeholder="Enter sheet/piece quantity"
+                      disabled={newItem.product_type === "RIM-A4"}
                     />
                   </td>
 
-                  <td className="border border-gray-300 p-2">
+                  {/* Total Sheet/Piece - Readonly */}
+                  <input
+                    type="number"
+                    name="total_sheet_piece"
+                    value={newItem.total_sheet_piece}
+                    onChange={handleItemChange}
+                    className="mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs p-1 form-input"
+                    placeholder="Enter total sheet piece"
+                    readOnly={newItem.product_type === "RIM-A4"} // ✅ Disable when RIM-A4
+                  />
+
+                  <td className="border border-gray-300 p-1">
                     <input
                       type="number"
                       name="purchase_price"
@@ -828,8 +870,7 @@ function PurchaseReceiveForm() {
                     />
                   </td>
 
-
-                  <td className="border border-gray-300 p-2">
+                  <td className="border border-gray-300 p-1">
                     <input
                       type="number"
                       name="per_rim_or_dozen_price"
@@ -841,7 +882,7 @@ function PurchaseReceiveForm() {
                       readOnly
                     />
                   </td>
-                  <td className="border border-gray-300 p-2">
+                  <td className="border border-gray-300 p-1">
                     <input
                       type="number"
                       name="per_rim_or_dozen_price"
@@ -853,7 +894,7 @@ function PurchaseReceiveForm() {
                       readOnly
                     />
                   </td>
-                  <td className="border border-gray-300 p-2">
+                  <td className="border border-gray-300 p-1">
                     <input
                       type="number"
                       name="per_sheet_or_piece_price"
@@ -865,7 +906,7 @@ function PurchaseReceiveForm() {
                       readOnly
                     />
                   </td>
-                  <td className="border border-gray-300 p-2">
+                  <td className="border border-gray-300 p-1">
                     <input
                       type="number"
                       name="additional_cost"
@@ -876,7 +917,7 @@ function PurchaseReceiveForm() {
                       placeholder="Enter additional cost"
                     />
                   </td>
-                  <td className="border border-gray-300 p-2">
+                  <td className="border border-gray-300 p-1">
                     <input
                       type="number"
                       name="profit"
@@ -887,7 +928,7 @@ function PurchaseReceiveForm() {
                       placeholder="Enter profit"
                     />
                   </td>
-                  <td className="border border-gray-300 p-2">
+                  <td className="border border-gray-300 p-1">
                     <input
                       type="number"
                       name="per_rim_sale_price"
@@ -899,7 +940,7 @@ function PurchaseReceiveForm() {
                       readOnly
                     />
                   </td>
-                  <td className="border border-gray-300 p-2">
+                  <td className="border border-gray-300 p-1">
                     <input
                       type="number"
                       name="per_dozen_sale_price"
@@ -911,7 +952,7 @@ function PurchaseReceiveForm() {
                       readOnly
                     />
                   </td>
-                  <td className="border border-gray-300 p-2">
+                  <td className="border border-gray-300 p-1">
                     <input
                       type="number"
                       name="per_sheet_or_piece_sale_price"
@@ -923,12 +964,12 @@ function PurchaseReceiveForm() {
                       readOnly
                     />
                   </td>
-                  <td className="border border-gray-300 p-2">
+                  <td className="border border-gray-300 p-1">
                     <button
                       className="btn bg-blue-500 text-white btn-sm w-full"
                       onClick={handleSaveItem}
                     >
-                      OK
+                      Add
                     </button>
                   </td>
                 </tr>
