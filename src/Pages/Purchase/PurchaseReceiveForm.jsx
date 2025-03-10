@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
-import AxiosInstance from "../../components/AxiosInstance"; 
-import { useNavigate } from "react-router-dom";
+import AxiosInstance from "../../Components/AxiosInstance";
+
 import { useUser } from "../../Provider/UserProvider";
 
 function PurchaseReceiveForm() {
@@ -19,7 +19,6 @@ function PurchaseReceiveForm() {
   const [searchQuery, setSearchQuery] = useState(""); // 🔹 Fix: Define searchQuery
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null); // Store selected product
-  const navigate = useNavigate();
 
   const handleOpenModal = () => setIsModalOpen(true); // ✅ Open modal
   const handleCloseModal = () => setIsModalOpen(false); // ✅ Close modal
@@ -35,12 +34,10 @@ function PurchaseReceiveForm() {
         const companyResponse = await AxiosInstance.get("/companies/");
         setCompanies(companyResponse.data);
         console.log(companyResponse.data);
-        const purchaseResponse = await AxiosInstance.get("/purchases/");
-        setPurchases(purchaseResponse.data);
-        console.log(setPurchases)
 
         const godownResponse = await AxiosInstance.get("/godowns/");
         setGodowns(godownResponse.data);
+        console.log(godowns);
 
         const productResponse = await AxiosInstance.get("/products/");
         setProducts(productResponse.data);
@@ -153,20 +150,36 @@ function PurchaseReceiveForm() {
   const handleItemChange = (e) => {
     const { name, value } = e.target;
 
-    // Convert input values to numbers where needed
+    // Convert input values to numbers where needed, keeping empty values as ""
     const numericValue = value === "" ? "" : parseFloat(value) || 0;
 
     let updatedItem = { ...newItem, [name]: numericValue };
 
-    // 🔹 Auto-fill `product_name` and `product_type` based on `product_code`
-    if (name === "product") {
-      const selectedProduct = products.find((p) => p.product_code === value);
+    // 🔹 Reset dependent fields when product_name changes
+    if (name === "product_name") {
+      const selectedProduct = products.find(
+        (p) => p.product_name.toLowerCase() === value.toLowerCase()
+      );
+
       if (selectedProduct) {
-        updatedItem.product_name = selectedProduct.product_name;
-        updatedItem.product_type = selectedProduct.product_type;
-      } else {
-        updatedItem.product_name = "";
-        updatedItem.product_type = "";
+        updatedItem = {
+          product: selectedProduct.product_code,
+          product_name: selectedProduct.product_name,
+          product_type: selectedProduct.product_type,
+          purchase_price: "",
+          rim: "",
+          dozen: "",
+          only_sheet_piece: "",
+          total_sheet_piece: "",
+          per_dozen_price: "",
+          per_rim_price: "",
+          per_sheet_or_piece_price: "",
+          additional_cost: "",
+          profit: "",
+          per_rim_sale_price: "",
+          per_dozen_sale_price: "",
+          per_piece_or_sheet_sale_price: "",
+        };
       }
     }
 
@@ -174,107 +187,100 @@ function PurchaseReceiveForm() {
     const isRimLegal = updatedItem.product_type === "RIM-LEGAL";
     const isDozen = updatedItem.product_type === "DOZEN";
 
+    // Convert only numeric values for calculations
+    const purchasePrice = parseFloat(updatedItem.purchase_price) || 0;
+    const additionalCost = parseFloat(updatedItem.additional_cost) || 0;
+    const profit = parseFloat(updatedItem.profit) || 0;
+    const rim = parseFloat(updatedItem.rim) || 0;
+    const dozen = parseFloat(updatedItem.dozen) || 0;
+    const onlySheetPiece = parseFloat(updatedItem.only_sheet_piece) || 0;
+
     // 🔹 Handle Total Sheet/Piece Calculation
     if (isRimLegal) {
-      // Convert Rim to Sheets for "RIM-LEGAL"
-      updatedItem.total_sheet_piece =
-        (updatedItem.rim || 0) * 500 + (updatedItem.only_sheet_piece || 0);
-    } else if (isDozen) {
-      // Convert Dozen to Sheets (1 Dozen = 12 Sheets)
-      updatedItem.total_sheet_piece = (updatedItem.dozen || 0) * 12;
-    } else {
-      updatedItem.total_sheet_piece = updatedItem.rim || 0; // No sheet conversion for "RIM-A4"
-    }
+      updatedItem.total_sheet_piece = rim * 500 + onlySheetPiece || "";
 
-    // Avoid division by zero
-    const totalSheetPiece = updatedItem.total_sheet_piece || 1;
+      updatedItem.per_sheet_or_piece_price = purchasePrice
+        ? parseFloat((purchasePrice / updatedItem.total_sheet_piece).toFixed(2))
+        : "";
 
-    // 🔹 Calculate Prices Based on Product Type
-    if (isRimLegal) {
-      // If "RIM-LEGAL", calculate per sheet price and all values
-      updatedItem.per_sheet_or_piece_price = parseFloat(
-        ((updatedItem.purchase_price || 0) / totalSheetPiece).toFixed(2)
-      );
+      updatedItem.per_rim_price = updatedItem.per_sheet_or_piece_price
+        ? parseFloat((updatedItem.per_sheet_or_piece_price * 500).toFixed(2))
+        : "";
 
-      updatedItem.per_rim_price = parseFloat(
-        (updatedItem.per_sheet_or_piece_price * 500).toFixed(2)
-      );
+      updatedItem.per_piece_or_sheet_sale_price = purchasePrice
+        ? parseFloat(
+            (
+              (purchasePrice + additionalCost + profit) /
+              updatedItem.total_sheet_piece
+            ).toFixed(2)
+          )
+        : "";
 
-      updatedItem.per_piece_or_sheet_sale_price = parseFloat(
-        (
-          (updatedItem.purchase_price +
-            updatedItem.additional_cost +
-            updatedItem.profit) /
-          totalSheetPiece
-        ).toFixed(2)
-      );
+      updatedItem.per_rim_sale_price = updatedItem.per_piece_or_sheet_sale_price
+        ? parseFloat(
+            (updatedItem.per_piece_or_sheet_sale_price * 500).toFixed(2)
+          )
+        : "";
 
-      updatedItem.per_rim_sale_price = parseFloat(
-        (updatedItem.per_piece_or_sheet_sale_price * 500).toFixed(2)
-      );
-
-      updatedItem.per_dozen_price = 0; // Not applicable for RIM-LEGAL
-      updatedItem.per_dozen_sale_price = 0;
+      updatedItem.per_dozen_price = "";
+      updatedItem.per_dozen_sale_price = "";
     } else if (isRimA4) {
-      updatedItem.only_sheet_piece = 0; // No need for sheet count
-      updatedItem.total_sheet_piece = 0;
-      // If "RIM-A4", calculate only rim price and sale price
-      updatedItem.per_rim_price = parseFloat(
-        (updatedItem.purchase_price / (updatedItem.rim || 1)).toFixed(2)
-      );
+      updatedItem.only_sheet_piece = "";
+      updatedItem.total_sheet_piece = "";
 
-      updatedItem.per_rim_sale_price = parseFloat(
-        (
-          (updatedItem.purchase_price +
-            updatedItem.additional_cost +
-            updatedItem.profit) /
-          (updatedItem.rim || 1)
-        ).toFixed(2)
-      );
+      updatedItem.per_rim_price = purchasePrice
+        ? parseFloat((purchasePrice / (rim || 1)).toFixed(2))
+        : "";
 
-      updatedItem.per_sheet_or_piece_price = 0; // No sheet conversion needed
-      updatedItem.per_piece_or_sheet_sale_price = 0;
-      updatedItem.per_dozen_price = 0; // Not applicable for RIM-A4
-      updatedItem.per_dozen_sale_price = 0;
+      updatedItem.per_rim_sale_price = purchasePrice
+        ? parseFloat(
+            ((purchasePrice + additionalCost + profit) / (rim || 1)).toFixed(2)
+          )
+        : "";
+
+      updatedItem.per_sheet_or_piece_price = "";
+      updatedItem.per_piece_or_sheet_sale_price = "";
+      updatedItem.per_dozen_price = "";
+      updatedItem.per_dozen_sale_price = "";
     } else if (isDozen) {
-      // If "DOZEN", calculate per dozen price and per sheet price
-      updatedItem.per_dozen_price = parseFloat(
-        (updatedItem.purchase_price / (updatedItem.dozen || 1)).toFixed(2)
-      );
+      updatedItem.total_sheet_piece = dozen * 12 || "";
 
-      updatedItem.per_sheet_or_piece_price = parseFloat(
-        ((updatedItem.purchase_price || 0) / totalSheetPiece).toFixed(2)
-      );
+      updatedItem.per_dozen_price = purchasePrice
+        ? parseFloat((purchasePrice / (dozen || 1)).toFixed(2))
+        : "";
 
-      updatedItem.per_dozen_sale_price = parseFloat(
-        (
-          (updatedItem.purchase_price +
-            updatedItem.additional_cost +
-            updatedItem.profit) /
-          (updatedItem.dozen || 1)
-        ).toFixed(2)
-      );
+      updatedItem.per_sheet_or_piece_price = purchasePrice
+        ? parseFloat((purchasePrice / updatedItem.total_sheet_piece).toFixed(2))
+        : "";
 
-      updatedItem.per_sheet_or_piece_sale_price = parseFloat(
-        (
-          (updatedItem.purchase_price +
-            updatedItem.additional_cost +
-            updatedItem.profit) /
-          totalSheetPiece
-        ).toFixed(2)
-      );
+      updatedItem.per_dozen_sale_price = purchasePrice
+        ? parseFloat(
+            ((purchasePrice + additionalCost + profit) / (dozen || 1)).toFixed(
+              2
+            )
+          )
+        : "";
 
-      updatedItem.per_rim_price = 0; // Not applicable for DOZEN
-      updatedItem.per_rim_sale_price = 0;
+      updatedItem.per_sheet_or_piece_sale_price = purchasePrice
+        ? parseFloat(
+            (
+              (purchasePrice + additionalCost + profit) /
+              updatedItem.total_sheet_piece
+            ).toFixed(2)
+          )
+        : "";
+
+      updatedItem.per_rim_price = "";
+      updatedItem.per_rim_sale_price = "";
     }
 
-    // 🔹 Disable Fields Based on Product Type
+    // 🔹 Disable Fields Based on Product Type & Apply Gray-200 Style
     if (isRimA4) {
-      updatedItem.only_sheet_piece = 0; // Disable only_sheet_piece
-      updatedItem.dozen = 0; // Disable dozen
+      updatedItem.only_sheet_piece = "";
+      updatedItem.dozen = "";
     } else if (isDozen) {
-      updatedItem.rim = 0; // Disable rim
-      updatedItem.only_sheet_piece = 0; // Disable only_sheet_piece
+      updatedItem.rim = "";
+      updatedItem.only_sheet_piece = "";
     }
 
     setNewItem(updatedItem);
@@ -285,24 +291,28 @@ function PurchaseReceiveForm() {
     const query = e.target.value.toLowerCase();
     setSearchQuery(query);
 
-    // ✅ Update only `product_name` in newItem so the user can type
+    // ✅ Update only `product_name` in `newItem` to allow typing
     setNewItem((prevItem) => ({
       ...prevItem,
       product_name: query,
     }));
 
     if (!query.trim()) {
-      setFilteredProducts([]); // Reset when input is empty
+      setFilteredProducts([]); // ✅ Reset when input is empty
       return;
     }
 
-    const results = products.filter(
-      (item) =>
-        item.product_name.toLowerCase().includes(query) ||
-        item.company_name.toLowerCase().includes(query)
-    );
+    // ✅ Ensure products exist before filtering
+    if (products.length > 0) {
+      const results = products.filter(
+        (item) =>
+          item.product_name.toLowerCase().includes(query) ||
+          (item.company &&
+            item.company.company_name.toLowerCase().includes(query)) // ✅ Access company_name correctly
+      );
 
-    setFilteredProducts(results);
+      setFilteredProducts(results); // ✅ Update filtered products
+    }
   };
 
   // 🔹 Function to Select a Product from Search Results
@@ -379,74 +389,84 @@ function PurchaseReceiveForm() {
     return new Date(date).toISOString().split("T")[0];
   };
 
-  const handleSubmit = async (e) => {
+
+const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (
-      !formData.company ||
-      !formData.order_no ||
-      !formData.invoice_challan_no ||
-      !formData.delivery_no ||
-      !formData.transport_type ||
-      !formData.payment_type ||
-      !formData.godown ||
-      formData.PurchaseItem.length === 0
-    ) {
-      console.error("❌ Missing required fields.");
-      alert(
-        "Please fill all required fields and add at least one purchase item."
-      );
-      return;
-    }
-
     try {
-      const response = await AxiosInstance.post("/purchases/", {
-        ...formData,
-        order_date: formatDate(formData.order_date),
-        invoice_challan_date: formatDate(formData.invoice_challan_date),
-        delivery_date: formatDate(formData.delivery_date),
-        cheque_date: formatDate(formData.cheque_date),
+        // Function to properly format dates (handles empty dates)
+        const formatDate = (date) => {
+            if (!date || date === "") return null; // ✅ Return null for optional fields
+            return new Date(date).toISOString().split("T")[0]; // Convert to YYYY-MM-DD format
+        };
 
-        // 🔹 Ensure `items` (PurchaseItem) is included in the request
-        purchase_items: formData.PurchaseItem, // ✅ This should match your Django serializer
-      });
+        // Ensure proper conversion of numeric values
+        const formattedItems = formData.PurchaseItem.map(item => ({
+            product: item.product, 
+            purchase_price: parseFloat(item.purchase_price) || 0, 
+            rim: parseInt(item.rim) || 0,
+            dozen: parseInt(item.dozen) || 0,
+            only_sheet_or_piece: parseInt(item.only_sheet_piece) || 0,
+            total_sheet_or_piece: parseInt(item.total_sheet_piece) || 0,
+            per_rim_price: parseFloat(item.per_rim_price) || 0,
+            per_dozen_price: parseFloat(item.per_dozen_price) || 0,
+            per_sheet_or_piece_price: parseFloat(item.per_sheet_or_piece_price) || 0,
+            additional_cost: parseFloat(item.additional_cost) || 0,
+            profit: parseFloat(item.profit) || 0,
+            per_rim_sell_price: parseFloat(item.per_rim_sale_price) || 0,
+            per_dozen_sell_price: parseFloat(item.per_dozen_sale_price) || 0,
+            per_sheet_or_piece_sell_price: parseFloat(item.per_piece_or_sheet_sale_price) || 0
+        }));
 
-      console.log("✅ Purchase Data Submitted Successfully:", response.data);
-      alert("Purchase data submitted successfully!");
+        const requestData = {
+            ...formData,
+            order_date: formatDate(formData.order_date),
+            invoice_challan_date: formatDate(formData.invoice_challan_date),
+            delivery_date: formatDate(formData.delivery_date),
+            cheque_date: formData.payment_type === "Cheque" ? formatDate(formData.cheque_date) : null, // ✅ Only include cheque_date if payment_type is "Cheque"
 
-      // Optionally reset form
-      setFormData({
-        company: "",
-        // order_date: "",
-        order_date: new Date().toISOString().split("T")[0],
-        order_no: "",
-        invoice_challan_date: getTodayDate(),
-        invoice_challan_no: "",
-        transport_type: "",
-        delivery_date: new Date().toISOString().split("T")[0],
-        delivery_no: "",
-        driver_name: "",
-        driver_mobile_no: "",
-        vehicle_no: "",
-        godown: "",
-        entry_by: "",
-        remarks: "",
-        previous_due: 0.0,
-        invoice_challan_amount: 0.0,
-        today_paid_amount: 0.0,
-        payment_type: "",
-        bank_name: "",
-        account_no: "",
-        cheque_no: "",
-        cheque_date: "",
-        balance_amount: 0.0,
-        PurchaseItem: [], // Reset items array
-      });
+            items: formattedItems.length > 0 ? formattedItems : undefined, // ✅ Avoid sending empty array
+        };
+
+        const response = await AxiosInstance.post("/purchases/", requestData);
+
+        console.log("✅ Purchase Data Submitted Successfully:", response.data);
+        alert("Purchase data submitted successfully!");
+
+        // ✅ Reset form after successful submission
+        setFormData({
+            company: "",
+            order_date: new Date().toISOString().split("T")[0],
+            order_no: "",
+            invoice_challan_date: new Date().toISOString().split("T")[0],
+            invoice_challan_no: "",
+            transport_type: "",
+            delivery_date: new Date().toISOString().split("T")[0],
+            delivery_no: "",
+            driver_name: "",
+            driver_mobile_no: "",
+            vehicle_no: "",
+            godown: "",
+            entry_by: "",
+            remarks: "",
+            previous_due: 0.0,
+            invoice_challan_amount: 0.0,
+            today_paid_amount: 0.0,
+            payment_type: "",
+            bank_name: "",
+            account_no: "",
+            cheque_no: "",
+            cheque_date: "",
+            balance_amount: 0.0,
+            PurchaseItem: [], // Reset items array
+        });
     } catch (error) {
-      console.error("❌ Error submitting purchase data:", error.response?.data);
-      alert("Failed to submit purchase data. Please try again.");
+        console.error("❌ Error submitting purchase data:", error.response?.data);
+        alert("Failed to submit purchase data. Please try again.");
     }
-  };
+};
+
+
 
   const handlePDFExport = () => {
     const doc = new jsPDF();
@@ -488,6 +508,7 @@ function PurchaseReceiveForm() {
     // Save the PDF
     doc.save("purchase_items.pdf");
   };
+
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
       e.preventDefault(); // ✅ Prevent form submission
@@ -507,16 +528,9 @@ function PurchaseReceiveForm() {
 
   return (
     <div className="m-8 mb-0 mx-12">
-      <div className="flex justify-between items-center mb-4">
-  <h2 className="text-xl font-bold">Purchase & Invoice Information</h2>
-  <button
-    onClick={() => navigate("/purchase-list")} // Adjust the path as needed
-    className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
-  >
-    Go to List
-  </button>
-</div>
-
+      <h2 className="text-xl font-semibold mb-4 -mt-6 text-center">
+        Purchase & Invoice Information
+      </h2>
       <form
         onSubmit={handleSubmit}
         onKeyDown={handleKeyDown}
@@ -821,7 +835,9 @@ function PurchaseReceiveForm() {
                       value={newItem.rim}
                       onChange={handleItemChange}
                       onKeyDown={handleKeyDown}
-                      className="mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs p-1 form-input"
+                      className={`mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs p-1 form-input ${
+                        newItem.product_type === "DOZEN" ? "bg-gray-200" : ""
+                      }`}
                       placeholder="Enter rim quantity"
                       disabled={newItem.product_type === "DOZEN"}
                     />
@@ -835,7 +851,12 @@ function PurchaseReceiveForm() {
                       value={newItem.dozen}
                       onChange={handleItemChange}
                       onKeyDown={handleKeyDown}
-                      className="mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs p-1 form-input"
+                      className={`mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs p-1 form-input ${
+                        newItem.product_type === "RIM-A4" ||
+                        newItem.product_type === "RIM-LEGAL"
+                          ? "bg-gray-200"
+                          : ""
+                      }`}
                       placeholder="Enter dozen quantity"
                       disabled={
                         newItem.product_type === "RIM-A4" ||
@@ -852,22 +873,28 @@ function PurchaseReceiveForm() {
                       value={newItem.only_sheet_piece}
                       onChange={handleItemChange}
                       onKeyDown={handleKeyDown}
-                      className="mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs p-1 form-input"
+                      className={`mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs p-1 form-input ${
+                        newItem.product_type === "RIM-A4" ? "bg-gray-200" : ""
+                      }`}
                       placeholder="Enter sheet/piece quantity"
                       disabled={newItem.product_type === "RIM-A4"}
                     />
                   </td>
 
                   {/* Total Sheet/Piece - Readonly */}
-                  <input
-                    type="number"
-                    name="total_sheet_piece"
-                    value={newItem.total_sheet_piece}
-                    onChange={handleItemChange}
-                    className="mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs p-1 form-input"
-                    placeholder="Enter total sheet piece"
-                    readOnly={newItem.product_type === "RIM-A4"} // ✅ Disable when RIM-A4
-                  />
+                  <td className="border border-gray-300 p-1">
+                    <input
+                      type="number"
+                      name="total_sheet_piece"
+                      value={newItem.total_sheet_piece}
+                      onChange={handleItemChange}
+                      className={`mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs p-1 form-input ${
+                        newItem.product_type === "RIM-A4" ? "bg-gray-200" : ""
+                      }`}
+                      placeholder="Enter total sheet piece"
+                      readOnly={newItem.product_type === "RIM-A4"}
+                    />
+                  </td>
 
                   <td className="border border-gray-300 p-1">
                     <input
@@ -966,8 +993,8 @@ function PurchaseReceiveForm() {
                   <td className="border border-gray-300 p-1">
                     <input
                       type="number"
-                      name="per_sheet_or_piece_sale_price"
-                      value={newItem.per_sheet_or_piece_sell_price}
+                      name="per_piece_or_sheet_sale_price"
+                      value={newItem.per_piece_or_sheet_sale_price}
                       onChange={handleItemChange}
                       onKeyDown={handleKeyDown}
                       className="mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs p-1 form-input"
