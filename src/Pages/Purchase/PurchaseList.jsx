@@ -101,38 +101,72 @@ const PurchaseList = () => {
       </div>
 
       <div className="overflow-x-auto p-6">
-        <table className="table-auto w-full border-collapse border border-gray-300">
-          <thead>
-            <tr className="bg-blue-950 text-white text-sm">
-              <th className="border p-2">তথ্যাদি</th>
-              <th className="border p-2">SL</th>
-              <th className="border p-2">রিসিপ্ট নং</th>
-              <th className="border p-2">তারিখ</th>
-              <th className="border p-2">কোম্পানির নাম</th>
-              <th className="border p-2">পণ্যের নাম</th>
-              <th className="border p-2">মোট দাম</th>
-              <th className="border p-2">খরচের তথ্যাদি</th>
-              <th className="border p-2">Edit</th>
-              <th className="border p-2">Invoice</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredPurchases.map((purchase, index) => (
-              <tr key={purchase.id} className="bg-gray-100 text-sm">
-                <td className="border p-2 text-center">#</td>
-                <td className="border p-2 text-center">{index + 1}</td>
-                <td className="border p-2 text-center">{purchase.receipt_number}</td>
-                <td className="border p-2 text-center">{purchase.date}</td>
-                <td className="border p-2 text-center">{companies.find((c) => c.id === purchase.company)?.name || "Unknown"}</td>
-                <td className="border p-2 text-center">{products.find((product) => product.id === purchase.product_id)?.name || "Unknown"}</td>
-                <td className="border p-2 text-center">{purchase.total_amount}</td>
-                <td className="border p-2 text-center">Details</td>
-                <td className="border p-2 text-center">✏</td>
-                <td className="border p-2 text-center text-red-500"><IoMdPrint /></td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <table className="table-auto w-full border-collapse border border-gray-300">
+  <thead>
+    <tr className="bg-blue-950 text-white text-sm">
+      <th className="border p-2">#</th>
+      <th className="border p-2">SL No</th>
+      <th className="border p-2">Receipt No</th>
+      <th className="border p-2">Date</th>
+      <th className="border p-2">Company Name</th>
+      <th className="border p-2">Product Name</th>
+      <th className="border p-2">Total Amount</th>
+      <th className="border p-2">Previous Due</th>
+      <th className="border p-2">Paid Amount</th>
+      <th className="border p-2">Balance</th>
+      <th className="border p-2">Payment Type</th>
+      <th className="border p-2">Bank Name</th>
+      <th className="border p-2">Cheque No</th>
+      <th className="border p-2">Cheque Date</th>
+      <th className="border p-2">Edit</th>
+      <th className="border p-2">Invoice</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    {filteredPurchases.map((purchase, index) => (
+      <tr key={purchase.id} className="bg-gray-100 text-sm">
+        <td className="border p-2 text-center">#</td>
+        <td className="border p-2 text-center">{index + 1}</td>
+        <td className="border p-2 text-center">{purchase.order_no || "N/A"}</td>
+        <td className="border p-2 text-center">{purchase.order_date}</td>
+
+        {/* Fetch Company Name */}
+        <td className="border p-2 text-center">
+          {companies.find((c) => c.id === purchase.company)?.name || "Unknown"}
+        </td>
+
+        {/* Fetch Product Name */}
+        <td className="border p-2 text-center">
+          {products.find((p) => p.id === purchase.items[0]?.product_id)?.name || "N/A"}
+        </td>
+
+        <td className="border p-2 text-center">{purchase.invoice_challan_amount}</td>
+        <td className="border p-2 text-center">{purchase.previous_due}</td>
+        <td className="border p-2 text-center">{purchase.today_paid_amount}</td>
+        <td className="border p-2 text-center">{purchase.balance_amount}</td>
+
+        <td className="border p-2 text-center">{purchase.payment_type}</td>
+        <td className="border p-2 text-center">{purchase.bank_name || "N/A"}</td>
+        <td className="border p-2 text-center">{purchase.cheque_no || "N/A"}</td>
+        <td className="border p-2 text-center">{purchase.cheque_date || "N/A"}</td>
+
+        {/* Edit Button - Fixed */}
+        <td className="border p-2 text-center">
+          <span className="text-blue-500 cursor-pointer">✏ Edit</span>
+        </td>
+
+        {/* Invoice Icon - Now Red */}
+        <td className="border p-2 text-center">
+          <span className="text-red-500 cursor-pointer">
+            <IoMdPrint />
+          </span>
+        </td>
+      </tr>
+    ))}
+  </tbody>
+</table>
+
       </div>
     </div>
   );

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import AxiosInstance from "../../components/AxiosInstance";
-
+import { ToastContainer, toast } from "react-toastify";
 const AddEditPurchase = () => {
   const navigate = useNavigate();
   const [companies, setCompanies] = useState([]);
@@ -26,7 +26,7 @@ const AddEditPurchase = () => {
     bank_name: "",
     account_no: "",
     cheque_no: "",
-    cheque_date: "",
+    cheque_date: new Date().toISOString().split("T")[0],
     balance_amount: "",
     company: "",
     godown: "",
@@ -74,11 +74,11 @@ const AddEditPurchase = () => {
           "Content-Type": "application/json",
         },
       });
-      console.log("Response:", response.data);
-      alert("Purchase saved successfully!");
+      toast.success("Purchase saved successfully!", { position: "top-right" }); // Show toast
+      setTimeout(() => navigate("/purchase-list"), 2000); // Redirect after 2 seconds
     } catch (error) {
       console.error("Error submitting form:", error.response ? error.response.data : error);
-      alert("Failed to save purchase. Check console for details.");
+      toast.error("Failed to save purchase. Check console for details.");
     }
   };
 
@@ -86,7 +86,7 @@ const AddEditPurchase = () => {
     <div className="mt-2 mx-4">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-bold">Purchase & Invoice Information</h2>
-        <Link to="/purchase-list" className="btn bg-blue-600 text-white">
+        <Link to="/purchase-list" className="btn bg-blue-950 text-white">
           Go to List
         </Link>
       </div>

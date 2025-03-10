@@ -511,7 +511,7 @@ function PurchaseReceiveForm() {
   <h2 className="text-xl font-bold">Purchase & Invoice Information</h2>
   <button
     onClick={() => navigate("/purchase-list")} // Adjust the path as needed
-    className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
+    className="bg-blue-950 hover:bg-blue-950 text-white font-bold py-2 px-4 rounded"
   >
     Go to List
   </button>
