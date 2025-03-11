@@ -29,7 +29,6 @@ import PaymentType from "../Pages/Master/PaymentType.jsx";
 import Company from "../Pages/Master/Company.jsx";
 import ProtectedRoute from "../Provider/ProtectedRoute.jsx"
 import Customer from "../Pages/Master/Customer.jsx";
-// import ProtectedRoute from "../Provider/ProtectedRoute.jsx"
 import Dashboard from "../Pages/DashboardPage/Dashboard.jsx"
 import CompanyProducts from "../Pages/Master/CompanyProducts.jsx";
 import PurchaseList from "../Pages/Purchase/PurchaseList.jsx";
@@ -68,7 +67,7 @@ export const router = createBrowserRouter([
       },
 
       {
-        path:"/products/:companyId",
+        path:"/company/:companyId",
         element: <CompanyProducts></CompanyProducts>,
       },
       
@@ -148,6 +147,7 @@ export const router = createBrowserRouter([
         path: "/admin",
         element:<AdminDashboard></AdminDashboard>,
       },
+    
       {
         path: "/products",
         element: <Products></Products>,
@@ -166,10 +166,6 @@ export const router = createBrowserRouter([
         element:<PaymentType></PaymentType>,
       },
   
-      // {
-      //   path: "/signup",
-      //   element: <SignUp></SignUp>,
-      // },
     ],
   },
 ]);

@@ -3,7 +3,6 @@ import { TiPlus } from "react-icons/ti";
 import { FaEdit } from "react-icons/fa";
 import { ImCross } from "react-icons/im";
 import { toast, Toaster } from "react-hot-toast";
-import axios from "axios";
 import AxiosInstance from "../../Components/AxiosInstance";
 import { Link } from "react-router-dom";
 
@@ -12,6 +11,7 @@ const Company = () => {
   const [backupCompany, setBackupCompany] = useState([]); // Stores original company list
   const [searchTerm, setSearchTerm] = useState(""); // Stores search term
   const [selectedCompany, setSelectedCompany] = useState(null); // Track selected company for product add
+  const [products, setProducts] = useState([]); // ✅ Declare products state
 
   const [newCompany, setNewCompany] = useState({
     company_name: "",
@@ -67,7 +67,6 @@ const Company = () => {
         previous_due: previous_due ? parseFloat(previous_due) : 0.0, // Convert to float
       });
 
-      console.log("Server Response:", response); // ✅ Debugging response
 
       if (response.status === 201) {
         // Add the new company directly to the company state
@@ -187,6 +186,8 @@ const Company = () => {
       company_id: selectedCompany.id, // Send only the company ID
       product_name: productData.product_name,
       product_type: productData.product_type,
+      date: new Date().toISOString().split('T')[0] // Ensures YYYY-MM-DD format
+
     };
 
     try {
@@ -318,7 +319,7 @@ const Company = () => {
                     </button>
 
                     <Link
-                      to={`/products/${item.id}`} // ✅ Navigate to Product page of this company
+                      to={`/company/${item.id}`} // ✅ Navigate to Product page of this company
                       className=""
                       onClick={(e) => e.stopPropagation()} // ✅ Prevent row click event
                     >
