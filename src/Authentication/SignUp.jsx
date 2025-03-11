@@ -5,6 +5,7 @@ import AxiosInstance from "../../src/Components/AxiosInstance";
 import { LuDelete } from "react-icons/lu";
 import { useUser } from "../../src/Provider/UserProvider";
 import { FaEye, FaEyeSlash } from "react-icons/fa"; // Eye icons
+import { toast, Toaster } from "react-hot-toast"; 
 
 const SignUp = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -90,12 +91,29 @@ const SignUp = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (user.password !== user.confirm_password) {
-      alert("Passwords do not match!");
+  
+    // ✅ Validation for Required Fields
+    if (!user.username.trim()) {
+      toast.error("⚠️ Username is required!");
       return;
     }
-
+  
+ 
+    if (!user.password.trim()) {
+      toast.error("⚠️ Password is required!");
+      return;
+    }
+    if (!user.confirm_password.trim()) {
+      toast.error("⚠️ Confirm password is required!");
+      return;
+    }
+  
+    // ✅ Check if passwords match
+    if (user.password !== user.confirm_password) {
+      toast.error(" Passwords do not match!");
+      return;
+    }
+  
     const formData = new FormData();
     formData.append("username", user.username);
     formData.append("email", user.email);
@@ -105,14 +123,16 @@ const SignUp = () => {
     }
     formData.append("password", user.password);
     formData.append("confirm_password", user.confirm_password);
-
+  
     try {
       const response = await AxiosInstance.post("/register/", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-
-      console.log("Server Response:", response.data);
-
+  
+      console.log("✅ Server Response:", response.data);
+      toast.success(" Registration successful!");
+  
+      // ✅ Reset form after successful registration
       setUser({
         username: "",
         email: "",
@@ -122,13 +142,13 @@ const SignUp = () => {
         confirm_password: "",
       });
       setShowName1("");
-      alert("Registration successful!");
       navigate("/company");
     } catch (error) {
-      console.error("Error:", error.response?.data || error.message);
-      alert(error.response?.data?.message || "Something went wrong!");
+      console.error("❌ Error:", error.response?.data || error.message);
+      toast.error(error.response?.data?.message || "Something went wrong!");
     }
   };
+  
 
   return (
     <div className="w-80 md:w-96 my-16 lg:w-[800px] mx-auto bg-white flex items-center relative overflow-hidden shadow-xl">
@@ -185,7 +205,7 @@ const SignUp = () => {
               name="phone"
               value={user.phone}
               onChange={(e) => setUser({ ...user, phone: e.target.value })}
-              required
+          
               placeholder="Enter Mobile Number"
               className="p-3 h-8 text-sm block w-full outline-none border rounded-md border-black"
             />
@@ -377,6 +397,8 @@ const SignUp = () => {
           Login
         </button>
       </form>
+        {/* ✅ Hot Toast Notification */}
+        <Toaster position="top-center" reverseOrder={false} />
     </div>
   );
 };

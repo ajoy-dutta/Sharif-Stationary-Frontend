@@ -31,6 +31,8 @@ import ProtectedRoute from "../Provider/ProtectedRoute.jsx"
 import Customer from "../Pages/Master/Customer.jsx";
 import Dashboard from "../Pages/DashboardPage/Dashboard.jsx"
 import CompanyProducts from "../Pages/Master/CompanyProducts.jsx";
+import PurchaseList from "../Pages/Purchase/PurchaseList.jsx";
+import AddEditPurchase from "../Pages/Purchase/AddEditPurchase.jsx";
 
 
 export const router = createBrowserRouter([
@@ -65,7 +67,7 @@ export const router = createBrowserRouter([
       },
 
       {
-        path:"/products/:companyId",
+        path:"/company/:companyId",
         element: <CompanyProducts></CompanyProducts>,
       },
       
@@ -78,6 +80,14 @@ export const router = createBrowserRouter([
       {
         path: "/purchase",
         element: <PurchaseReceiveForm></PurchaseReceiveForm>,
+      },
+      {
+        path: "/purchase-list",
+        element: <PurchaseList></PurchaseList>,
+      },
+      {
+        path: "/add-purchase",
+        element: <AddEditPurchase></AddEditPurchase>,
       },
       {
         path: "/transfer",
@@ -155,10 +165,6 @@ export const router = createBrowserRouter([
         element:<PaymentType></PaymentType>,
       },
   
-      // {
-      //   path: "/signup",
-      //   element: <SignUp></SignUp>,
-      // },
     ],
   },
 ]);
