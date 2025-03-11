@@ -18,6 +18,7 @@ import PurchaseReceiveForm from "../Pages/Purchase/PurchaseReceiveForm.jsx";
 import ShopkeeperProfile from "../ShopKeeper/ShopKeeperProfile.jsx";
 import UserProfile from "../Users/UserProfile.jsx";
 import AdminDashboard from "../Admin/AdminDashord/AdminDashboard.jsx";
+import SignIn from "../SignIn.jsx";
 
 export const router = createBrowserRouter([
   {
@@ -81,9 +82,10 @@ export const router = createBrowserRouter([
         path: "/admin",
         element:<AdminDashboard></AdminDashboard>,
       },
+    
       {
-        path: "/login",
-        element: <Login></Login>,
+        path: "/sign-in",
+        element: <SignIn></SignIn>,
       },
       {
         path: "/signup",

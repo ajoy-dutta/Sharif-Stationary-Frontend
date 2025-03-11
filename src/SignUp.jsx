@@ -1,4 +1,4 @@
-import React, { useState } from "react"; // <-- Import useState here
+import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FcGoogle } from "react-icons/fc";
 import axios from "axios";
@@ -7,10 +7,16 @@ import { TbFidgetSpinner } from "react-icons/tb";
 
 const SignUp = () => {
   const [formData, setFormData] = useState({
-    name: "",
+    companyName: "",
+    ownerName: "",
+    phone1: "",
+    phone2: "",
     email: "",
     password: "",
     confirmPassword: "",
+    extraField1: "",
+    extraField2: "",
+    extraField3: "",
   });
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -47,73 +53,38 @@ const SignUp = () => {
     <div className="flex justify-center items-center min-h-screen bg-gray-100">
       <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-md">
         <h2 className="text-2xl font-semibold text-center text-blue-950 mb-6">
-          Sign Up for Sharif Shop Keeper Stationary
+        Sign Up Form for Sharif Stationary Shopkeeper's
         </h2>
 
         <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label className="block text-gray-700" htmlFor="name">
-              Full Name
-            </label>
-            <input
-              type="text"
-              id="name"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter your full name"
-              required
-            />
-          </div>
-
-          <div className="mb-4">
-            <label className="block text-gray-700" htmlFor="email">
-              Email Address
-            </label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter your email"
-              required
-            />
-          </div>
-
-          <div className="mb-4">
-            <label className="block text-gray-700" htmlFor="password">
-              Password
-            </label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter your password"
-              required
-            />
-          </div>
-
-          <div className="mb-4">
-            <label className="block text-gray-700" htmlFor="confirmPassword">
-              Confirm Password
-            </label>
-            <input
-              type="password"
-              id="confirmPassword"
-              name="confirmPassword"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Confirm your password"
-              required
-            />
-          </div>
+          {[
+            { label: "Company Name", name: "companyName" },
+            { label: "Owner Name", name: "ownerName" },
+            { label: "Phone Number 1", name: "phone1", type: "tel" },
+            { label: "Phone Number 2", name: "phone2", type: "tel" },
+            { label: "Email Address", name: "email", type: "email" },
+            { label: "Password", name: "password", type: "password" },
+            { label: "Confirm Password", name: "confirmPassword", type: "password" },
+            { label: "Extra Field 1", name: "extraField1" },
+            { label: "Extra Field 2", name: "extraField2" },
+            { label: "Extra Field 3", name: "extraField3" },
+          ].map(({ label, name, type = "text" }) => (
+            <div className="mb-4" key={name}>
+              <label className="block text-gray-700" htmlFor={name}>
+                {label}
+              </label>
+              <input
+                type={type}
+                id={name}
+                name={name}
+                value={formData[name]}
+                onChange={handleChange}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder={`Enter ${label.toLowerCase()}`}
+                required
+              />
+            </div>
+          ))}
 
           <button
             type="submit"
