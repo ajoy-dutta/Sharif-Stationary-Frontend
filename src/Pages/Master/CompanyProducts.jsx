@@ -47,17 +47,17 @@ const filteredProducts = products.filter((product) =>
   const currentProducts = filteredProducts.slice(indexOfFirstProduct, indexOfLastProduct);
   const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
 
-  // ✅ Delete Product with Hot Toast
-  const handleDeleteProduct = async (id) => {
-    try {
-      await AxiosInstance.delete(`/products/${id}/`);
-      setProducts((prev) => prev.filter((item) => item.id !== id));
-      toast.success("Product deleted successfully!");
-    } catch (error) {
-      console.error("Error deleting product:", error);
-      toast.error("Failed to delete product!");
-    }
-  };
+  // // ✅ Delete Product with Hot Toast
+  // const handleDeleteProduct = async (id) => {
+  //   try {
+  //     await AxiosInstance.delete(`/products/${id}/`);
+  //     setProducts((prev) => prev.filter((item) => item.id !== id));
+  //     toast.success("Product deleted successfully!");
+  //   } catch (error) {
+  //     console.error("Error deleting product:", error);
+  //     toast.error("Failed to delete product!");
+  //   }
+  // };
 
   return (
     <div className="m-8">
@@ -105,12 +105,12 @@ const filteredProducts = products.filter((product) =>
                     >
                       <FaEdit />
                     </button>
-                    <button
+                    {/* <button
                       className="text-red-500 hover:underline"
                       onClick={() => handleDeleteProduct(item.id)}
                     >
                       <ImCross />
-                    </button>
+                    </button> */}
                   </td>
                 </tr>
               ))

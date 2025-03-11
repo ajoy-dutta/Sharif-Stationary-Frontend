@@ -35,7 +35,7 @@ const Customer = () => {
   const handleAddCustomer = async () => {
     const { customer_name, customer_address, customer_phone_no, customer_shop, shop_address, due_amount } = newCustomer;
 
-    if (!customer_name.trim() || !customer_phone_no.trim()) {
+    if (!customer_name.trim()) {
       toast.error( "⚠️ Customer Name and Phone Number are required!");
       return;
     }
