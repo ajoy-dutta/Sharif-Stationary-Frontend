@@ -2,11 +2,12 @@ import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import AxiosInstance from "../../components/AxiosInstance";
 import { ToastContainer, toast } from "react-toastify";
+
 const AddEditPurchase = () => {
   const navigate = useNavigate();
   const [companies, setCompanies] = useState([]);
   const [godowns, setGodowns] = useState([]);
-
+  
   const [formData, setFormData] = useState({
     items: [],
     order_date: new Date().toISOString().split("T")[0],
@@ -28,8 +29,8 @@ const AddEditPurchase = () => {
     cheque_no: "",
     cheque_date: new Date().toISOString().split("T")[0],
     balance_amount: "",
-    company: "",
-    godown: "",
+    company: "", // Add company as part of the formData
+    godown: "",  // Add godown as part of the formData
   });
 
   // Fetch Dropdown Data (Companies & Godowns)
@@ -98,9 +99,7 @@ const AddEditPurchase = () => {
             (key) =>
               key !== "items" &&
               key !== "company" &&
-              key !== "godown" &&
-              key !== "driver_name" && // Removed driver_name
-              key !== "driver_mobile_no" && ( // Removed driver_mobile_no
+              key !== "godown" && (
                 <div key={key}>
                   <label className="block mb-1">
                     {key.replace(/_/g, " ").replace(/\b\w/, (char) => char.toUpperCase())}
@@ -115,50 +114,50 @@ const AddEditPurchase = () => {
                 </div>
               )
           )}
-{/* Company Dropdown */}
-<div>
-  <label className="block mb-1 text-gray-700 font-medium">Company*</label>
-  <select
-    name="company"
-    value={formData.company || ""}
-    onChange={handleChange}
-    className="border p-2 w-full bg-white text-black"
-  >
-    <option value="">Select Company</option>
-    {companies.length > 0 ? (
-      companies.map((c) => (
-        <option key={c.id} value={c.id} className="text-black">
-          {c.name}
-        </option>
-      ))
-    ) : (
-      <option disabled className="text-black">Loading...</option>
-    )}
-  </select>
-</div>
 
-{/* Godown Dropdown */}
-<div>
-  <label className="block mb-1 text-gray-700 font-medium">Godown*</label>
-  <select
-    name="godown"
-    value={formData.godown || ""}
-    onChange={handleChange}
-    className="border p-2 w-full bg-white text-black"
-  >
-    <option value="">Select Godown</option>
-    {godowns.length > 0 ? (
-      godowns.map((g) => (
-        <option key={g.id} value={g.id} className="text-black">
-          {g.name}
-        </option>
-      ))
-    ) : (
-      <option disabled className="text-black">Loading...</option>
-    )}
-  </select>
-</div>
+          {/* Company Dropdown */}
+          <div>
+            <label className="block mb-1 text-gray-700 font-medium">Company*</label>
+            <select
+              name="company"
+              value={formData.company || ""}
+              onChange={handleChange}
+              className="border p-2 w-full bg-white text-black"
+            >
+              <option value="">Select Company</option>
+              {companies.length > 0 ? (
+                companies.map((company) => (
+                  <option key={company.id} value={company.id}>
+                    {company.company_name} {/* Display company_name */}
+                  </option>
+                ))
+              ) : (
+                <option disabled className="text-black">Loading...</option>
+              )}
+            </select>
+          </div>
 
+          {/* Godown Dropdown */}
+          <div>
+            <label className="block mb-1 text-gray-700 font-medium">Godown*</label>
+            <select
+              name="godown"
+              value={formData.godown || ""}
+              onChange={handleChange}
+              className="border p-2 w-full bg-white text-black"
+            >
+              <option value="">Select Godown</option>
+              {godowns.length > 0 ? (
+                godowns.map((g) => (
+                  <option key={g.id} value={g.id} className="text-black">
+                    {g.godown_name} {/* Display godown_name */}
+                  </option>
+                ))
+              ) : (
+                <option disabled className="text-black">Loading...</option>
+              )}
+            </select>
+          </div>
         </div>
 
         {/* Submit Button */}

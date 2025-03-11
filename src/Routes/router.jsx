@@ -147,6 +147,7 @@ export const router = createBrowserRouter([
         path: "/admin",
         element:<AdminDashboard></AdminDashboard>,
       },
+    
       {
         path: "/products",
         element: <Products></Products>,
