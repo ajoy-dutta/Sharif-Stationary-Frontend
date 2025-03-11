@@ -89,24 +89,56 @@ function PurchaseReceiveForm() {
 
   console.log(formData);
 
-  // 🔹 Handle Change for Company
   const handleCompanyChange = (e) => {
     const selectedCompanyId = e.target.value;
-
-    // Find the selected company object
+    
+    // Find the selected company
     const selectedCompany = companies.find(
       (company) => company.id.toString() === selectedCompanyId
     );
-
+    
+    // Important: Filter products based on the selected company
+    const companyRelatedProducts = selectedCompanyId 
+      ? products.filter(product => 
+          product.company && 
+          product.company.id.toString() === selectedCompanyId
+        )
+      : products;
+    
+    // Update formData with company info
     setFormData({
       ...formData,
-      company: selectedCompanyId, // Store selected company ID
-      company_name: selectedCompany ? selectedCompany.company_name : "", // Store company name
-      previous_due: selectedCompany
-        ? parseFloat(selectedCompany.previous_due)
-        : 0, // Store previous due
+      company: selectedCompanyId,
+      company_name: selectedCompany ? selectedCompany.company_name : "",
+      previous_due: selectedCompany ? parseFloat(selectedCompany.previous_due) : 0,
     });
+    
+    // Clear product selections when company changes
+    setSearchQuery("");
+    setNewItem({
+      product: "",
+      product_name: "",
+      product_type: "",
+      purchase_price: "",
+      rim: "",
+      dozen: "",
+      only_sheet_piece: "",
+      total_sheet_piece: "",
+      per_dozen_price: "",
+      per_rim_price: "",
+      per_sheet_or_piece_price: "",
+      additional_cost: "",
+      profit: "",
+      per_rim_sale_price: "",
+      per_dozen_sale_price: "",
+      per_piece_or_sheet_sale_price: "",
+    });
+    
+    // Update the filtered products state
+    setFilteredProducts(companyRelatedProducts);
   };
+  
+  
 
   // 🔹 Handle Change for Godown
   const handleGodownChange = (e) => {
@@ -295,27 +327,36 @@ function PurchaseReceiveForm() {
   const handleSearchProduct = (e) => {
     const query = e.target.value.toLowerCase();
     setSearchQuery(query);
-  
-    setNewItem((prevItem) => ({
-      ...prevItem,
-      product_name: query, // ✅ Allow typing
-    }));
-  
+    
+    // Get base list of products for the selected company
+    const baseProducts = formData.company
+      ? products.filter(product => 
+          product.company && 
+          product.company.id.toString() === formData.company
+        )
+      : products;
+      
     if (!query.trim()) {
-      setFilteredProducts(products); // ✅ Show all when empty
+      setFilteredProducts(baseProducts);
       setSelectedIndex(-1);
       return;
     }
-  
-    const results = products.filter(
-      (item) =>
-        item.product_name.toLowerCase().includes(query) ||
-        (item.company && item.company.company_name.toLowerCase().includes(query))
+    
+    // Filter by search query while maintaining company filter
+    const results = baseProducts.filter(
+      (item) => item.product_name.toLowerCase().includes(query)
     );
-  
+    
     setFilteredProducts(results);
-    setSelectedIndex(0);
+    setSelectedIndex(results.length > 0 ? 0 : -1);
+    
+    // Update new item with search query
+    setNewItem(prev => ({
+      ...prev,
+      product_name: query
+    }));
   };
+  
   
   const selectProduct = (product) => {
     setNewItem((prevItem) => ({
@@ -850,16 +891,25 @@ const handleSubmit = async (e) => {
   {/* Product Name Search & Selection */}
 <td className="border border-gray-300 p-1">
   <div className="relative">
-    <input
-      type="text"
-      name="product_name"
-      value={searchQuery}
-      className="mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs bg-white text-gray-600 p-1 form-input"
-      onChange={handleSearchProduct}
-      onKeyDown={handleKeyDown}
-      onFocus={() => setFilteredProducts(products)} // ✅ Show all products on focus
-      placeholder="Search Product..."
-    />
+  <input
+  type="text"
+  name="product_name"
+  value={searchQuery}
+  className="mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs bg-white text-gray-600 p-1 form-input"
+  onChange={handleSearchProduct}
+  onKeyDown={handleKeyDown}
+  onFocus={() => {
+    // When focused, show products for current company selection
+    const companyProducts = formData.company
+      ? products.filter(product => 
+          product.company && 
+          product.company.id.toString() === formData.company
+        )
+      : products;
+    setFilteredProducts(companyProducts);
+  }}
+  placeholder="Search Product..."
+/>
     {filteredProducts.length > 0 && (
       <ul className="absolute left-0 mt-1 w-full bg-white border border-gray-300 rounded shadow-lg max-h-48 overflow-y-auto z-10">
         {filteredProducts.map((product, index) => (
