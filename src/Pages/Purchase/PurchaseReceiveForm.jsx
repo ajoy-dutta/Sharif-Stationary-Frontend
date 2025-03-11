@@ -20,6 +20,7 @@ function PurchaseReceiveForm() {
   const [searchQuery, setSearchQuery] = useState(""); // 🔹 Fix: Define searchQuery
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null); // Store selected product
+  const [selectedIndex, setSelectedIndex] = useState(-1);
 
   const handleOpenModal = () => setIsModalOpen(true); // ✅ Open modal
   const handleCloseModal = () => setIsModalOpen(false); // ✅ Close modal
@@ -290,47 +291,112 @@ function PurchaseReceiveForm() {
   };
   
 
-  // 🔹 Function to Filter Products Based on Search Query
+
   const handleSearchProduct = (e) => {
     const query = e.target.value.toLowerCase();
     setSearchQuery(query);
-
-    // ✅ Update only `product_name` in `newItem` to allow typing
+  
     setNewItem((prevItem) => ({
       ...prevItem,
-      product_name: query,
+      product_name: query, // ✅ Allow typing
     }));
-
+  
     if (!query.trim()) {
-      setFilteredProducts([]); // ✅ Reset when input is empty
+      setFilteredProducts(products); // ✅ Show all when empty
+      setSelectedIndex(-1);
       return;
     }
-
-    // ✅ Ensure products exist before filtering
-    if (products.length > 0) {
-      const results = products.filter(
-        (item) =>
-          item.product_name.toLowerCase().includes(query) ||
-          (item.company &&
-            item.company.company_name.toLowerCase().includes(query)) // ✅ Access company_name correctly
-      );
-
-      setFilteredProducts(results); // ✅ Update filtered products
-    }
+  
+    const results = products.filter(
+      (item) =>
+        item.product_name.toLowerCase().includes(query) ||
+        (item.company && item.company.company_name.toLowerCase().includes(query))
+    );
+  
+    setFilteredProducts(results);
+    setSelectedIndex(0);
   };
-
-  // 🔹 Function to Select a Product from Search Results
+  
   const selectProduct = (product) => {
     setNewItem((prevItem) => ({
       ...prevItem,
-      product_name: product.product_name, // ✅ Set selected product
-      product: product.id, // ✅ Store product ID (if needed)
+      product: product.product_code, // ✅ Auto-fill product code
+      product_name: product.product_name,
       product_type: product.product_type,
+      purchase_price: "",
+      rim: "",
+      dozen: "",
+      only_sheet_piece: "",
+      total_sheet_piece: "",
+      per_dozen_price: "",
+      per_rim_price: "",
+      per_sheet_or_piece_price: "",
+      additional_cost: "",
+      profit: "",
+      per_rim_sale_price: "",
+      per_dozen_sale_price: "",
+      per_piece_or_sheet_sale_price: "",
     }));
-
-    setSearchQuery(""); // ✅ Clear search query
+  
+    setSearchQuery(product.product_name); // ✅ Update input field
     setFilteredProducts([]); // ✅ Hide dropdown
+  
+    // ✅ Move focus to next input
+    setTimeout(() => {
+      const nextElement = document.querySelector(".form-input");
+      if (nextElement) nextElement.focus();
+    }, 100);
   };
+  
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+  
+      if (filteredProducts.length > 0) {
+        if (selectedIndex === -1) {
+          setFilteredProducts(products);
+        } else {
+          selectProduct(filteredProducts[selectedIndex]);
+        }
+      } else {
+        // ✅ Select all form elements (including disabled ones)
+        const formElements = Array.from(
+          document.querySelectorAll(".form-input, .form-input[disabled]")
+        );
+  
+        const currentIndex = formElements.indexOf(e.target);
+  
+        if (currentIndex !== -1 && currentIndex < formElements.length - 1) {
+          let nextIndex = currentIndex + 1;
+  
+          // ✅ Find the next focusable element, even if disabled
+          while (
+            nextIndex < formElements.length &&
+            formElements[nextIndex].disabled
+          ) {
+            nextIndex++; // Skip disabled inputs
+          }
+  
+          // ✅ Focus next available field
+          if (nextIndex < formElements.length) {
+            formElements[nextIndex].focus();
+          }
+        }
+      }
+    } else if (e.key === "ArrowDown") {
+      if (filteredProducts.length > 0) {
+        setSelectedIndex((prev) =>
+          prev < filteredProducts.length - 1 ? prev + 1 : prev
+        );
+      }
+    } else if (e.key === "ArrowUp") {
+      if (filteredProducts.length > 0) {
+        setSelectedIndex((prev) => (prev > 0 ? prev - 1 : prev));
+      }
+    }
+  };
+  
+  
 
   const handleSaveItem = (e) => {
     e.preventDefault(); // Prevent any form submission behavior
@@ -513,22 +579,7 @@ const handleSubmit = async (e) => {
     doc.save("purchase_items.pdf");
   };
 
-  const handleKeyDown = (e) => {
-    if (e.key === "Enter") {
-      e.preventDefault(); // ✅ Prevent form submission
-
-      // ✅ Select all input and select fields
-      const formElements = Array.from(document.querySelectorAll(".form-input"));
-
-      // ✅ Find the current focused field
-      const currentIndex = formElements.indexOf(e.target);
-
-      // ✅ Move focus to the next field if available
-      if (currentIndex !== -1 && currentIndex < formElements.length - 1) {
-        formElements[currentIndex + 1].focus();
-      }
-    }
-  };
+ 
 
   return (
     <div className="m-6 mb-0 ">
@@ -796,46 +847,49 @@ const handleSubmit = async (e) => {
                 <tr className="text-sm text-center">
                   <td className="border border-gray-300 p-1">New</td>
 
-                  {/* Product Name Search & Selection */}
-                  <td className="border border-gray-300 p-1">
-                    <div className="relative">
-                      <input
-                        type="text"
-                        name="product_name"
-                        value={newItem.product_name}
-                        className="mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs bg-white text-gray-600 p-1 form-input"
-                        onChange={handleSearchProduct}
-                        onKeyDown={handleKeyDown}
-                        placeholder="Search Product..."
-                      />
-                      {searchQuery && filteredProducts.length > 0 && (
-                        <ul className="absolute left-0 mt-1 w-full bg-white border border-gray-300 rounded shadow-lg max-h-48 overflow-y-auto z-10">
-                          {filteredProducts.map((product) => (
-                            <li
-                              key={product.id}
-                              className="p-2 cursor-pointer hover:bg-blue-100"
-                              onClick={() => selectProduct(product)}
-                            >
-                              {product.product_name}
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-                    </div>
-                  </td>
+  {/* Product Name Search & Selection */}
+<td className="border border-gray-300 p-1">
+  <div className="relative">
+    <input
+      type="text"
+      name="product_name"
+      value={searchQuery}
+      className="mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs bg-white text-gray-600 p-1 form-input"
+      onChange={handleSearchProduct}
+      onKeyDown={handleKeyDown}
+      onFocus={() => setFilteredProducts(products)} // ✅ Show all products on focus
+      placeholder="Search Product..."
+    />
+    {filteredProducts.length > 0 && (
+      <ul className="absolute left-0 mt-1 w-full bg-white border border-gray-300 rounded shadow-lg max-h-48 overflow-y-auto z-10">
+        {filteredProducts.map((product, index) => (
+          <li
+            key={product.id}
+            className={`p-2 cursor-pointer ${
+              selectedIndex === index ? "bg-blue-200" : "hover:bg-blue-100"
+            }`}
+            onMouseDown={() => selectProduct(product)} // ✅ Prevent losing focus on click
+          >
+            {product.product_name}
+          </li>
+        ))}
+      </ul>
+    )}
+  </div>
+</td>
 
-                  {/* Product Code */}
-                  <td className="border border-gray-300 p-1">
-                    <input
-                      type="text"
-                      name="product"
-                      value={newItem.product}
-                      className="mt-1 p-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs form-input"
-                      onKeyDown={handleKeyDown}
-                      placeholder="Enter product code"
-                      readOnly
-                    />
-                  </td>
+{/* Product Code (Read-only) */}
+<td className="border border-gray-300 p-1">
+  <input
+    type="text"
+    name="product"
+    value={newItem.product}
+    className="mt-1 p-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs form-input bg-gray-100"
+    readOnly
+  />
+</td>
+
+
 
                   {/* Rim Input - Disabled if DOZEN */}
                   <td className="border border-gray-300 p-1">
