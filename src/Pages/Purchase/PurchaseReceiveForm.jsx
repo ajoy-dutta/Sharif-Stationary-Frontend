@@ -21,6 +21,9 @@ function PurchaseReceiveForm() {
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null); // Store selected product
   const [selectedIndex, setSelectedIndex] = useState(-1);
+  const [filteredCompanies, setFilteredCompanies] = useState([]); // Filtered companies
+  const [selectedCompanyIndex, setSelectedCompanyIndex] = useState(-1);
+  const [companyQuery, setCompanyQuery] = useState("");
 
   const handleOpenModal = () => setIsModalOpen(true); // ✅ Open modal
   const handleCloseModal = () => setIsModalOpen(false); // ✅ Close modal
@@ -89,55 +92,53 @@ function PurchaseReceiveForm() {
 
   console.log(formData);
 
-  const handleCompanyChange = (e) => {
-    const selectedCompanyId = e.target.value;
-    
-    // Find the selected company
-    const selectedCompany = companies.find(
-      (company) => company.id.toString() === selectedCompanyId
+ 
+
+  const handleCompanySearch = (e) => {
+    const query = e.target.value.toLowerCase();
+    setCompanyQuery(query);
+
+    if (!query.trim()) {
+      setFilteredCompanies(companies); // Show all when empty
+      setSelectedCompanyIndex(-1);
+      return;
+    }
+
+    const results = companies.filter((company) =>
+      company.company_name.toLowerCase().includes(query)
     );
-    
-    // Important: Filter products based on the selected company
-    const companyRelatedProducts = selectedCompanyId 
-      ? products.filter(product => 
-          product.company && 
-          product.company.id.toString() === selectedCompanyId
-        )
-      : products;
-    
-    // Update formData with company info
-    setFormData({
-      ...formData,
-      company: selectedCompanyId,
-      company_name: selectedCompany ? selectedCompany.company_name : "",
-      previous_due: selectedCompany ? parseFloat(selectedCompany.previous_due) : 0,
-    });
-    
-    // Clear product selections when company changes
-    setSearchQuery("");
-    setNewItem({
-      product: "",
-      product_name: "",
-      product_type: "",
-      purchase_price: "",
-      rim: "",
-      dozen: "",
-      only_sheet_piece: "",
-      total_sheet_piece: "",
-      per_dozen_price: "",
-      per_rim_price: "",
-      per_sheet_or_piece_price: "",
-      additional_cost: "",
-      profit: "",
-      per_rim_sale_price: "",
-      per_dozen_sale_price: "",
-      per_piece_or_sheet_sale_price: "",
-    });
-    
-    // Update the filtered products state
-    setFilteredProducts(companyRelatedProducts);
+
+    setFilteredCompanies(results);
+    setSelectedCompanyIndex(0);
   };
+
+  const selectCompany = (company) => {
+    if (!company) {
+      setFormData((prev) => ({
+        ...prev,
+        company: "",
+        company_name: "",
+        previous_due: 0, // Set a default value if no company is selected
+      }));
+      return;
+    }
   
+    setFormData((prev) => ({
+      ...prev,
+      company: company.id, // ✅ Store company ID
+      company_name: company.company_name, // ✅ Store company name
+      previous_due: parseFloat(company.previous_due) || 0, // ✅ Store previous due or default to 0
+    }));
+  
+    setCompanyQuery(company.company_name); // ✅ Update input field
+    setFilteredCompanies([]); // ✅ Hide dropdown
+  
+    // ✅ Filter products related to selected company
+    const companyProducts = products.filter(
+      (product) => product.company && product.company.id === company.id
+    );
+    setFilteredProducts(companyProducts);
+  };
   
 
   // 🔹 Handle Change for Godown
@@ -183,21 +184,21 @@ function PurchaseReceiveForm() {
 
   const handleItemChange = (e) => {
     const { name, value } = e.target;
-  
+
     // Convert input values to numbers while keeping empty values as ""
     const numericValue = value === "" ? "" : parseFloat(value) || 0;
-  
+
     let updatedItem = { ...newItem, [name]: numericValue };
-  
+
     // 🔹 Reset dependent fields when product_name changes
     if (name === "product_name") {
       const selectedProduct = products.find(
         (p) => p.product_name.toLowerCase() === value.toLowerCase()
       );
-  
+
       if (selectedProduct) {
         updatedItem = {
-          product: selectedProduct.product_code,
+          product: selectedProduct.id,
           product_name: selectedProduct.product_name,
           product_type: selectedProduct.product_type,
           purchase_price: "",
@@ -216,11 +217,11 @@ function PurchaseReceiveForm() {
         };
       }
     }
-  
+
     const isRimA4 = updatedItem.product_type === "RIM-A4";
     const isRimLegal = updatedItem.product_type === "RIM-LEGAL";
     const isDozen = updatedItem.product_type === "DOZEN";
-  
+
     // Convert numeric values for calculations
     const purchasePrice = parseFloat(updatedItem.purchase_price) || 0;
     const additionalCost = parseFloat(updatedItem.additional_cost) || 0;
@@ -228,19 +229,19 @@ function PurchaseReceiveForm() {
     const rim = parseFloat(updatedItem.rim) || 0;
     const dozen = parseFloat(updatedItem.dozen) || 0;
     const onlySheetPiece = parseFloat(updatedItem.only_sheet_piece) || 0;
-  
+
     // 🔹 Handle Total Sheet/Piece Calculation
     if (isRimLegal) {
       updatedItem.total_sheet_piece = rim * 500 + onlySheetPiece || "";
-  
+
       updatedItem.per_sheet_or_piece_price = purchasePrice
         ? parseFloat((purchasePrice / updatedItem.total_sheet_piece).toFixed(2))
         : "";
-  
+
       updatedItem.per_rim_price = updatedItem.per_sheet_or_piece_price
         ? parseFloat((updatedItem.per_sheet_or_piece_price * 500).toFixed(2))
         : "";
-  
+
       updatedItem.per_piece_or_sheet_sale_price = purchasePrice
         ? parseFloat(
             (
@@ -249,29 +250,29 @@ function PurchaseReceiveForm() {
             ).toFixed(2)
           )
         : "";
-  
+
       updatedItem.per_rim_sale_price = updatedItem.per_piece_or_sheet_sale_price
         ? parseFloat(
             (updatedItem.per_piece_or_sheet_sale_price * 500).toFixed(2)
           )
         : "";
-  
+
       updatedItem.per_dozen_price = "";
       updatedItem.per_dozen_sale_price = "";
     } else if (isRimA4) {
       updatedItem.only_sheet_piece = "";
       updatedItem.total_sheet_piece = "";
-  
+
       updatedItem.per_rim_price = purchasePrice
         ? parseFloat((purchasePrice / (rim || 1)).toFixed(2))
         : "";
-  
+
       updatedItem.per_rim_sale_price = purchasePrice
         ? parseFloat(
             ((purchasePrice + additionalCost + profit) / (rim || 1)).toFixed(2)
           )
         : "";
-  
+
       updatedItem.per_sheet_or_piece_price = "";
       updatedItem.per_piece_or_sheet_sale_price = "";
       updatedItem.per_dozen_price = "";
@@ -279,17 +280,17 @@ function PurchaseReceiveForm() {
     } else if (isDozen) {
       // ✅ Total Sheet/Piece Calculation
       updatedItem.total_sheet_piece = dozen * 12 + onlySheetPiece || "";
-  
+
       // ✅ Per Sheet/Piece Price
       updatedItem.per_sheet_or_piece_price = purchasePrice
         ? parseFloat((purchasePrice / updatedItem.total_sheet_piece).toFixed(2))
         : "";
-  
+
       // ✅ Per Dozen Price
       updatedItem.per_dozen_price = updatedItem.per_sheet_or_piece_price
         ? parseFloat((updatedItem.per_sheet_or_piece_price * 12).toFixed(2))
         : "";
-  
+
       // ✅ Per Sheet/Piece Sale Price
       updatedItem.per_piece_or_sheet_sale_price = purchasePrice
         ? parseFloat(
@@ -299,18 +300,19 @@ function PurchaseReceiveForm() {
             ).toFixed(2)
           )
         : "";
-  
+
       // ✅ Per Dozen Sale Price
-      updatedItem.per_dozen_sale_price = updatedItem.per_piece_or_sheet_sale_price
-        ? parseFloat(
-            (updatedItem.per_piece_or_sheet_sale_price * 12).toFixed(2)
-          )
-        : "";
-  
+      updatedItem.per_dozen_sale_price =
+        updatedItem.per_piece_or_sheet_sale_price
+          ? parseFloat(
+              (updatedItem.per_piece_or_sheet_sale_price * 12).toFixed(2)
+            )
+          : "";
+
       updatedItem.per_rim_price = "";
       updatedItem.per_rim_sale_price = "";
     }
-  
+
     // 🔹 Disable Fields Based on Product Type & Apply Gray-200 Style
     if (isRimA4) {
       updatedItem.only_sheet_piece = "";
@@ -318,50 +320,48 @@ function PurchaseReceiveForm() {
     } else if (isDozen) {
       updatedItem.rim = "";
     }
-  
+
     setNewItem(updatedItem);
   };
-  
-
 
   const handleSearchProduct = (e) => {
     const query = e.target.value.toLowerCase();
     setSearchQuery(query);
-    
-    // Get base list of products for the selected company
+
+    // ✅ Base list of products should respect selected company
     const baseProducts = formData.company
-      ? products.filter(product => 
-          product.company && 
-          product.company.id.toString() === formData.company
+      ? products.filter(
+          (product) =>
+            product.company &&
+            product.company.id.toString() === formData.company
         )
       : products;
-      
+
     if (!query.trim()) {
-      setFilteredProducts(baseProducts);
+      setFilteredProducts(baseProducts); // ✅ Show all when empty
       setSelectedIndex(-1);
       return;
     }
-    
-    // Filter by search query while maintaining company filter
-    const results = baseProducts.filter(
-      (item) => item.product_name.toLowerCase().includes(query)
+
+    // ✅ Apply search query filtering while respecting company selection
+    const results = baseProducts.filter((item) =>
+      item.product_name.toLowerCase().includes(query)
     );
-    
+
     setFilteredProducts(results);
     setSelectedIndex(results.length > 0 ? 0 : -1);
-    
-    // Update new item with search query
-    setNewItem(prev => ({
+
+    // ✅ Update new item with search query
+    setNewItem((prev) => ({
       ...prev,
-      product_name: query
+      product_name: query,
     }));
   };
-  
-  
+
   const selectProduct = (product) => {
     setNewItem((prevItem) => ({
       ...prevItem,
-      product: product.product_code, // ✅ Auto-fill product code
+      product: product.id, // ✅ Auto-fill product code
       product_name: product.product_name,
       product_type: product.product_type,
       purchase_price: "",
@@ -378,67 +378,49 @@ function PurchaseReceiveForm() {
       per_dozen_sale_price: "",
       per_piece_or_sheet_sale_price: "",
     }));
-  
+
     setSearchQuery(product.product_name); // ✅ Update input field
     setFilteredProducts([]); // ✅ Hide dropdown
-  
+
     // ✅ Move focus to next input
     setTimeout(() => {
       const nextElement = document.querySelector(".form-input");
       if (nextElement) nextElement.focus();
     }, 100);
   };
-  
+
   const handleKeyDown = (e) => {
+    e.preventDefault(); // Prevent default scrolling behavior
+  
     if (e.key === "Enter") {
-      e.preventDefault();
-  
-      if (filteredProducts.length > 0) {
-        if (selectedIndex === -1) {
-          setFilteredProducts(products);
-        } else {
-          selectProduct(filteredProducts[selectedIndex]);
-        }
-      } else {
-        // ✅ Select all form elements (including disabled ones)
-        const formElements = Array.from(
-          document.querySelectorAll(".form-input, .form-input[disabled]")
-        );
-  
-        const currentIndex = formElements.indexOf(e.target);
-  
-        if (currentIndex !== -1 && currentIndex < formElements.length - 1) {
-          let nextIndex = currentIndex + 1;
-  
-          // ✅ Find the next focusable element, even if disabled
-          while (
-            nextIndex < formElements.length &&
-            formElements[nextIndex].disabled
-          ) {
-            nextIndex++; // Skip disabled inputs
-          }
-  
-          // ✅ Focus next available field
-          if (nextIndex < formElements.length) {
-            formElements[nextIndex].focus();
-          }
-        }
+      if (e.target.name === "product_name" && filteredProducts.length > 0) {
+        selectProduct(filteredProducts[selectedIndex]);
+      } else if (e.target.name === "company_name" && filteredCompanies.length > 0) {
+        selectCompany(filteredCompanies[selectedCompanyIndex]);
       }
     } else if (e.key === "ArrowDown") {
-      if (filteredProducts.length > 0) {
-        setSelectedIndex((prev) =>
-          prev < filteredProducts.length - 1 ? prev + 1 : prev
-        );
+      if (e.target.name === "product_name" && filteredProducts.length > 0) {
+        const newIndex = (selectedIndex + 1) % filteredProducts.length; // ✅ Correct index cycling
+        setSelectedIndex(newIndex);
+        highlightDropdownItem("product-item", newIndex);
+      } else if (e.target.name === "company_name" && filteredCompanies.length > 0) {
+        const newIndex = (selectedCompanyIndex + 1) % filteredCompanies.length; // ✅ Correct index cycling
+        setSelectedCompanyIndex(newIndex);
+        highlightDropdownItem("company-item", newIndex);
       }
     } else if (e.key === "ArrowUp") {
-      if (filteredProducts.length > 0) {
-        setSelectedIndex((prev) => (prev > 0 ? prev - 1 : prev));
+      if (e.target.name === "product_name" && filteredProducts.length > 0) {
+        const newIndex = selectedIndex > 0 ? selectedIndex - 1 : filteredProducts.length - 1; // ✅ Prevent skipping
+        setSelectedIndex(newIndex);
+        highlightDropdownItem("product-item", newIndex);
+      } else if (e.target.name === "company_name" && filteredCompanies.length > 0) {
+        const newIndex = selectedCompanyIndex > 0 ? selectedCompanyIndex - 1 : filteredCompanies.length - 1; // ✅ Prevent skipping
+        setSelectedCompanyIndex(newIndex);
+        highlightDropdownItem("company-item", newIndex);
       }
     }
   };
   
-  
-
   const handleSaveItem = (e) => {
     e.preventDefault(); // Prevent any form submission behavior
 
@@ -500,84 +482,88 @@ function PurchaseReceiveForm() {
     return new Date(date).toISOString().split("T")[0];
   };
 
-
-const handleSubmit = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-        // Function to properly format dates (handles empty dates)
-        const formatDate = (date) => {
-            if (!date || date === "") return null; // ✅ Return null for optional fields
-            return new Date(date).toISOString().split("T")[0]; // Convert to YYYY-MM-DD format
-        };
+      // Function to properly format dates (handles empty dates)
+      const formatDate = (date) => {
+        if (!date || date === "") return null; // ✅ Return null for optional fields
+        return new Date(date).toISOString().split("T")[0]; // Convert to YYYY-MM-DD format
+      };
 
-        // Ensure proper conversion of numeric values
-        const formattedItems = formData.PurchaseItem.map(item => ({
-            product: item.product, 
-            purchase_price: parseFloat(item.purchase_price) || 0, 
-            rim: parseInt(item.rim) || 0,
-            dozen: parseInt(item.dozen) || 0,
-            only_sheet_or_piece: parseInt(item.only_sheet_piece) || 0,
-            total_sheet_or_piece: parseInt(item.total_sheet_piece) || 0,
-            per_rim_price: parseFloat(item.per_rim_price) || 0,
-            per_dozen_price: parseFloat(item.per_dozen_price) || 0,
-            per_sheet_or_piece_price: parseFloat(item.per_sheet_or_piece_price) || 0,
-            additional_cost: parseFloat(item.additional_cost) || 0,
-            profit: parseFloat(item.profit) || 0,
-            per_rim_sell_price: parseFloat(item.per_rim_sale_price) || 0,
-            per_dozen_sell_price: parseFloat(item.per_dozen_sale_price) || 0,
-            per_sheet_or_piece_sell_price: parseFloat(item.per_piece_or_sheet_sale_price) || 0
-        }));
+      // Ensure proper conversion of numeric values
+      const formattedItems = formData.PurchaseItem.map((item) => ({
+        product: parseInt(item.product) || null,
+        purchase_price: parseFloat(item.purchase_price) || 0,
+        rim: parseInt(item.rim) || 0,
+        dozen: parseInt(item.dozen) || 0,
+        only_sheet_or_piece: parseInt(item.only_sheet_piece) || 0,
+        total_sheet_or_piece: parseInt(item.total_sheet_piece) || 0,
+        per_rim_price: parseFloat(item.per_rim_price) || 0,
+        per_dozen_price: parseFloat(item.per_dozen_price) || 0,
+        per_sheet_or_piece_price:
+          parseFloat(item.per_sheet_or_piece_price) || 0,
+        additional_cost: parseFloat(item.additional_cost) || 0,
+        profit: parseFloat(item.profit) || 0,
+        per_rim_sell_price: parseFloat(item.per_rim_sale_price) || 0,
+        per_dozen_sell_price: parseFloat(item.per_dozen_sale_price) || 0,
+        per_sheet_or_piece_sell_price:
+          parseFloat(item.per_piece_or_sheet_sale_price) || 0,
+      }));
 
-        const requestData = {
-            ...formData,
-            order_date: formatDate(formData.order_date),
-            invoice_challan_date: formatDate(formData.invoice_challan_date),
-            delivery_date: formatDate(formData.delivery_date),
-            cheque_date: formData.payment_type === "Cheque" ? formatDate(formData.cheque_date) : null, // ✅ Only include cheque_date if payment_type is "Cheque"
+      const requestData = {
+        ...formData,
+        previous_due: formData.previous_due || 0, 
+        order_date: formatDate(formData.order_date),
+        invoice_challan_date: formatDate(formData.invoice_challan_date),
+        delivery_date: formatDate(formData.delivery_date),
+        
+        cheque_date:
+          formData.payment_type === "Cheque"
+            ? formatDate(formData.cheque_date)
+            : null, // ✅ Only include cheque_date if payment_type is "Cheque"
 
-            items: formattedItems.length > 0 ? formattedItems : undefined, // ✅ Avoid sending empty array
-        };
+        items: formattedItems.length > 0 ? formattedItems : undefined, // ✅ Avoid sending empty array
+      };
 
-        const response = await AxiosInstance.post("/purchases/", requestData);
+      const response = await AxiosInstance.post("/purchases/", requestData);
 
-        console.log("✅ Purchase Data Submitted Successfully:", response.data);
-        alert("Purchase data submitted successfully!");
+      console.log("✅ Purchase Data Submitted Successfully:", response.data);
+      alert("Purchase data submitted successfully!");
 
-        // ✅ Reset form after successful submission
-        setFormData({
-            company: "",
-            order_date: new Date().toISOString().split("T")[0],
-            order_no: "",
-            invoice_challan_date: new Date().toISOString().split("T")[0],
-            invoice_challan_no: "",
-            transport_type: "",
-            delivery_date: new Date().toISOString().split("T")[0],
-            delivery_no: "",
-            driver_name: "",
-            driver_mobile_no: "",
-            vehicle_no: "",
-            godown: "",
-            entry_by: "",
-            remarks: "",
-            previous_due: 0.0,
-            invoice_challan_amount: 0.0,
-            today_paid_amount: 0.0,
-            payment_type: "",
-            bank_name: "",
-            account_no: "",
-            cheque_no: "",
-            cheque_date: "",
-            balance_amount: 0.0,
-            PurchaseItem: [], // Reset items array
-        });
+      // ✅ Reset form after successful submission
+      setFormData({
+        company: "",
+        order_date: new Date().toISOString().split("T")[0],
+        order_no: "",
+        invoice_challan_date: new Date().toISOString().split("T")[0],
+        invoice_challan_no: "",
+        transport_type: "",
+        delivery_date: new Date().toISOString().split("T")[0],
+        delivery_no: "",
+        driver_name: "",
+        driver_mobile_no: "",
+        vehicle_no: "",
+        godown: "",
+        entry_by: "",
+        remarks: "",
+        previous_due: 0.0,
+        invoice_challan_amount: 0.0,
+        today_paid_amount: 0.0,
+        payment_type: "",
+        bank_name: "",
+        account_no: "",
+        cheque_no: "",
+        cheque_date: "",
+        balance_amount: 0.0,
+        PurchaseItem: [], // Reset items array
+      });
     } catch (error) {
-        console.error("❌ Error submitting purchase data:", error.response?.data);
-        alert("Failed to submit purchase data. Please try again.");
+      console.error("❌ Error submitting purchase data:", error.response?.data);
+      alert("Failed to submit purchase data. Please try again.");
     }
-};
-
-
+  };
 
   const handlePDFExport = () => {
     const doc = new jsPDF();
@@ -620,13 +606,15 @@ const handleSubmit = async (e) => {
     doc.save("purchase_items.pdf");
   };
 
- 
-
   return (
     <div className="m-6 mb-0 ">
       <div className="flex items-start justify-between mb-5">
         <h2 className="text-xl font-medium">Purchase Details</h2>
-        <Link to="/purchase-list"><button className="btn bg-blue-950 text-xs btn-sm text-white">Purchase List</button></Link>
+        <Link to="/purchase-list">
+          <button className="btn bg-blue-950 text-xs btn-sm text-white">
+            Purchase List
+          </button>
+        </Link>
       </div>
       <h2 className="text-xl font-semibold mb-4 -mt-6 text-center">
         Purchase & Invoice Information
@@ -636,187 +624,198 @@ const handleSubmit = async (e) => {
         onKeyDown={handleKeyDown}
         className="form-input"
       >
-       <div  className="p-4 bg-white shadow-[0px_0px_30px_rgba(0,0,0,0.1)] rounded-md mt-4">
-       <div className=" grid grid-cols-7 gap-2 text-sm  ">
-          {/* 🔹 Company Selection (Dropdown) */}
-          <div>
-            <label className="block text-center">Company*</label>
-            <select
-              name="company"
-              value={formData.company}
-              onChange={handleCompanyChange}
-              onKeyDown={handleKeyDown} // ✅ Handle Enter Key
-              className="input h-7 input-bordered w-full input-md"
-            >
-              <option value="">Select Company</option>
-              {companies.map((company) => (
-                <option key={company.id} value={company.id}>
+        <div className="p-4 bg-white shadow-[0px_0px_30px_rgba(0,0,0,0.1)] rounded-md mt-4">
+          <div className=" grid grid-cols-7 gap-2 text-sm  ">
+            {/* Company Search Input */}
+            <div className="relative">
+              <label className="block text-center">Company*</label>
+              <input
+                type="text"
+                name="company_name"
+                value={companyQuery}
+                className="mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs bg-white text-gray-600 p-1 form-input"
+                onChange={handleCompanySearch}
+                onKeyDown={handleKeyDown}
+                onFocus={() => setFilteredCompanies(companies)} // ✅ Show all companies on focus
+                placeholder="Search Company..."
+              />
+              {filteredCompanies.length > 0 && (
+              <ul className="absolute left-0 mt-1 w-full bg-white border border-gray-300 rounded shadow-lg max-h-48 overflow-y-auto z-10">
+              {filteredCompanies.map((company, index) => (
+                <li
+                  key={company.id}
+                  className={`p-2 cursor-pointer transition-all ${
+                    selectedCompanyIndex === index ? "bg-blue-200 font-semibold" : "hover:bg-blue-100"
+                  }`}
+                  onMouseDown={() => selectCompany(company)}
+                >
                   {company.company_name}
-                </option>
+                </li>
               ))}
-            </select>
-          </div>
+            </ul>
+              )}
+            </div>
 
-          {/* 2. Invoice/Challan No */}
-          <div>
-            <label className="block text-center">Invoice/Challan No*</label>
-            <input
-              type="text"
-              name="invoice_challan_no"
-              className="mt-1 p-2 w-full border input-sm border-gray-300 rounded h-7 text-sm form-input"
-              placeholder="Enter Invoice/Challan No"
-              value={formData.invoice_challan_no}
-              onChange={handleChange}
-            />
-          </div>
+            {/* 2. Invoice/Challan No */}
+            <div>
+              <label className="block text-center">Invoice/Challan No*</label>
+              <input
+                type="text"
+                name="invoice_challan_no"
+                className="mt-1 p-2 w-full border input-sm border-gray-300 rounded h-7 text-sm form-input"
+                placeholder="Enter Invoice/Challan No"
+                value={formData.invoice_challan_no}
+                onChange={handleChange}
+              />
+            </div>
 
-          {/* 3. Invoice/Challan Date */}
-          <div>
-            <label className="block text-center">Invoice/Challan Date</label>
-            <input
-              type="date"
-              name="invoice_challan_date"
-              className="mt-1 p-2 w-full border input-sm border-gray-300 rounded h-7 text-sm form-input"
-              value={formData.invoice_challan_date}
-              onChange={handleChange}
-              onKeyDown={handleKeyDown}
-            />
-          </div>
+            {/* 3. Invoice/Challan Date */}
+            <div>
+              <label className="block text-center">Invoice/Challan Date</label>
+              <input
+                type="date"
+                name="invoice_challan_date"
+                className="mt-1 p-2 w-full border input-sm border-gray-300 rounded h-7 text-sm form-input"
+                value={formData.invoice_challan_date}
+                onChange={handleChange}
+                onKeyDown={handleKeyDown}
+              />
+            </div>
 
-          {/* 4. Transport Type */}
-          <div>
-            <label className="block text-center">Transport Type</label>
-            <select
-              name="transport_type"
-              className="mt-1 text-xs w-full border input-sm border-gray-300 rounded h-7 text-sm form-input"
-              value={formData.transport_type || "Company Transport"}
-              onChange={handleChange}
-              onKeyDown={handleKeyDown}
-            >
-              <option value="Company Transport">Company Transport</option>
-              <option value="Sharif Paper & Stationary Transport">
-                Sharif Paper & Stationary Transport
-              </option>
-              <option value="Other Transport">Other Transport</option>
-            </select>
-          </div>
-
-          {/* 5. Order Date */}
-          <div>
-            <label className="block text-center">Order Date</label>
-            <input
-              type="date"
-              name="order_date"
-              className="mt-1 p-2 w-full border input-sm border-gray-300 rounded h-7 text-sm form-input"
-              value={formData.order_date}
-              onChange={handleChange}
-              onKeyDown={handleKeyDown}
-            />
-          </div>
-
-          {/* 6. Order No */}
-          <div>
-            <label className="block text-center">Order No</label>
-            <input
-              type="text"
-              name="order_no"
-              className="mt-1 p-2 w-full border input-sm border-gray-300 rounded h-7 text-sm form-input"
-              placeholder="Enter Order No"
-              value={formData.order_no}
-              onChange={handleChange}
-              onKeyDown={handleKeyDown}
-            />
-          </div>
-
-          {/* 9. Delivery Date */}
-          <div>
-            <label className="block text-center">Delivery Date</label>
-            <input
-              type="date"
-              name="delivery_date"
-              className="mt-1 p-2 w-full border input-sm border-gray-300 rounded h-7 text-sm form-input"
-              value={formData.delivery_date}
-              onChange={handleChange}
-              onKeyDown={handleKeyDown}
-            />
-          </div>
-
-          {/* 10. Delivery No */}
-          <div>
-            <label className="block text-center">Delivery No</label>
-            <input
-              type="text"
-              name="delivery_no"
-              className="mt-1 p-2 w-full border input-sm border-gray-300 rounded h-7 text-sm form-input"
-              placeholder="Enter Delivery No"
-              value={formData.delivery_no}
-              onChange={handleChange}
-              onKeyDown={handleKeyDown}
-            />
-          </div>
-
-          {/* 11. Vehicle No */}
-          <div>
-            <label className="block text-center">Vehicle No</label>
-            <input
-              type="text"
-              name="vehicle_no"
-              className="mt-1 p-2 w-full border input-sm border-gray-300 rounded h-7 text-sm form-input"
-              placeholder="Enter Vehicle No"
-              value={formData.vehicle_no}
-              onChange={handleChange}
-              onKeyDown={handleKeyDown}
-            />
-          </div>
-
-          {/* 12. Godown (ForeignKey - ID) */}
-          <div>
-            <label className="block text-center">Godown</label>
-            <select
-              name="godown"
-              value={formData.godown}
-              onChange={handleGodownChange}
-              onKeyDown={handleKeyDown}
-              className="mt-1 w-full border input-sm border-gray-300 rounded h-7 text-sm form-input"
-            >
-              <option value="">Select Godown</option>
-              {godowns.map((godown) => (
-                <option key={godown.id} value={godown.id}>
-                  {godown.godown_name}
+            {/* 4. Transport Type */}
+            <div>
+              <label className="block text-center">Transport Type</label>
+              <select
+                name="transport_type"
+                className="mt-1  w-full border input-sm border-gray-300 rounded h-7 text-sm form-input"
+                value={formData.transport_type || "Company Transport"}
+                onChange={handleChange}
+                onKeyDown={handleKeyDown}
+              >
+                <option value="Company Transport">Company Transport</option>
+                <option value="Sharif Paper & Stationary Transport">
+                  Sharif Paper & Stationary Transport
                 </option>
-              ))}
-            </select>
-          </div>
+                <option value="Other Transport">Other Transport</option>
+              </select>
+            </div>
 
-          {/* 13. Entry By */}
-          <div>
-            <label className="block text-center">Entry By</label>
-            <input
-              type="text"
-              name="entry_by"
-              className="mt-1 p-2 w-full border input-sm border-gray-300 rounded h-7 text-sm form-input"
-              placeholder="Enter Entry By"
-              value={formData.entry_by}
-              onChange={handleChange}
-              onKeyDown={handleKeyDown}
-            />
-          </div>
+            {/* 5. Order Date */}
+            <div>
+              <label className="block text-center">Order Date</label>
+              <input
+                type="date"
+                name="order_date"
+                className="mt-1 p-2 w-full border input-sm border-gray-300 rounded h-7 text-sm form-input"
+                value={formData.order_date}
+                onChange={handleChange}
+                onKeyDown={handleKeyDown}
+              />
+            </div>
 
-          {/* 14. Remarks */}
-          <div>
-            <label className="block text-center">Remarks</label>
-            <input
-              type="text"
-              name="remarks"
-              className="mt-1 p-2 w-full border input-sm border-gray-300 rounded h-7 text-sm form-input"
-              placeholder="Enter Remarks"
-              value={formData.remarks}
-              onChange={handleChange}
-              onKeyDown={handleKeyDown}
-            />
+            {/* 6. Order No */}
+            <div>
+              <label className="block text-center">Order No</label>
+              <input
+                type="text"
+                name="order_no"
+                className="mt-1 p-2 w-full border input-sm border-gray-300 rounded h-7 text-sm form-input"
+                placeholder="Enter Order No"
+                value={formData.order_no}
+                onChange={handleChange}
+                onKeyDown={handleKeyDown}
+              />
+            </div>
+
+            {/* 9. Delivery Date */}
+            <div>
+              <label className="block text-center">Delivery Date</label>
+              <input
+                type="date"
+                name="delivery_date"
+                className="mt-1 p-2 w-full border input-sm border-gray-300 rounded h-7 text-sm form-input"
+                value={formData.delivery_date}
+                onChange={handleChange}
+                onKeyDown={handleKeyDown}
+              />
+            </div>
+
+            {/* 10. Delivery No */}
+            <div>
+              <label className="block text-center">Delivery No</label>
+              <input
+                type="text"
+                name="delivery_no"
+                className="mt-1 p-2 w-full border input-sm border-gray-300 rounded h-7 text-sm form-input"
+                placeholder="Enter Delivery No"
+                value={formData.delivery_no}
+                onChange={handleChange}
+                onKeyDown={handleKeyDown}
+              />
+            </div>
+
+            {/* 11. Vehicle No */}
+            <div>
+              <label className="block text-center">Vehicle No</label>
+              <input
+                type="text"
+                name="vehicle_no"
+                className="mt-1 p-2 w-full border input-sm border-gray-300 rounded h-7 text-sm form-input"
+                placeholder="Enter Vehicle No"
+                value={formData.vehicle_no}
+                onChange={handleChange}
+                onKeyDown={handleKeyDown}
+              />
+            </div>
+
+            {/* 12. Godown (ForeignKey - ID) */}
+            <div>
+              <label className="block text-center">Godown</label>
+              <select
+                name="godown"
+                value={formData.godown}
+                onChange={handleGodownChange}
+                onKeyDown={handleKeyDown}
+                className="mt-1 w-full border input-sm border-gray-300 rounded h-7 text-sm form-input"
+              >
+                <option value="">Select Godown</option>
+                {godowns.map((godown) => (
+                  <option key={godown.id} value={godown.id}>
+                    {godown.godown_name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* 13. Entry By */}
+            <div>
+              <label className="block text-center">Entry By</label>
+              <input
+                type="text"
+                name="entry_by"
+                className="mt-1 p-2 w-full border input-sm border-gray-300 rounded h-7 text-sm form-input"
+                placeholder="Enter Entry By"
+                value={formData.entry_by}
+                onChange={handleChange}
+                onKeyDown={handleKeyDown}
+              />
+            </div>
+
+            {/* 14. Remarks */}
+            <div>
+              <label className="block text-center">Remarks</label>
+              <input
+                type="text"
+                name="remarks"
+                className="mt-1 p-2 w-full border input-sm border-gray-300 rounded h-7 text-sm form-input"
+                placeholder="Enter Remarks"
+                value={formData.remarks}
+                onChange={handleChange}
+                onKeyDown={handleKeyDown}
+              />
+            </div>
           </div>
         </div>
-       </div>
 
         <div className="mt-4">
           <h3 className="text-xl font-semibold mb-4 text-center">
@@ -888,58 +887,59 @@ const handleSubmit = async (e) => {
                 <tr className="text-sm text-center">
                   <td className="border border-gray-300 p-1">New</td>
 
-  {/* Product Name Search & Selection */}
-<td className="border border-gray-300 p-1">
-  <div className="relative">
-  <input
-  type="text"
-  name="product_name"
-  value={searchQuery}
-  className="mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs bg-white text-gray-600 p-1 form-input"
-  onChange={handleSearchProduct}
-  onKeyDown={handleKeyDown}
-  onFocus={() => {
-    // When focused, show products for current company selection
-    const companyProducts = formData.company
-      ? products.filter(product => 
-          product.company && 
-          product.company.id.toString() === formData.company
-        )
-      : products;
-    setFilteredProducts(companyProducts);
-  }}
-  placeholder="Search Product..."
-/>
-    {filteredProducts.length > 0 && (
-      <ul className="absolute left-0 mt-1 w-full bg-white border border-gray-300 rounded shadow-lg max-h-48 overflow-y-auto z-10">
-        {filteredProducts.map((product, index) => (
-          <li
-            key={product.id}
-            className={`p-2 cursor-pointer ${
-              selectedIndex === index ? "bg-blue-200" : "hover:bg-blue-100"
-            }`}
-            onMouseDown={() => selectProduct(product)} // ✅ Prevent losing focus on click
-          >
-            {product.product_name}
-          </li>
-        ))}
-      </ul>
-    )}
-  </div>
-</td>
+                  {/* Product Name Search & Selection */}
+                  <td className="border border-gray-300 p-1">
+                    <div className="relative">
+                      <input
+                        type="text"
+                        name="product_name"
+                        value={searchQuery}
+                        className="mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs bg-white text-gray-600 p-1 form-input"
+                        onChange={handleSearchProduct}
+                        onKeyDown={handleKeyDown}
+                        onFocus={() => {
+                          // When focused, show products for current company selection
+                          const companyProducts = formData.company
+                            ? products.filter(
+                                (product) =>
+                                  product.company &&
+                                  product.company.id.toString() ===
+                                    formData.company
+                              )
+                            : products;
+                          setFilteredProducts(companyProducts);
+                        }}
+                        placeholder="Search Product..."
+                      />
+                      {filteredProducts.length > 0 && (
+                       <ul className="absolute left-0 mt-1 w-full bg-white border border-gray-300 rounded shadow-lg max-h-48 overflow-y-auto z-10">
+                       {filteredProducts.map((product, index) => (
+                         <li
+                           key={product.id}
+                           className={`p-2 cursor-pointer transition-all ${
+                             selectedIndex === index ? "bg-blue-200 font-semibold" : "hover:bg-blue-100"
+                           }`}
+                           onMouseDown={() => selectProduct(product)}
+                         >
+                           {product.product_name}
+                         </li>
+                       ))}
+                     </ul>
+                      )}
+                    </div>
+                  </td>
 
-{/* Product Code (Read-only) */}
-<td className="border border-gray-300 p-1">
-  <input
-    type="text"
-    name="product"
-    value={newItem.product}
-    className="mt-1 p-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs form-input bg-gray-100"
-    readOnly
-  />
-</td>
-
-
+                  {/* Product Code (Read-only) */}
+                  <td className="border border-gray-300 p-1">
+                    <input
+                      type="text"
+                      name="product"
+                      value={newItem.product}
+                      className="mt-1 p-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs form-input bg-gray-100"
+                      readOnly
+                      placeholder="Enter product code"
+                    />
+                  </td>
 
                   {/* Rim Input - Disabled if DOZEN */}
                   <td className="border border-gray-300 p-1">
@@ -1100,11 +1100,10 @@ const handleSubmit = async (e) => {
                       value={newItem.per_rim_sale_price}
                       onChange={handleItemChange}
                       onKeyDown={handleKeyDown}
-                       className={`mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs p-1 form-input ${
+                      className={`mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs p-1 form-input ${
                         newItem.product_type === "DOZEN" ? "bg-gray-200" : ""
                       }`}
                       placeholder="Per rim sale price"
-                     
                     />
                   </td>
                   <td className="border border-gray-300 p-1">
@@ -1118,7 +1117,6 @@ const handleSubmit = async (e) => {
                         newItem.product_type === "RIM-A4" ? "bg-gray-200" : ""
                       }`}
                       placeholder="Per dozen sale price"
-                     
                     />
                   </td>
                   <td className="border border-gray-300 p-1">
@@ -1132,7 +1130,6 @@ const handleSubmit = async (e) => {
                         newItem.product_type === "RIM-A4" ? "bg-gray-200" : ""
                       }`}
                       placeholder="Per sheet/piece sale price"
-                    
                     />
                   </td>
                   <td className="border border-gray-300 p-1">
