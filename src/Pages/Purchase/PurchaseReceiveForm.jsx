@@ -4,6 +4,7 @@ import "jspdf-autotable";
 import AxiosInstance from "../../Components/AxiosInstance";
 
 import { useUser } from "../../Provider/UserProvider";
+import { Link } from "react-router-dom";
 
 function PurchaseReceiveForm() {
   const [companies, setCompanies] = useState([]); // Store fetched companies
@@ -243,7 +244,7 @@ function PurchaseReceiveForm() {
       updatedItem.per_dozen_price = "";
       updatedItem.per_dozen_sale_price = "";
     } else if (isDozen) {
-      updatedItem.total_sheet_piece = dozen * 12 || "";
+      updatedItem.total_sheet_piece = dozen * 12 + onlySheetPiece || "";
 
       updatedItem.per_dozen_price = purchasePrice
         ? parseFloat((purchasePrice / (dozen || 1)).toFixed(2))
@@ -527,7 +528,11 @@ const handleSubmit = async (e) => {
   };
 
   return (
-    <div className="m-8 mb-0 mx-12">
+    <div className="m-6 mb-0 ">
+      <div className="flex items-start justify-between mb-5">
+        <h2 className="text-xl font-medium">Purchase Details</h2>
+        <Link to="/purchase-list"><button className="btn bg-blue-950 text-xs btn-sm text-white">Purchase List</button></Link>
+      </div>
       <h2 className="text-xl font-semibold mb-4 -mt-6 text-center">
         Purchase & Invoice Information
       </h2>
@@ -536,7 +541,8 @@ const handleSubmit = async (e) => {
         onKeyDown={handleKeyDown}
         className="form-input"
       >
-        <div className="p-4 rounded-xl grid grid-cols-7 gap-2 text-sm bg-white shadow-[0px_0px_30px_rgba(0,0,0,0.1) ] ">
+       <div  className="p-4 bg-white shadow-[0px_0px_30px_rgba(0,0,0,0.1)] rounded-md mt-4">
+       <div className=" grid grid-cols-7 gap-2 text-sm  ">
           {/* 🔹 Company Selection (Dropdown) */}
           <div>
             <label className="block text-center">Company*</label>
@@ -715,6 +721,7 @@ const handleSubmit = async (e) => {
             />
           </div>
         </div>
+       </div>
 
         <div className="mt-4">
           <h3 className="text-xl font-semibold mb-4 text-center">
@@ -1078,15 +1085,15 @@ const handleSubmit = async (e) => {
         </h3>
 
         {/* Payment Section Wrapper */}
-        <div className="p-4 bg-white shadow-[0px_0px_30px_rgba(0,0,0,0.1)] rounded-md mt-4">
-          <div className="grid grid-cols-10 gap-2 items-center">
+        <div className="p-4 px-2 bg-white shadow-[0px_0px_30px_rgba(0,0,0,0.1)] rounded-md mt-4">
+          <div className="grid grid-cols-10 gap-1 items-center">
             {/* Company Name (Read-Only) */}
             <div>
-              <label className="block text-center">Company Name</label>
+              <label className="block text-sm text-center">Company Name</label>
               <input
                 type="text"
                 name="company_name"
-                className="mt-1 p-2 w-full border input-sm border-gray-300 rounded h-7 text-sm bg-gray-100 form-input"
+                className="mt-1 p-2 w-full border input-sm border-gray-300 rounded h-7 text-sm form-input"
                 placeholder="Company Name"
                 value={formData.company_name || ""}
                 onKeyDown={handleKeyDown}
@@ -1096,11 +1103,11 @@ const handleSubmit = async (e) => {
 
             {/* Previous Due (Read-Only) */}
             <div>
-              <label className="block text-center">Previous Due</label>
+              <label className="block text-sm text-center">Previous Due</label>
               <input
                 type="number"
                 name="previous_due"
-                className="mt-1 p-2 w-full border border-gray-300 rounded h-9 bg-gray-100 placeholder:text-xs form-input"
+                className="mt-1 p-2 w-full border input-sm border-gray-300 rounded h-7 text-sm form-input"
                 value={formData.previous_due}
                 onKeyDown={handleKeyDown}
                 readOnly
@@ -1115,7 +1122,7 @@ const handleSubmit = async (e) => {
               <input
                 type="number"
                 name="invoice_challan_amount"
-                className="mt-1 p-2 w-full border border-gray-300 rounded h-9 placeholder:text-xs form-input"
+                className="mt-1 p-2 w-full border input-sm border-gray-300 rounded h-7 text-sm form-input"
                 placeholder="Enter amount"
                 value={formData.invoice_challan_amount}
                 onKeyDown={handleKeyDown}
@@ -1131,7 +1138,7 @@ const handleSubmit = async (e) => {
               <input
                 type="number"
                 name="today_paid_amount"
-                className="mt-1 p-2 w-full border border-gray-300 rounded h-9 placeholder:text-xs form-input"
+                className="mt-1 p-2 w-full border input-sm border-gray-300 rounded h-7 text-sm form-input"
                 placeholder="Enter paid amount"
                 value={formData.today_paid_amount}
                 onChange={handleChange}
@@ -1148,7 +1155,7 @@ const handleSubmit = async (e) => {
                 type="text"
                 name="payment_type"
                 list="paymentOptions"
-                className="mt-1 p-2 w-full border border-gray-300 rounded h-9 text-sm form-input"
+                className="mt-1 p-2 w-full border input-sm border-gray-300 rounded h-7 text-sm form-input"
                 placeholder="Select Payment Type"
                 value={formData.payment_type}
                 onChange={handleChange}
@@ -1174,7 +1181,7 @@ const handleSubmit = async (e) => {
               <input
                 type="text"
                 name="bank_name"
-                className="mt-1 p-2 w-full border border-gray-300 rounded h-9 placeholder:text-xs form-input"
+                className="mt-1 p-2 w-full border input-sm border-gray-300 rounded h-7 text-sm form-input"
                 placeholder="Enter bank name"
                 value={formData.bank_name}
                 onChange={handleChange}
@@ -1191,7 +1198,7 @@ const handleSubmit = async (e) => {
               <input
                 type="text"
                 name="account_no"
-                className="mt-1 p-2 w-full border border-gray-300 rounded h-9 placeholder:text-xs"
+                className="mt-1 p-2 w-full border input-sm border-gray-300 rounded h-7 text-sm form-input"
                 placeholder="Enter account no"
                 value={formData.account_no}
                 onChange={handleChange}
@@ -1207,7 +1214,7 @@ const handleSubmit = async (e) => {
               <input
                 type="text"
                 name="cheque_no"
-                className="mt-1 p-2 w-full border border-gray-300 rounded h-9 placeholder:text-xs"
+                className="mt-1 p-2 w-full border input-sm border-gray-300 rounded h-7 text-sm form-input"
                 placeholder="Enter cheque no"
                 value={formData.cheque_no}
                 onChange={handleChange}
@@ -1223,7 +1230,7 @@ const handleSubmit = async (e) => {
               <input
                 type="date"
                 name="cheque_date"
-                className="mt-1 p-2 w-full border border-gray-300 rounded h-9"
+                className="mt-1 p-2 w-full border input-sm border-gray-300 rounded h-7 text-sm form-input"
                 value={formData.cheque_date}
                 onChange={handleChange}
                 disabled={!isChequePayment}
@@ -1237,7 +1244,7 @@ const handleSubmit = async (e) => {
               <input
                 type="number"
                 name="balance_amount"
-                className="mt-1 p-2 w-full border border-gray-300 rounded h-9 placeholder:text-xs"
+                className="mt-1 p-2 w-full border input-sm border-gray-300 rounded h-7 text-sm form-input"
                 placeholder="Enter balance"
                 value={formData.balance_amount}
                 onChange={handleChange}
