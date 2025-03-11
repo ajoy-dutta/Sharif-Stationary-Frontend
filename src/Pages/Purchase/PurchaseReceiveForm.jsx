@@ -528,16 +528,9 @@ const handleSubmit = async (e) => {
 
   return (
     <div className="m-8 mb-0 mx-12">
-      <div className="flex justify-between items-center mb-4">
-  <h2 className="text-xl font-bold">Purchase & Invoice Information</h2>
-  <button
-    onClick={() => navigate("/purchase-list")} // Adjust the path as needed
-    className="bg-blue-950 hover:bg-blue-950 text-white font-bold py-2 px-4 rounded"
-  >
-    Go to List
-  </button>
-</div>
-
+      <h2 className="text-xl font-semibold mb-4 -mt-6 text-center">
+        Purchase & Invoice Information
+      </h2>
       <form
         onSubmit={handleSubmit}
         onKeyDown={handleKeyDown}

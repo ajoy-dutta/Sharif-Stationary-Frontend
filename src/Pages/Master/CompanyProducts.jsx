@@ -34,11 +34,13 @@ const CompanyProducts = () => {
   }, [companyId]);
 
   // ✅ Fix: Search with null/undefined handling
-  const filteredProducts = products.filter((product) =>
-    (product.product_name && product.product_name.toLowerCase().includes(searchTerm.toLowerCase())) ||
-    (product.product_type && product.product_type.toLowerCase().includes(searchTerm.toLowerCase())) ||
-    (product.product_code && product.product_code.includes(searchTerm))
-  );
+// ✅ Fix: Search with null/undefined handling
+const filteredProducts = products.filter((product) =>
+  (product.product_name &&
+    product.product_name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+  (product.product_code &&
+    product.product_code.toLowerCase().includes(searchTerm.toLowerCase()))
+);
 
   const indexOfLastProduct = currentPage * productsPerPage;
   const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
@@ -124,7 +126,7 @@ const CompanyProducts = () => {
       </div>
 
       {/* 📌 Pagination */}
-      <div className="flex justify-center mt-4">
+      {/* <div className="flex justify-center mt-4">
         {Array.from({ length: totalPages }, (_, i) => (
           <button
             key={i}
@@ -134,7 +136,7 @@ const CompanyProducts = () => {
             {i + 1}
           </button>
         ))}
-      </div>
+      </div> */}
 
       {/* ✅ Edit Product Modal */}
       {editableProduct && (
