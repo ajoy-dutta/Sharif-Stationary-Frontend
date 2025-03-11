@@ -110,25 +110,26 @@ const Customer = () => {
       toast.error("Failed to delete customer!");
     }
   };
-
   const handleSearch = (e) => {
     const term = e.target.value.toLowerCase();
     setSearchTerm(term);
-
+  
     if (!term.trim()) {
       setCustomers(backupCustomers);
       return;
     }
-
+  
+    // Filter by customer_id OR customer_name
     const filtered = backupCustomers.filter(
       (item) =>
-        item.customer_name &&
-        item.customer_name.toLowerCase().includes(term)
+        (item.customer_id && item.customer_id.toLowerCase().includes(term)) ||
+        (item.customer_name && item.customer_name.toLowerCase().includes(term))
     );
-
+  
     setCustomers(filtered);
   };
-
+  
+  
   return (
     <div className="m-8">
       <h2 className="text-sm">Customer Name:*</h2>
@@ -136,7 +137,7 @@ const Customer = () => {
         <div className="join items-center">
           <input
             type="text"
-            placeholder="Enter customer name"
+            placeholder="Enter Customer ID or Customer Name"
             value={searchTerm}
             onChange={handleSearch}
             className="input input-bordered text-sm rounded-s-md h-[30px] join-item"
@@ -159,46 +160,65 @@ const Customer = () => {
         <h2 className="text-lg">List of Customers</h2>
       </div>
       <div className="overflow-x-auto">
-        <table className="table table-sm text-sm table-zebra table-fixed table-compact w-3/4 mx-auto">
-          <thead className="bg-blue-950 text-white">
-            <tr className="text-left">
-            <th className="w-4">SL</th> {/* Adjust width */}
-        <th className="w-16">Customer Name</th>
-        <th className="w-16">Phone Number</th>
-        <th className="w-16">Address</th>
-        <th className="w-8">Due Amount</th>
-        <th className="w-4">Edit</th>
-        <th className="w-4">Delete</th>
-            </tr>
-          </thead>
-          <tbody className="text-left">
-            {customers.length > 0 ? (
-              customers.map((item, index) => (
-                <tr key={index}>
-                  <td>{item.id}</td>
-                  <td>{item.customer_name}</td>
-                  <td>{item.customer_phone_no}</td>
-                  <td>{item.customer_address}</td>
-                  <td>{item.due_amount}</td>
-                  <td>
-                    <button className="text-blue-500 hover:underline" onClick={() => { setEditableCustomer(item); document.getElementById("customer_modal").showModal(); }}>
-                      <FaEdit />
-                    </button>
-                  </td>
-                  <td>
-                    <button className="text-red-500 hover:underline" onClick={() => handleDeleteCustomer(item.id)}>
-                      <ImCross />
-                    </button>
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="7" className="px-4 py-6 text-gray-500">No customers found!</td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+      <table className="table table-sm text-sm table-zebra table-fixed table-compact w-3/4 mx-auto">
+  <thead className="bg-blue-950 text-white">
+    <tr className="text-left">
+      <th className="w-4">SL</th> {/* Adjust width */}
+      <th className="w-12">Customer ID</th>
+      <th className="w-16">Customer Name</th>
+      <th className="w-16">Phone Number</th>
+      <th className="w-16">Address</th>
+      <th className="w-16">Shop Name</th>
+      <th className="w-20">Shop Address</th>
+      <th className="w-16">Due Amount</th>
+      <th className="w-2">Edit</th>
+      <th className="w-4">Delete</th>
+    </tr>
+  </thead>
+
+  <tbody className="text-left">
+    {customers.length > 0 ? (
+      customers.map((item, index) => (
+        <tr key={index}>
+          <td>{index + 1}</td> {/* Serial Number */}
+          <td>{item.customer_id}</td>
+          <td>{item.customer_name}</td>
+          <td>{item.customer_phone_no}</td>
+          <td>{item.customer_address}</td>
+          <td>{item.customer_shop}</td>
+          <td>{item.shop_address}</td>
+          <td className="text-left">{parseFloat(item.due_amount).toLocaleString()} ৳</td>
+          <td>
+            <button
+              className="text-blue-500 hover:underline"
+              onClick={() => {
+                setEditableCustomer(item);
+                document.getElementById("customer_modal").showModal();
+              }}
+            >
+              <FaEdit />
+            </button>
+          </td>
+          <td>
+            <button
+              className="text-red-500 hover:underline"
+              onClick={() => handleDeleteCustomer(item.id)}
+            >
+              <ImCross />
+            </button>
+          </td>
+        </tr>
+      ))
+    ) : (
+      <tr>
+        <td colSpan="10" className="px-4 py-6 text-gray-500 text-center">
+          No customers found!
+        </td>
+      </tr>
+    )}
+  </tbody>
+</table>
+
       </div>
 
       <dialog id="customer_modal" className="modal modal-bottom sm:modal-middle">
@@ -296,11 +316,11 @@ const Customer = () => {
 
     {/* Due Amount */}
     <div className="flex flex-col mt-2">
-      <label className="text-sm font-medium text-gray-700 mb-1">Due Amount</label>
+      <label className="text-sm  font-medium text-gray-700 mb-1">Due Amount</label>
       <input
         type="number"
         placeholder="Enter due amount"
-        className="input input-bordered w-full p-2"
+        className="input input-bordered w-full p-2 "
         value={editableCustomer ? editableCustomer.due_amount : newCustomer.due_amount}
         onChange={(e) =>
           editableCustomer
