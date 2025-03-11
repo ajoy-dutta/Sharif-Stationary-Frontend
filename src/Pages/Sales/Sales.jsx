@@ -1,397 +1,716 @@
-import { useState } from 'react';
- 
+import { useState, useEffect } from "react";
+import React from "react";
+import axios from "axios";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
+import axiosInstance from "../../Components/AxiosInstance";
+
+import { ChevronDown } from "lucide-react";
 
 const Sales = () => {
-  const [formData, setFormData] = useState({
-    invoiceNo: "",
-    date: "",
-    branch: "",
-    servedBy: "",
-    voucherNo: "",
-    customer: "",
-    customerAddress: "",
-    remarks: "",
-    deliveryAddress: "",
-    temporaryCustomer: false,
-    payMethod: "Cash",
-    cardDetails: "",
-    items: [
+  // State Variables
+  const [companyName, setCompanyName] = useState("");
+  const [orderNo, setOrderNo] = useState("");
+  const [invoiceNo, setInvoiceNo] = useState("");
+  const [remarks, setRemarks] = useState("");
+  const [customerID, setCustomerID] = useState("");
+  const [customers, setCustomers] = useState([]);
+  const [customerAddress, setCustomerAddress] = useState("");
+  const [customerName, setCustomerName] = useState("");
+  const [customerPhone, setCustomerPhone] = useState("");
+  const [chequeNo, setChequeNo] = useState("");
+  const [chequeDate, setChequeDate] = useState("");
+  const [orderDate, setOrderDate] = useState("");
+  const [driverMobile, setDriverMobile] = useState("");
+  const [reference, setReference] = useState("");
+  const [previousDue, setPreviousDue] = useState(0);
+  const [todayBill, setTodayBill] = useState(0);
+  const [todayPaid, setTodayPaid] = useState(0);
+  const [paidBy, setPaidBy] = useState("Cash");
+  const [bankName, setBankName] = useState("");
+  const [accountNo, setAccountNo] = useState("");
+  const [balanceAmount, setBalanceAmount] = useState("");
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [showTable, setshowTable] = useState(false);
+
+  const [items, setItems] = useState([
+    {
+      no: 1,
+      productDescription: "",
+      productCode: "",
+      stockRim: "",
+      stockDozen: "",
+      stockSheetPiece: "",
+      rimDozenPrice: "",
+      sheetPiecePrice: "",
+      inputRimDozenQty: "",
+      inputSheetPieceQty: "",
+      inputRimDozenPrice: "",
+      inputSheetPiecePrice: "",
+      totalPrice: "",
+    },
+  ]);
+
+  const handleChange = (e, index, field) => {
+    const updatedItems = [...items];
+    updatedItems[index][field] = e.target.value;
+    setItems(updatedItems);
+  };
+
+  const addRow = () => {
+    setItems([
+      ...items,
       {
-        itemCode: "",
-        title: "",
-        cyCn: "",
-        rim: 0,
-        sheet: 0,
-        qty: 0,
-        balance: 0,
-        uom: "",
-        sheetRate: 0,
-        convRim: 0,
-        vat: 0,
-        vatAmount: 0,
-        itemTotal: 0,
-        discount: 0,
-        discountAmount: 0,
-        quantityAmount: 0,
-        unitQuantity: 0,
-        name: "",
+        no: items.length + 1,
+        productDescription: "",
+        productCode: "",
+        stockRim: "",
+        stockDozen: "",
+        stockSheetPiece: "",
+        rimDozenPrice: "",
+        sheetPiecePrice: "",
+        inputRimDozenQty: "",
+        inputSheetPieceQty: "",
+        inputRimDozenPrice: "",
+        inputSheetPiecePrice: "",
+        totalPrice: "",
       },
-    ],
-    cardAmount: 0,
-    paidAmount: 0,
-    dueAmount: 0,
-    totalAmount: 0,
-    discount: 0,
-    vatTotal: 0,
-    exchangePoint: 0,
-    netAmount: 0,
-  });
-
-  const handleChange = (e, index) => {
-    const { name, value } = e.target;
-
-    setFormData((prevData) => {
-      const updatedItems = [...prevData.items];
-      updatedItems[index] = {
-        ...updatedItems[index],
-        [name]: value === "" ? "" : isNaN(value) ? value : Number(value), // Ensure numbers are stored properly
-      };
-
-      return { ...prevData, items: updatedItems };
-    });
+    ]);
   };
 
-  const addItem = () => {
-    setFormData((prevData) => ({
-      ...prevData,
-      items: [
-        ...prevData.items,
-        {
-          itemCode: "",
-          title: "",
-          cyCn: "",
-          rim: 0,
-          sheet: 0,
-          qty: 0,
-          balance: 0,
-          uom: "",
-          sheetRate: 0,
-          convRim: 0,
-          vat: 0,
-          vatAmount: 0,
-          itemTotal: 0,
-          discount: 0,
-          discountAmount: 0,
-          quantityAmount: 0,
-          unitQuantity: 0,
-          name: "",
-        },
-      ],
-    }));
+  const removeRow = (index) => {
+    setItems(items.filter((_, i) => i !== index));
   };
 
-   // Delete a row
-   const deleteItem = (index) => {
-    setFormData((prevData) => ({
-      ...prevData,
-      items: prevData.items.filter((_, i) => i !== index),
-    }));
+  const handlePDFExport = () => {
+    const invoiceWindow = window.open("", "_blank"); // Open new window
+
+    invoiceWindow.document.write(`
+      <html>
+        <head>
+          <title>Sales Invoice</title>
+          <style>
+            body { font-family: Arial, sans-serif; padding: 20px; }
+            .container { width: 80%; margin: auto; border: 1px solid #ddd; padding: 20px; }
+            .header { text-align: center; }
+            .title { font-size: 20px; font-weight: bold; }
+            .details { margin-top: 20px; }
+            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+            th, td { border: 1px solid #ddd; padding: 10px; text-align: center; }
+            .total { font-size: 16px; font-weight: bold; margin-top: 20px; text-align: right; }
+            .buttons { text-align: center; margin-top: 20px; }
+            .buttons button { padding: 10px 15px; margin: 5px; cursor: pointer; }
+            .total-row td { font-weight: bold; background-color: #f2f2f2; }
+            .total-text { text-align: center; } /* Total text alignment */
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <h2>SHARIF PAPER & STATIONARY</h2>
+              <p>36-GOHATA ROAD, LOHAPOTTY, JASHORE</p>
+              <p>Shop Contact: 01854-341463</p>
+            </div>
+  
+            <div class="title">SALES INVOICE</div>
+  
+            <div class="details">
+              <p><strong>Served By:</strong> YEASIN ARAFAT</p>
+              <p><strong>Date & Time:</strong> 29/01/25 10:35 PM</p>
+              <p><strong>Invoice No:</strong> SSP.INV.00003210.25</p>
+              <p><strong>Pay Method:</strong> Cash</p>
+            </div>
+  
+            <div class="details">
+              <p><strong>Customer:</strong> Likhoni</p>
+              <p><strong>Address:</strong> RAZGONG-AMINUR</p>
+              <p><strong>Phone No:</strong> 01545545555</p>
+            </div>
+  
+            <table id="invoiceTable">
+              <thead>
+                <tr>
+                  <th>Sl. No</th>
+                  <th>Item Code</th>
+                  <th>Title</th>
+                  <th>Unit Qty</th>
+                  <th>Name</th>
+                  <th>Discount %</th>
+                  <th>Conversion Qty</th>
+                  <th>Rim Rate</th>
+                  <th>Sheet Rate</th>
+                  <th>Amount</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>1</td>
+                  <td>00000368</td>
+                  <td>16 OFFSET REGISTER</td>
+                  <td>2</td>
+                  <td>Dz</td>
+                  <td>Dz</td>
+                  <td>Dz</td>
+                  <td>Dz</td>
+                  <td>624.00</td>
+                  <td class="amount">1248.00</td>
+                </tr>
+                <!-- Additional rows can be added dynamically -->
+              </tbody>
+              <tfoot>
+                <tr class="total-row">
+                  <td colspan="9" class="total-text">Total</td>
+                  <td id="totalAmount">0.00</td>
+                </tr>
+              </tfoot>
+            </table>
+  
+            <div class="total">
+              <p>Net Amount: <span id="netAmount">1248.00</span></p>
+              <p>Due Amount: 1248.00</p>
+              <p>Previous Due: 0.00</p>
+              <p>Current Due: 1248.00</p>
+            </div>
+  
+            <div class="buttons">
+              <button onclick="window.print()">Print</button>
+              <button onclick="downloadPDF()">Download PDF</button>
+            </div>
+  
+            <script>
+              function calculateTotal() {
+                let total = 0;
+                document.querySelectorAll(".amount").forEach(cell => {
+                  total += parseFloat(cell.innerText) || 0;
+                });
+                document.getElementById("totalAmount").innerText = total.toFixed(2);
+                document.getElementById("netAmount").innerText = total.toFixed(2);
+              }
+  
+              function downloadPDF() {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                doc.text("Sales Invoice", 14, 15);
+                doc.autoTable({ html: "#invoiceTable" });
+                doc.save("invoice.pdf");
+              }
+  
+              calculateTotal(); // Call function to calculate total
+            </script>
+          </div>
+        </body>
+      </html>
+    `);
+
+    invoiceWindow.document.close();
   };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    alert("Purchase, Items, and Payment Information Saved Successfully!");
+  };
+
+  useEffect(() => {
+    setOrderDate(new Date().toISOString().split("T")[0]);
+  }, []);
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      const formElements = Array.from(
+        document.querySelectorAll("input, select")
+      );
+      const index = formElements.indexOf(e.target);
+      if (index >= 0 && index < formElements.length - 1) {
+        formElements[index + 1].focus();
+      }
+    }
+  };
+
+  // Fetch customers from API using axiosInstance
+  useEffect(() => {
+    const fetchCustomers = async () => {
+      try {
+        const response = await axiosInstance.get("/customers/");
+        setCustomers(response.data); // Store customer list in state
+      } catch (error) {
+        console.error("Error fetching customers:", error);
+      }
+    };
+
+    fetchCustomers();
+  }, []);
 
   return (
-    <div className="max-w-6xl mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-4 text-center">Sales Form</h1>
-
-      {/* Invoice Details Section */}
-      <div className="grid grid-cols-4 gap-4 mb-6">
-  <div>
-    <label className="block text-sm font-medium">Invoice No.</label>
-    <div className="flex">
-      <input
-        type="text"
-        name="invoiceNo"
-        value={formData.invoiceNo}
-        onChange={handleChange}
-        className="w-full px-8 py-1 border border-gray-300 rounded"
-      />
-      <button className="ml-2 px-8 py-1 bg-blue-500 text-white rounded">Search</button>
-    </div>
-  </div>
-
-  <div>
-    <label className="block text-sm font-medium">Date</label>
-    <input
-      type="date"
-      name="date"
-      value={formData.date}
-      onChange={handleChange}
-      className="w-full px-8 py-1 border border-gray-300 rounded"
-    />
-  </div>
-
-  <div>
-    <label className="block text-sm font-medium">Branch</label>
-    <input
-      type="text"
-      name="branch"
-      value={formData.branch}
-      onChange={handleChange}
-      className="w-full px-8 py-1 border border-gray-300 rounded"
-    />
-  </div>
-
-  <div>
-    <label className="block text-sm font-medium">Served By</label>
-    <input
-      type="text"
-      name="servedBy"
-      value={formData.servedBy}
-      onChange={handleChange}
-      className="w-full px-8 py-1 border border-gray-300 rounded"
-    />
-  </div>
+    <div className="m-8 mb-0 mx-12">
+      <h2 className="text-xl font-semibold mb-2 -mt-4 text-center">Sale</h2>
+      <form onSubmit={handleSubmit} onKeyDown={handleKeyDown}>
+        {/* sale */}
+        <div className="p-4 rounded-xl grid grid-cols-8 gap-2 text-sm ]">
+          <div>
+            <label className="block text-center">Date</label>
+            <input
+              type="date"
+              className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
+              value={orderDate}
+              onChange={(e) => setOrderDate(e.target.value)}
+              onKeyDown={handleKeyDown}
+            />
+          </div>
+          <div>
+  <label className="block text-center ">Customer Name</label>
+  <select
+    className="mt-1 p-2 w-full border border-gray-300 rounded h-9"
+    value={customerName}
+    onChange={(e) => {
+      const selectedCustomer = customers.find(
+        (c) => c.customer_name === e.target.value
+      );
+      if (selectedCustomer) {
+        setCustomerID(selectedCustomer.id); // Auto-generate Customer ID
+        setCustomerName(selectedCustomer.customer_name);
+        setCustomerAddress(selectedCustomer.customer_address); // Auto-fill Address
+        setCustomerPhone(selectedCustomer.customer_phone_no); // Auto-fill Phone No
+      }
+    }}
+  >
+    <option value="">Select Customer</option>
+    {customers.map((customer) => (
+      <option key={customer.id} value={customer.customer_name}>
+        {customer.customer_name}
+      </option>
+    ))}
+  </select>
 </div>
 
-<div className="grid grid-cols-4 gap-4 mb-6">
-  <div>
-    <label className="block text-sm font-medium">Voucher No.</label>
-    <input
-      type="text"
-      name="voucherNo"
-      value={formData.voucherNo}
-      onChange={handleChange}
-      className="w-full px-8 py-1 border border-gray-300 rounded"
-    />
-  </div>
-
-  <div>
-    <label className="block text-sm font-medium">Pay Method</label>
-    <select
-      name="payMethod"
-      value={formData.payMethod}
-      onChange={handleChange}
-      className="w-full px-8 py-1 border border-gray-300 rounded"
-    >
-      <option value="Cash">Cash</option>
-      <option value="Card">Card</option>
-      <option value="bKash">bKash</option>
-    </select>
-  </div>
-
-  <div>
-    <label className="block text-sm font-medium">Card Details</label>
-    <input
-      type="text"
-      name="cardDetails"
-      value={formData.cardDetails}
-      onChange={handleChange}
-      className="w-full px-8 py-1 border border-gray-300 rounded"
-    />
-  </div>
-
-  <div className="flex items-center">
-    <input
-      type="checkbox"
-      name="temporaryCustomer"
-      checked={formData.temporaryCustomer}
-      onChange={() => setFormData({ ...formData, temporaryCustomer: !formData.temporaryCustomer })}
-      className="mr-2"
-    />
-    <label className="block text-sm font-medium">Temporary Customer</label>
-  </div>
+<div>
+  <label className="block text-center">Customer ID</label>
+  <input
+    type="text"
+    className="mt-1 p-2 w-full border border-gray-300 rounded h-7 bg-gray-200"
+    value={customerID || ""}
+    readOnly
+    placeholder="Auto-generated"
+  />
 </div>
 
-<div className="grid grid-cols-4 gap-4 mb-6">
-  <div>
-    <label className="block text-sm font-medium">Delivery Address</label>
-    <input
-      type="text"
-      name="deliveryAddress"
-      value={formData.deliveryAddress}
-      onChange={handleChange}
-      className="w-full px-8 py-1 border border-gray-300 rounded"
-    />
-  </div>
+<div>
+  <label className="block text-center">Customer Address</label>
+  <input
+    type="text"
+    className="mt-1 p-2 w-full border border-gray-300 rounded h-7 bg-gray-200"
+    value={customerAddress || ""}
+    readOnly
+    placeholder="Auto-filled"
+  />
+</div>
 
-  <div>
-    <label className="block text-sm font-medium">Customer</label>
-    <input
-      type="text"
-      name="customer"
-      value={formData.customer}
-      onChange={handleChange}
-      className="w-full px-8 py-1 border border-gray-300 rounded"
-    />
-  </div>
-
-  <div>
-    <label className="block text-sm font-medium">Customer Address</label>
-    <input
-      type="text"
-      name="customerAddress"
-      value={formData.customerAddress}
-      onChange={handleChange}
-      className="w-full px-8 py-1 border border-gray-300 rounded"
-    />
-  </div>
-
-  <div>
-    <label className="block text-sm font-medium">Remarks</label>
-    <textarea
-      name="remarks"
-      value={formData.remarks}
-      onChange={handleChange}
-      className="w-full px-8 py-1 border border-gray-300 rounded"
-    />
-  </div>
+<div>
+  <label className="block text-center">Phone No</label>
+  <input
+    type="text"
+    className="mt-1 p-2 w-full border border-gray-300 rounded h-7 bg-gray-200"
+    value={customerPhone || ""}
+    readOnly
+    placeholder="Auto-filled"
+  />
 </div>
 
 
-      {/* Items Section */}
-      <div>
-      <h2>Items</h2>
-      <table className="table-auto w-full mb-6 border">
-        <thead>
-        <tr>
-  <th className="border px-8 py-1">Item Code</th>
-  <th className="border px-8 py-1">Title</th>
-  <th className="border px-8 py-1">CY/CN</th>
-  <th className="border px-7 py-1">RIM</th>
-  <th className="border px-8 py-1">SHEET</th>
-  <th className="border px-7 py-1">Qty</th>
-  <th className="border px-8 py-1">Balance</th>
-  <th className="border px-7 py-1">UOM</th>
-  <th className="border px-8 py-1">Sheet Rate</th>
-  <th className="border px-8 py-1">Conv./RIM</th>
-  <th className="border px-7 py-1">VAT %</th>
-  <th className="border px-8 py-1">VAT Amount</th>
-  <th className="border px-8 py-1">Item Total</th>
-  <th className="border px-8 py-1">Discount %</th>
-  <th className="border px-8 py-1">Discount Amount</th>
-  <th className="border px-8 py-1">Quantity Amount</th>
-  <th className="border px-8 py-1">Unit Quantity</th>
-  <th className="border px-8 py-1">Name</th>
-  <th className="border px-8 py-1">Action</th>
-</tr>
 
 
-        </thead>
-        <tbody>
-          {formData.items.map((item, index) => (
-            <tr key={index}>
-              {Object.keys(item).map((key) => (
-                <td key={key} className="border px-8 py-1">
-                  <input
-                    type={typeof item[key] === "number" ? "number" : "text"}
-                    name={key}
-                    value={item[key]}
-                    onChange={(e) => handleChange(e, index)}
-                    className="w-full px-2 py-1 border border-gray-300 rounded"
-                  />
-                </td>
-              ))}
-              <td className="border px-8 py-1 text-center">
+          <div>
+            <label className="block text-center">Remarks</label>
+            <input
+              type="text"
+              className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
+              value={remarks}
+              onChange={(e) => setRemarks(e.target.value)}
+              onKeyDown={handleKeyDown}
+            />
+          </div>
+        </div>
+
+        <div className="mt-4">
+          <h3 className="text-xl font-semibold mb-4 text-center">
+            Item Details
+          </h3>
+          <div className="p-4 rounded-md mt-2 w-full flex justify-center bg-white shadow-[0px_0px_30px_rgba(0,0,0,0.1)] ">
+            <div className="overflow-x-auto w-[100%]">
+              <table className="table border-collapse w-full">
+                <tbody>
+                  {/* First Row: Column Headings */}
+                  <tr className="bg-gray-200 text-gray-700 text-sm">
+                    <td className="p-2 text-center border">No</td>
+                    <td className="p-2 text-center border">
+                      Product Description
+                    </td>
+                    <td className="p-2 text-center border">Product Code</td>
+
+                    <td className="p-2 text-center border">Stock(Rim)</td>
+                    <td className="p-2 text-center border">Stock(Dozen)</td>
+                    <td className="p-2 text-center border">
+                      Stock(Sheet/Piece)
+                    </td>
+                    <td className="p-2 text-center border">
+                      Rim/Dozen Purchase Price with Additional Cost
+                    </td>
+                    <td className="p-2 text-center border">
+                      Sheet/Piece Purchase Price with Additional Cost
+                    </td>
+                    <td className="p-2 text-center border">
+                      Input Rim/Dozen Quantity
+                    </td>
+                    <td className="p-2 text-center border">
+                      Input Sheet/Piece Quantity
+                    </td>
+                    <td className="p-2 text-center border">
+                      Input Rim/Dozen Price
+                    </td>
+                    <td className="p-2 text-center border">
+                      Input only sheet/piece Price
+                    </td>
+                    <td className="p-2 text-center border">Total Price</td>
+                  </tr>
+                  {items.map((item, index) => (
+                    <React.Fragment key={index}>
+                      {/* Second Row: Input Fields */}
+                      <tr className="border">
+                        <td className="border text-center">{index + 1}</td>
+
+                        <td className="border">
+                          <select
+                            className="p-1 border border-gray-300 rounded w-full h-8"
+                            value={item.productDescription}
+                            onChange={(e) =>
+                              handleChange(e, index, "productDescription")
+                            }
+                          >
+                            <option value="">Select</option>
+                            <option value="Other">Other</option>
+                          </select>
+                          {item.productDescription === "Other" && (
+                            <input
+                              type="text"
+                              className="p-1 border border-gray-300 rounded w-full h-8 mt-1"
+                              placeholder="Enter custom description"
+                              value={item.customProductDescription || ""}
+                              onChange={(e) =>
+                                handleChange(
+                                  e,
+                                  index,
+                                  "customProductDescription"
+                                )
+                              }
+                            />
+                          )}
+                        </td>
+                        <td className="border">
+                          <select
+                            className="p-1 border border-gray-300 rounded w-full h-8"
+                            value={item.productCode}
+                            onChange={(e) =>
+                              handleChange(e, index, "productCode")
+                            }
+                          >
+                            <option value="">Select</option>
+                            <option value="Other">Other</option>
+                          </select>
+                          {item.productCode === "Other" && (
+                            <input
+                              type="text"
+                              className="p-1 border border-gray-300 rounded w-full h-8 mt-1"
+                              placeholder="Enter custom product code"
+                              value={item.customProductCode || ""}
+                              onChange={(e) =>
+                                handleChange(e, index, "customProductCode")
+                              }
+                            />
+                          )}
+                        </td>
+
+                        <td className="border">
+                          <input
+                            type="number"
+                            className="p-1 border border-gray-300 rounded w-full h-8 text-center"
+                            value={item.stockRim}
+                            onChange={(e) => handleChange(e, index, "stockRim")}
+                          />
+                        </td>
+
+                        <td className="border">
+                          <input
+                            type="number"
+                            className="p-1 border border-gray-300 rounded w-full h-8 text-center"
+                            value={item.stockDozen}
+                            onChange={(e) =>
+                              handleChange(e, index, "stockDozen")
+                            }
+                          />
+                        </td>
+
+                        <td className="border">
+                          <input
+                            type="number"
+                            className="p-1 border border-gray-300 rounded w-full h-8 text-center"
+                            value={item.stockSheetPiece}
+                            onChange={(e) =>
+                              handleChange(e, index, "stockSheetPiece")
+                            }
+                          />
+                        </td>
+
+                        <td className="border">
+                          <input
+                            type="number"
+                            className="p-1 border border-gray-300 rounded w-full h-8 text-center"
+                            value={item.rimDozenPrice}
+                            onChange={(e) =>
+                              handleChange(e, index, "rimDozenPrice")
+                            }
+                          />
+                        </td>
+
+                        <td className="border">
+                          <input
+                            type="number"
+                            className="p-1 border border-gray-300 rounded w-full h-8 text-center"
+                            value={item.sheetPiecePrice}
+                            onChange={(e) =>
+                              handleChange(e, index, "sheetPiecePrice")
+                            }
+                          />
+                        </td>
+
+                        <td className="border">
+                          <input
+                            type="number"
+                            className="p-1 border border-gray-300 rounded w-full h-8 text-center"
+                            value={item.inputRimDozenQty}
+                            onChange={(e) =>
+                              handleChange(e, index, "inputRimDozenQty")
+                            }
+                          />
+                        </td>
+
+                        <td className="border">
+                          <input
+                            type="number"
+                            className="p-1 border border-gray-300 rounded w-full h-8 text-center"
+                            value={item.inputSheetPieceQty}
+                            onChange={(e) =>
+                              handleChange(e, index, "inputSheetPieceQty")
+                            }
+                          />
+                        </td>
+
+                        <td className="border">
+                          <input
+                            type="number"
+                            className="p-1 border border-gray-300 rounded w-full h-8 text-center"
+                            value={item.inputRimDozenPrice}
+                            onChange={(e) =>
+                              handleChange(e, index, "inputRimDozenPrice")
+                            }
+                          />
+                        </td>
+
+                        <td className="border">
+                          <input
+                            type="number"
+                            className="p-1 border border-gray-300 rounded w-full h-8 text-center"
+                            value={item.inputSheetPiecePrice}
+                            onChange={(e) =>
+                              handleChange(e, index, "inputSheetPiecePrice")
+                            }
+                          />
+                        </td>
+
+                        <td className="border">
+                          <input
+                            type="number"
+                            className="p-1 w-full h-8 border border-gray-300 rounded text-center"
+                            value={item.totalPrice}
+                          />
+                        </td>
+                      </tr>
+                    </React.Fragment>
+                  ))}
+                </tbody>
+              </table>
+
+              <div className="flex justify-between items-center w-full mt-4">
+                {/* Remove Button - Left Side */}
                 <button
-                  onClick={() => deleteItem(index)}
-                  className="px-4 py-1 bg-red-500 text-white rounded"
+                  type="button"
+                  onClick={() => removeRow(index)}
+                  className="bg-red-500 text-white px-4 rounded hover:bg-red-600 text-xs w-24 h-6"
                 >
-                  Delete
+                  Remove
                 </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
 
-      <button
-        onClick={addItem}
-        className="px-8 py-1 bg-green-500 text-white rounded mb-4"
-      >
-        Add Item
-      </button>
-    </div>
-      {/* Payment and Summary Section */}
-  <div className="grid grid-cols-4 gap-4 mb-6">
-  <div>
-    <label className="block text-sm font-medium">Card/bKash Amount</label>
-    <input
-      type="number"
-      name="cardAmount"
-      value={formData.cardAmount}
-      onChange={handleChange}
-      className="w-full px-8 py-1 border border-gray-300 rounded"
-    />
-  </div>
-  <div>
-    <label className="block text-sm font-medium">Paid Amount</label>
-    <input
-      type="number"
-      name="paidAmount"
-      value={formData.paidAmount}
-      onChange={handleChange}
-      className="w-full px-8 py-1 border border-gray-300 rounded"
-    />
-  </div>
-  <div>
-    <label className="block text-sm font-medium">Due Amount</label>
-    <input
-      type="number"
-      name="dueAmount"
-      value={formData.dueAmount}
-      onChange={handleChange}
-      className="w-full px-8 py-1 border border-gray-300 rounded"
-    />
-  </div>
-  <div>
-    <label className="block text-sm font-medium">Discount</label>
-    <input
-      type="number"
-      name="discount"
-      value={formData.discount}
-      onChange={handleChange}
-      className="w-full px-8 py-1 border border-gray-300 rounded"
-    />
-  </div>
-</div>
+                {/* Add Button - Right Side */}
+                <button
+                  type="button"
+                  onClick={addRow}
+                  className="bg-blue-500 text-white px-4 rounded bg-blue-900 text-xs w-24 h-6"
+                >
+                  Add
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
 
-<div className="grid grid-cols-4 gap-4 mb-6">
-  <div>
-    <label className="block text-sm font-medium">VAT</label>
-    <input
-      type="number"
-      name="vatTotal"
-      value={formData.vatTotal}
-      onChange={handleChange}
-      className="w-full px-8 py-1 border border-gray-300 rounded"
-    />
-  </div>
-  <div>
-    <label className="block text-sm font-medium">Exchange Point</label>
-    <input
-      type="number"
-      name="exchangePoint"
-      value={formData.exchangePoint}
-      onChange={handleChange}
-      className="w-full px-8 py-1 border border-gray-300 rounded"
-    />
-  </div>
-  <div>
-    <label className="block text-sm font-medium">Net Amount</label>
-    <input
-      type="number"
-      name="netAmount"
-      value={formData.netAmount}
-      onChange={handleChange}
-      className="w-full px-8 py-1 border border-gray-300 rounded"
-    />
-  </div>
-</div>
+        <h3 className="text-xl font-semibold my-4 text-center">
+          Payment Information
+        </h3>
 
+        {/* Payment Section Wrapper */}
+        <div className=" p-4 bg-white  shadow-[0px_0px_30px_rgba(0,0,0,0.1)] rounded-md mt-4">
+          {/* Grid Layout for Payment Inputs */}
+          <div className="grid grid-cols-10 gap-4">
+            {/* Previous Due */}
+            <div>
+              <label className="block  text-center">Previous Due</label>
+              <input
+                type="number"
+                className="mt-1 p-2 w-full border border-gray-300 rounded h-7 bg-gray-100"
+                value={previousDue}
+                readOnly
+              />
+            </div>
 
-      <div className="flex justify-between mt-4">
-        <button className="px-8 py-1 bg-blue-500 text-white rounded">Preview Invoice</button>
-        <button className="px-8 py-1 bg-red-500 text-white rounded">Chalan</button>
-      </div>
+            {/* Today Bill */}
+            <div>
+              <label className="block  text-center">
+                Today Invoice/Challan Amount
+              </label>
+              <input
+                type="number"
+                className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
+                value={todayBill}
+                onChange={(e) => setTodayBill(e.target.value)}
+              />
+            </div>
+
+            {/* Today Paid */}
+            <div>
+              <label className="block  text-center">Total Due Amount</label>
+              <input
+                type="number"
+                className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
+                value={todayPaid}
+                onChange={(e) => setTodayPaid(e.target.value)}
+              />
+            </div>
+
+            {/* Today Paid */}
+            <div>
+              <label className="block  text-center">Today Paid Amount</label>
+              <input
+                type="number"
+                className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
+                value={todayPaid}
+                onChange={(e) => setTodayPaid(e.target.value)}
+              />
+            </div>
+
+            {/* Paid By (Dropdown) */}
+            <div>
+              <label className="block text-center">Paid By</label>
+              <select
+                className="mt-1 p-2 w-full border border-gray-300 rounded h-9 focus:ring-2 focus:ring-blue-500"
+                value={paidBy}
+                onChange={(e) => setPaidBy(e.target.value)}
+              >
+                <option value="Cash">Cash</option>
+                <option value="Bank">Bank</option>
+              </select>
+            </div>
+
+            {/* Bank Name */}
+            <div>
+              <label className="block  text-center">Bank Name</label>
+              <input
+                type="text"
+                className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
+                value={bankName}
+                onChange={(e) => setBankName(e.target.value)}
+              />
+            </div>
+
+            {/* Account No */}
+            <div>
+              <label className="block  text-center">Account No.</label>
+              <input
+                type="text"
+                className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
+                value={accountNo}
+                onChange={(e) => setAccountNo(e.target.value)}
+              />
+            </div>
+
+            {/* Cheque No */}
+            <div>
+              <label className="block  text-center">Cheque No</label>
+              <input
+                type="text"
+                className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
+                value={chequeNo}
+                onChange={(e) => setChequeNo(e.target.value)}
+              />
+            </div>
+
+            {/* Cheque Date */}
+            <div>
+              <label className="block text-center">Cheque Date</label>
+              <input
+                type="date"
+                className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
+                value={chequeDate}
+                onChange={(e) => setChequeDate(e.target.value)}
+              />
+            </div>
+
+            {/* Balance Amount */}
+            <div>
+              <label className="block  text-center">Balance Amount</label>
+              <input
+                type="text"
+                className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
+                value={balanceAmount}
+                onChange={(e) => setBalanceAmount(e.target.value)}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Submit Buttons */}
+        <div className="mt-6 flex justify-between space-x-4">
+          <button
+            type="button"
+            onClick={handlePDFExport}
+            className="bg-blue-500 text-white p-2 rounded flex-1"
+          >
+            Export to PDF
+          </button>
+          <button
+            type="submit"
+            onClick={handleSubmit}
+            className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 flex-1"
+          >
+            Submit
+          </button>
+          <button
+            type="button"
+            onClick={() => alert("Form Cancelled")}
+            className="bg-red-500 text-white p-2 rounded hover:bg-red-600 flex-1"
+          >
+            Cancel
+          </button>
+        </div>
+      </form>
     </div>
   );
 };

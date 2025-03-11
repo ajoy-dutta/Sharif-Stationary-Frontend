@@ -1,4 +1,4 @@
-import featuredImg from '../../../../assets/fresh-100.jpg';
+import featuredImg from '../../../../assets/fresh-70.jpg';
 
 const Featured = () => {
     return (
