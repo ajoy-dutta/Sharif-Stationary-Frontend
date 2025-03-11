@@ -150,18 +150,18 @@ function PurchaseReceiveForm() {
 
   const handleItemChange = (e) => {
     const { name, value } = e.target;
-
-    // Convert input values to numbers where needed, keeping empty values as ""
+  
+    // Convert input values to numbers while keeping empty values as ""
     const numericValue = value === "" ? "" : parseFloat(value) || 0;
-
+  
     let updatedItem = { ...newItem, [name]: numericValue };
-
+  
     // 🔹 Reset dependent fields when product_name changes
     if (name === "product_name") {
       const selectedProduct = products.find(
         (p) => p.product_name.toLowerCase() === value.toLowerCase()
       );
-
+  
       if (selectedProduct) {
         updatedItem = {
           product: selectedProduct.product_code,
@@ -183,31 +183,31 @@ function PurchaseReceiveForm() {
         };
       }
     }
-
+  
     const isRimA4 = updatedItem.product_type === "RIM-A4";
     const isRimLegal = updatedItem.product_type === "RIM-LEGAL";
     const isDozen = updatedItem.product_type === "DOZEN";
-
-    // Convert only numeric values for calculations
+  
+    // Convert numeric values for calculations
     const purchasePrice = parseFloat(updatedItem.purchase_price) || 0;
     const additionalCost = parseFloat(updatedItem.additional_cost) || 0;
     const profit = parseFloat(updatedItem.profit) || 0;
     const rim = parseFloat(updatedItem.rim) || 0;
     const dozen = parseFloat(updatedItem.dozen) || 0;
     const onlySheetPiece = parseFloat(updatedItem.only_sheet_piece) || 0;
-
+  
     // 🔹 Handle Total Sheet/Piece Calculation
     if (isRimLegal) {
       updatedItem.total_sheet_piece = rim * 500 + onlySheetPiece || "";
-
+  
       updatedItem.per_sheet_or_piece_price = purchasePrice
         ? parseFloat((purchasePrice / updatedItem.total_sheet_piece).toFixed(2))
         : "";
-
+  
       updatedItem.per_rim_price = updatedItem.per_sheet_or_piece_price
         ? parseFloat((updatedItem.per_sheet_or_piece_price * 500).toFixed(2))
         : "";
-
+  
       updatedItem.per_piece_or_sheet_sale_price = purchasePrice
         ? parseFloat(
             (
@@ -216,53 +216,49 @@ function PurchaseReceiveForm() {
             ).toFixed(2)
           )
         : "";
-
+  
       updatedItem.per_rim_sale_price = updatedItem.per_piece_or_sheet_sale_price
         ? parseFloat(
             (updatedItem.per_piece_or_sheet_sale_price * 500).toFixed(2)
           )
         : "";
-
+  
       updatedItem.per_dozen_price = "";
       updatedItem.per_dozen_sale_price = "";
     } else if (isRimA4) {
       updatedItem.only_sheet_piece = "";
       updatedItem.total_sheet_piece = "";
-
+  
       updatedItem.per_rim_price = purchasePrice
         ? parseFloat((purchasePrice / (rim || 1)).toFixed(2))
         : "";
-
+  
       updatedItem.per_rim_sale_price = purchasePrice
         ? parseFloat(
             ((purchasePrice + additionalCost + profit) / (rim || 1)).toFixed(2)
           )
         : "";
-
+  
       updatedItem.per_sheet_or_piece_price = "";
       updatedItem.per_piece_or_sheet_sale_price = "";
       updatedItem.per_dozen_price = "";
       updatedItem.per_dozen_sale_price = "";
     } else if (isDozen) {
+      // ✅ Total Sheet/Piece Calculation
       updatedItem.total_sheet_piece = dozen * 12 + onlySheetPiece || "";
-
-      updatedItem.per_dozen_price = purchasePrice
-        ? parseFloat((purchasePrice / (dozen || 1)).toFixed(2))
-        : "";
-
+  
+      // ✅ Per Sheet/Piece Price
       updatedItem.per_sheet_or_piece_price = purchasePrice
         ? parseFloat((purchasePrice / updatedItem.total_sheet_piece).toFixed(2))
         : "";
-
-      updatedItem.per_dozen_sale_price = purchasePrice
-        ? parseFloat(
-            ((purchasePrice + additionalCost + profit) / (dozen || 1)).toFixed(
-              2
-            )
-          )
+  
+      // ✅ Per Dozen Price
+      updatedItem.per_dozen_price = updatedItem.per_sheet_or_piece_price
+        ? parseFloat((updatedItem.per_sheet_or_piece_price * 12).toFixed(2))
         : "";
-
-      updatedItem.per_sheet_or_piece_sale_price = purchasePrice
+  
+      // ✅ Per Sheet/Piece Sale Price
+      updatedItem.per_piece_or_sheet_sale_price = purchasePrice
         ? parseFloat(
             (
               (purchasePrice + additionalCost + profit) /
@@ -270,22 +266,29 @@ function PurchaseReceiveForm() {
             ).toFixed(2)
           )
         : "";
-
+  
+      // ✅ Per Dozen Sale Price
+      updatedItem.per_dozen_sale_price = updatedItem.per_piece_or_sheet_sale_price
+        ? parseFloat(
+            (updatedItem.per_piece_or_sheet_sale_price * 12).toFixed(2)
+          )
+        : "";
+  
       updatedItem.per_rim_price = "";
       updatedItem.per_rim_sale_price = "";
     }
-
+  
     // 🔹 Disable Fields Based on Product Type & Apply Gray-200 Style
     if (isRimA4) {
       updatedItem.only_sheet_piece = "";
       updatedItem.dozen = "";
     } else if (isDozen) {
       updatedItem.rim = "";
-      updatedItem.only_sheet_piece = "";
     }
-
+  
     setNewItem(updatedItem);
   };
+  
 
   // 🔹 Function to Filter Products Based on Search Query
   const handleSearchProduct = (e) => {
@@ -899,7 +902,7 @@ const handleSubmit = async (e) => {
                         newItem.product_type === "RIM-A4" ? "bg-gray-200" : ""
                       }`}
                       placeholder="Enter total sheet piece"
-                      readOnly={newItem.product_type === "RIM-A4"}
+                      readOnly
                     />
                   </td>
 
@@ -922,7 +925,9 @@ const handleSubmit = async (e) => {
                       value={newItem.per_rim_price}
                       onChange={handleItemChange}
                       onKeyDown={handleKeyDown}
-                      className="mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs p-1 form-input"
+                      className={`mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs p-1 form-input ${
+                        newItem.product_type === "DOZEN" ? "bg-gray-200" : ""
+                      }`}
                       placeholder="Enter rim per price"
                       readOnly
                     />
@@ -934,8 +939,17 @@ const handleSubmit = async (e) => {
                       value={newItem.per_dozen_price}
                       onChange={handleItemChange}
                       onKeyDown={handleKeyDown}
-                      className="mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs p-1 form-input"
-                      placeholder="Enter dozen per price"
+                      className={`mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs p-1 form-input ${
+                        newItem.product_type === "RIM-A4" ||
+                        newItem.product_type === "RIM-LEGAL"
+                          ? "bg-gray-200"
+                          : ""
+                      }`}
+                      placeholder="Enter per dozen price"
+                      disabled={
+                        newItem.product_type === "RIM-A4" ||
+                        newItem.product_type === "RIM-LEGAL"
+                      }
                       readOnly
                     />
                   </td>
@@ -946,7 +960,9 @@ const handleSubmit = async (e) => {
                       value={newItem.per_sheet_or_piece_price}
                       onChange={handleItemChange}
                       onKeyDown={handleKeyDown}
-                      className="mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs p-1 form-input"
+                      className={`mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs p-1 form-input ${
+                        newItem.product_type === "RIM-A4" ? "bg-gray-200" : ""
+                      }`}
                       placeholder="Enter sheet/piece per price"
                       readOnly
                     />
@@ -980,9 +996,11 @@ const handleSubmit = async (e) => {
                       value={newItem.per_rim_sale_price}
                       onChange={handleItemChange}
                       onKeyDown={handleKeyDown}
-                      className="mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs p-1 form-input"
+                       className={`mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs p-1 form-input ${
+                        newItem.product_type === "DOZEN" ? "bg-gray-200" : ""
+                      }`}
                       placeholder="Per rim sale price"
-                      readOnly
+                     
                     />
                   </td>
                   <td className="border border-gray-300 p-1">
@@ -992,9 +1010,11 @@ const handleSubmit = async (e) => {
                       value={newItem.per_dozen_sale_price}
                       onChange={handleItemChange}
                       onKeyDown={handleKeyDown}
-                      className="mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs p-1 form-input"
+                      className={`mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs p-1 form-input ${
+                        newItem.product_type === "RIM-A4" ? "bg-gray-200" : ""
+                      }`}
                       placeholder="Per dozen sale price"
-                      readOnly
+                     
                     />
                   </td>
                   <td className="border border-gray-300 p-1">
@@ -1004,9 +1024,11 @@ const handleSubmit = async (e) => {
                       value={newItem.per_piece_or_sheet_sale_price}
                       onChange={handleItemChange}
                       onKeyDown={handleKeyDown}
-                      className="mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs p-1 form-input"
+                      className={`mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs p-1 form-input ${
+                        newItem.product_type === "RIM-A4" ? "bg-gray-200" : ""
+                      }`}
                       placeholder="Per sheet/piece sale price"
-                      readOnly
+                    
                     />
                   </td>
                   <td className="border border-gray-300 p-1">
@@ -1024,10 +1046,10 @@ const handleSubmit = async (e) => {
                   <tr key={index} className="text-center text-sm">
                     <td className="border border-gray-300 p-2">{index + 1}</td>
                     <td className="border border-gray-300 p-2">
-                      {item.product}
+                      {item.product_name}
                     </td>
                     <td className="border border-gray-300 p-2">
-                      {item.product_name}
+                      {item.product}
                     </td>
                     <td className="border border-gray-300 p-2">
                       {item.purchase_price}
