@@ -153,6 +153,7 @@ const Stock = () => {
             {filteredStocks.length > 0 ? (
               filteredStocks.map((stock, index) => {
                 const prod = product[stock.product] || {};
+              
                 return (
                   <tr
                     key={stock.id}
@@ -166,7 +167,7 @@ const Stock = () => {
                       {prod.product_code || "N/A"}
                     </td>
                     <td className="p-2 border border-gray-200">
-                      {prod.product_description || "N/A"}
+                      {prod.product_name || "N/A"}
                     </td>
                     <td className="p-2 border border-gray-200">{stock.rim}</td>
                     <td className="p-2 border border-gray-200">
@@ -176,10 +177,16 @@ const Stock = () => {
                       {stock.sheet_or_piece || 0}
                     </td>
                     <td className="p-2 border border-gray-200">
-                      {stock.last_per_rim_or_dozen_price || "0.00"}
+                      {stock.last_per_rim_price || "0.00"}
                     </td>
                     <td className="p-2 border border-gray-200">
-                      {stock.per_rim_or_dozen_total_cost || "0.00"}
+                      {stock.per_rim_total_cost || "0.00"}
+                    </td>
+                    <td className="p-2 border border-gray-200">
+                      {stock.last_per_dozen_price || "0.00"}
+                    </td>
+                    <td className="p-2 border border-gray-200">
+                      {stock.per_dozen_total_cost || "0.00"}
                     </td>
                     <td className="p-2 border border-gray-200">
                       {stock.last_per_sheet_or_piece_price || "0.00"}
@@ -188,14 +195,9 @@ const Stock = () => {
                       {stock.per_sheet_or_piece_total_cost || "0.00"}
                     </td>
                     <td className="p-2 border border-gray-200">
-                      {stock.per_rim_or_dozen_sell_amount || "0.00"}
-                    </td>
-                    <td className="p-2 border border-gray-200">
-                      {stock.per_sheet_or_piece_sell_amount || "0.00"}
-                    </td>
-                    <td className="p-2 border border-gray-200">
-                      {stock.total_stock_amount || "N/A"}
-                    </td>
+                    {(stock.rim*stock.last_per_rim_price+stock.dozen*stock.last_per_dozen_price)+stock.sheet_or_piece*stock.last_per_sheet_or_piece_price }
+
+                                </td>
                     <td className="p-2 border border-gray-200">
                       {stock.remarks || "N/A"}
                     </td>
