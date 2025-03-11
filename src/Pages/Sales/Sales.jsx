@@ -5,156 +5,167 @@ import jsPDF from "jspdf";
 import "jspdf-autotable";
 
 const Sales = () => {
-  const [remarks, setremarks] = useState("");
-  const [customerID, setcustomerID] = useState("");
-  const [customerAddress, setcustomerAddress] = useState("");
-  const [customerName, setcustomerName] = useState("");
-  const [chequeNo, setChequeNo] = useState("");
-  const [chequeDate, setChequeDate] = useState("");
-  const [orderDate, setOrderDate] = useState("");
+const [orderDate, setOrderDate] = useState("");
+const [customerID, setCustomerID] = useState("");
+const [customerAddress, setCustomerAddress] = useState("");
+const [customerName, setCustomerName] = useState("");
+const [mobile, setMobile] = useState("");
+const [reference, setReference] = useState("");
+const [remarks, setRemarks] = useState("");
 
-  const [driverMobile, setDriverMobile] = useState("");
-  // const [productEntryDate, setProductEntryDate] = useState("");
-  const [previousDue, setPreviousDue] = useState(0);
-  const [todayBill, setTodayBill] = useState(0);
-  const [todayPaid, setTodayPaid] = useState(0);
-  const [paidBy, setPaidBy] = useState("Cash");
-  const [bankName, setBankName] = useState("");
-  const [accountNo, setAccountNo] = useState("");
-  const [balanceAmount, setBalanceAmount] = useState("");
+// ✅ Payment Details
+const [todayBill, setTodayBill] = useState(0);
+const [totalDue, setTotalDue] = useState(0);
+const [todayPaid, setTodayPaid] = useState(0);
+const [paidBy, setPaidBy] = useState("Cash");
+const [bankName, setBankName] = useState("");
+const [accountNo, setAccountNo] = useState("");
+const [chequeNo, setChequeNo] = useState("");
+const [chequeDate, setChequeDate] = useState("");
+const [balanceAmount, setBalanceAmount] = useState(0);
 
-  const [items, setItems] = useState([
+
+// product = models.ForeignKey(Stock, on_delete=models.CASCADE, related_name="sale_products")
+/// rim_sold = models.IntegerField(default=0)
+/// sheet_or_piece_sold = models.IntegerField(default=0)
+/// per_rim_or_dozen_sell_price = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
+/// per_sheet_or_piece_sell_price = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
+/// total_price = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
+
+// ✅ Dynamic Item List
+const [items, setItems] = useState([
+  {
+    no: 1, 
+    productDescription: "", 
+    productCode: "", 
+    rim_sold: "", 
+    sheet_or_piece_sold: "", 
+    per_rim_or_dozen_sell_price: "", 
+    per_sheet_or_piece_sell_price: "", 
+    total_price: "", 
+  },
+]);
+
+// ✅ Handle Input Change for Dynamic Rows
+const handleChange = (e, index, field) => {
+  const updatedItems = [...items];
+  updatedItems[index][field] = e.target.value;
+  setItems(updatedItems);
+};
+
+// ✅ Add a New Row Dynamically
+const addRow = () => {
+  setItems([
+    ...items,
     {
-      no: "", // No (Row Number)
-      productDescription: "", // Product Description (Dropdown)
-      productCode: "", // Item/Product Code
-      rimQuantity: "", // Rim Quantity
-      sheetQuantity: "", // Sheet/Piece Quantity
-      rimPrice: "", // Rim/Dozen Price
-      sheetPrice: "", // Sheet/Piece Price
-      totalAmount: "", // Total Amount
-      remarks: "", // Remarks
+      no: items.length + 1,
+      productDescription: "", 
+      productCode: "", 
+      rim_sold: "", 
+      sheet_or_piece_sold: "", 
+      per_rim_or_dozen_sell_price: "", 
+      per_sheet_or_piece_sell_price: "", 
+      total_price: "", 
     },
   ]);
+};
 
-  // Handle input change for dynamic rows
-  const handleChange = (e, index, field) => {
-    const updatedItems = [...items];
-    updatedItems[index][field] = e.target.value;
-
-    setItems(updatedItems);
-  };
-
-  // Add a new row
-  const addRow = () => {
-    setItems([
-      ...items,
-      {
-        no: items.length + 1, // Auto-increment row number
-        productDescription: "", // Product Description (Dropdown)
-        productCode: "", // Item/Product Code
-        rimQuantity: "", // Rim Quantity
-        sheetQuantity: "", // Sheet/Piece Quantity
-        rimPrice: "", // Rim/Dozen Price
-        sheetPrice: "", // Sheet/Piece Price
-        totalAmount: "", // Total Amount
-        remarks: "", // Remarks
-      },
-    ]);
-  };
-
-  // Remove a row
-  const removeRow = (index) => {
+// ✅ Remove a Row
+const removeRow = (index) => {
+  if (items.length > 1) {
     const updatedItems = items.filter((_, i) => i !== index);
+    updatedItems.forEach((item, idx) => (item.no = idx + 1)); // ✅ Update row numbers dynamically
     setItems(updatedItems);
-  };
+  }
+};
 
-  const handlePDFExport = () => {
-    const doc = new jsPDF();
+// ✅ Generate PDF Export
+const handlePDFExport = () => {
+  const doc = new jsPDF();
+  const tableColumn = [
+    "No",
+    "Product Description",
+    "Item/Product Code",
+    "Rim Quantity",
+    "Sheet/Piece Quantity",
+    "Rim/Dozen Price",
+    "Sheet/Piece Price",
+    "Total Amount",
+    "Remarks",
+  ];
 
-    // Define table columns
-    const tableColumn = [
-      "No",
-      "Product Description",
-      "Item/Product Code",
-      "Rim Quantity",
-      "Sheet/Piece Quantity",
-      "Rim/Dozen Price",
-      "Sheet/Piece Price",
-      "Total Amount",
-      "Remarks",
-    ];
+  const tableRows = items.map((item) => [
+    item.no, 
+    item.productDescription, 
+    item.productCode, 
+    item.rim_sold, 
+    item.sheet_or_piece_sold, 
+    item.per_rim_or_dozen_sell_price, 
+    item.per_sheet_or_piece_sell_price, 
+    item.total_price, 
+    item.remarks, 
+  ]);
 
-    // // Map table rows using correct object keys
-    // const tableRows = items.map((item) => [
-    //   item.no, // Auto-incremented No.
-    //   item.productDescription, // Product Description (Dropdown)
-    //   item.productCode, // Item/Product Code
-    //   item.rimQuantity, // Rim Quantity
-    //   item.sheetQuantity, // Sheet/Piece Quantity
-    //   item.rimPrice, // Rim/Dozen Price
-    //   item.sheetPrice, // Sheet/Piece Price
-    //   item.totalAmount, // Total Amount
-    //   item.remarks, // Remarks
-    // ]);
+  doc.text("Purchase Items Report", 14, 15);
+  doc.autoTable({ head: [tableColumn], body: tableRows, startY: 20 });
+  doc.save("purchase_items.pdf");
+};
 
-    // Add title to PDF
-    doc.text("Purchase Items Report", 14, 15);
-    doc.autoTable({
-      head: [tableColumn],
-      body: tableRows,
-      startY: 20,
-    });
+// ✅ Form Submission
+const handleSubmit = async (e) => {
+  e.preventDefault(); 
 
-    // Save the PDF
-    doc.save("purchase_items.pdf");
-  };
+  try {
+    const purchaseData = {
+      customerID,
+      customerName,
+      customerAddress,
+      orderDate,
+      previousDue,
+      todayBill,
+      todayPaid,
+      paidBy,
+      bankName,
+      accountNo,
+      chequeNo,
+      chequeDate,
+      balanceAmount,
+      items, // ✅ Includes dynamic items
+    };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault(); // Prevent default form submission
+    console.log("Form Submitted:", purchaseData);
+    alert("Purchase, Items, and Payment Information Saved Successfully!");
+  } catch (error) {
+    console.error("Error submitting form", error);
+    alert("Error while saving data. Please try again.");
+  }
+};
 
-    try {
-      // ✅ 1. Save Purchase Receive Data
-      const purchaseData = {
-        company_name: companyName,
-        order_date: orderDate,
-        order_no: orderNo,
-        invoice_no: invoiceNo,
-      };
+// ✅ Submit Single Row
+const handleSubmitRow = (index) => {
+  const submittedRow = items[index];
 
-      alert("Purchase, Items, and Payment Information Saved Successfully!");
-    } catch (error) {
-      console.error("Error submitting form", error);
-      alert("Error while saving data. Please try again.");
-    }
-  };
-  const handleSubmitRow = (index) => {
-    const submittedRow = items[index]; // Get the specific row data
-
-    // Example: Send data to backend via API
-    fetch("http://127.0.0.1:8000/submit", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(submittedRow),
+  fetch("http://127.0.0.1:8000/submit", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(submittedRow),
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      console.log("Success:", data);
+      alert(`Row ${index + 1} submitted successfully!`);
     })
-      .then((response) => response.json())
-      .then((data) => {
-        console.log("Success:", data);
-        alert(`Row ${index + 1} submitted successfully!`);
-      })
-      .catch((error) => {
-        console.error("Error submitting row:", error);
-      });
-  };
+    .catch((error) => {
+      console.error("Error submitting row:", error);
+    });
+};
 
   return (
     <div className="m-8 mb-0 mx-12">
       <h2 className="text-xl font-semibold mb-2 -mt-4 text-center">Sale</h2>
       <form onSubmit={handleSubmit}>
         <div className="p-4 rounded-xl grid grid-cols-8 gap-2 text-sm bg-white  shadow-[0px_0px_30px_rgba(0,0,0,0.1)]">
-          {/*  Date */}
+          {/*1. Date */}
           <div>
             <label className="block text-center">Date</label>
             <input
@@ -164,67 +175,67 @@ const Sales = () => {
               onChange={(e) => setOrderDate(e.target.value)}
             />
           </div>
-          {/* Customer Id*/}
+          {/*2. Customer Id*/}
           <div>
             <label className="block text-center">Customer ID</label>
             <input
               type="text"
               className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
               value={customerID}
-              onChange={(e) => setcustomerID(e.target.value)}
+              onChange={(e) => setCustomerID(e.target.value)}
             />
           </div>
-          {/* Customer Name */}
+          {/*3. Customer Name */}
           <div>
             <label className="block text-center">Customer Name</label>
             <input
               type="text"
               className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
               value={customerName}
-              onChange={(e) => setcustomerName(e.target.value)}
+              onChange={(e) => setCustomerName(e.target.value)}
             />
           </div>
 
-          {/**Customer Address */}
+          {/** 4. Customer Address */}
           <div>
             <label className="block text-center">Customer Address</label>
             <input
               type="text"
               className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
               value={customerAddress}
-              onChange={(e) => setcustomerAddress(e.target.value)}
+              onChange={(e) => setCustomerAddress(e.target.value)}
             />
           </div>
 
-          {/* 8. Driver Mobile No */}
+          {/* 5. Mobile No */}
           <div>
             <label className="block text-center">Phone No</label>
             <input
               type="number"
               className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
-              value={driverMobile}
-              onChange={(e) => setDriverMobile(e.target.value)}
+              value={mobile}
+              onChange={(e) => setMobile(e.target.value)}
             />
           </div>
-          {/* Reference */}
+          {/*6. Reference */}
           <div>
             <label className="block text-center">Reference</label>
             <input
               type="text"
               className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
-              value={driverMobile}
-              onChange={(e) => setDriverMobile(e.target.value)}
+              value={reference}
+              onChange={(e) => setReference(e.target.value)}
             />
           </div>
 
-          {/* 12. Remarks */}
+          {/* 7. Remarks */}
           <div>
             <label className="block text-center">Remarks</label>
             <input
               type="text"
               className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
               value={remarks}
-              onChange={(e) => setremarks(e.target.value)}
+              onChange={(e) => setRemarks(e.target.value)}
             />
           </div>
         </div>
