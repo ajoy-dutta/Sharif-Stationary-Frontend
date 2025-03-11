@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import AxiosInstance from "../../components/AxiosInstance";
+// import AxiosInstance from "../../components/AxiosInstance";
+import AxiosInstance from "../../Components/AxiosInstance";
 import { IoMdPrint } from "react-icons/io";
 import { FaPlus } from "react-icons/fa";
 

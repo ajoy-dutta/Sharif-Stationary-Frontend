@@ -17,9 +17,6 @@ import PurchaseReceiveForm from "../Pages/Purchase/PurchaseReceiveForm.jsx";
 import ShopkeeperProfile from "../ShopKeeper/ShopKeeperProfile.jsx";
 import UserProfile from "../Users/UserProfile.jsx";
 import AdminDashboard from "../Admin/AdminDashord/AdminDashboard.jsx";
-<<<<<<< HEAD
-import SignIn from "../SignIn.jsx";
-=======
 import SalesNew from "../Pages/Sales/SalesNew.jsx";
 import ForgotPassword from "../Authentication/ForgotPassword.jsx";
 import Stock from "../Pages/Stock/Stock.jsx";
@@ -38,7 +35,6 @@ import CompanyProducts from "../Pages/Master/CompanyProducts.jsx";
 import PurchaseList from "../Pages/Purchase/PurchaseList.jsx";
 import AddEditPurchase from "../Pages/Purchase/AddEditPurchase.jsx";
 
->>>>>>> 6a112e18a814e5666d97f9429b7665a65b2f8fd6
 
 export const router = createBrowserRouter([
   {
@@ -154,13 +150,8 @@ export const router = createBrowserRouter([
       },
     
       {
-<<<<<<< HEAD
-        path: "/sign-in",
-        element: <SignIn></SignIn>,
-=======
         path: "/products",
         element: <Products></Products>,
->>>>>>> 6a112e18a814e5666d97f9429b7665a65b2f8fd6
       },
       {
         path: "/warehouse",
