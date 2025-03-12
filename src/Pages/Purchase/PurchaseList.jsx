@@ -12,6 +12,7 @@ const PurchaseList = () => {
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [selectedCompany, setSelectedCompany] = useState("");
+  const [expandedRow, setExpandedRow] = useState(null); // Track expanded row
 
   useEffect(() => {
     const fetchCompanies = async () => {
@@ -56,7 +57,7 @@ const PurchaseList = () => {
     }
     if (fromDate || toDate) {
       filtered = filtered.filter((purchase) => {
-        const purchaseDate = new Date(purchase.order_date); // Make sure it's a Date object
+        const purchaseDate = new Date(purchase.order_date);
         const startDate = fromDate ? new Date(fromDate) : null;
         const endDate = toDate ? new Date(toDate) : null;
 
@@ -119,15 +120,9 @@ const PurchaseList = () => {
               <th className="border p-2">Receipt No</th>
               <th className="border p-2">Date</th>
               <th className="border p-2">Company Name</th>
-              <th className="border p-2">Product Name</th>
               <th className="border p-2">Total Amount</th>
-              <th className="border p-2">Previous Due</th>
-              <th className="border p-2">Paid Amount</th>
-              <th className="border p-2">Balance</th>
-              <th className="border p-2">Payment Type</th>
-              <th className="border p-2">Bank Name</th>
-              <th className="border p-2">Cheque No</th>
-              <th className="border p-2">Cheque Date</th>
+              <th className="border p-2">Total Items</th>
+              <th className="border p-2">Item Details</th>
               <th className="border p-2">Edit</th>
               <th className="border p-2">Invoice</th>
             </tr>
@@ -135,44 +130,63 @@ const PurchaseList = () => {
 
           <tbody>
             {filteredPurchases.map((purchase, index) => (
-              <tr key={purchase.id} className="bg-gray-100 text-sm">
-                <td className="border p-2 text-center">#</td>
-                <td className="border p-2 text-center">{index + 1}</td>
-                <td className="border p-2 text-center">{purchase.order_no || "N/A"}</td>
-                <td className="border p-2 text-center">{purchase.order_date}</td>
+              <React.Fragment key={purchase.id}>
+                <tr className="bg-gray-100 text-sm">
+                  <td className="border p-2 text-center">#</td>
+                  <td className="border p-2 text-center">{index + 1}</td>
+                  <td className="border p-2 text-center">{purchase.order_no || "N/A"}</td>
+                  <td className="border p-2 text-center">{purchase.order_date}</td>
+                  <td className="border p-2 text-center">
+                    {companies.find((c) => c.id === purchase.company)?.company_name || "Unknown"}
+                  </td>
+                  <td className="border p-2 text-center">{purchase.invoice_challan_amount}</td>
+                  <td className="border p-2 text-center">{purchase.items.length}</td>
+                  <td className="border p-2 text-center">
+                    <button
+                      className="bg-blue-500 text-white px-2 py-1 rounded text-xs"
+                      onClick={() => setExpandedRow(expandedRow === index ? null : index)}
+                    >
+                      {expandedRow === index ? "Hide Details" : "View Details"}
+                    </button>
+                  </td>
+                  <td className="border p-2 text-center">
+                    <span className="text-blue-500 cursor-pointer">✏ Edit</span>
+                  </td>
+                  <td className="border p-2 text-center">
+                    <span className="text-red-500 cursor-pointer">
+                      <IoMdPrint />
+                    </span>
+                  </td>
+                </tr>
 
-                {/* Fetch Company Name */}
-                <td className="border p-2 text-center">
-                  {companies.find((c) => c.id === purchase.company)?.company_name || "Unknown"}
-                </td>
-
-                {/* Fetch Product Name */}
-                <td className="border p-2 text-center">
-                  {products.find((p) => p.id === purchase.items[0]?.product_id)?.name || "N/A"}
-                </td>
-
-                <td className="border p-2 text-center">{purchase.invoice_challan_amount}</td>
-                <td className="border p-2 text-center">{purchase.previous_due}</td>
-                <td className="border p-2 text-center">{purchase.today_paid_amount}</td>
-                <td className="border p-2 text-center">{purchase.balance_amount}</td>
-
-                <td className="border p-2 text-center">{purchase.payment_type}</td>
-                <td className="border p-2 text-center">{purchase.bank_name || "N/A"}</td>
-                <td className="border p-2 text-center">{purchase.cheque_no || "N/A"}</td>
-                <td className="border p-2 text-center">{purchase.cheque_date || "N/A"}</td>
-
-                {/* Edit Button */}
-                <td className="border p-2 text-center">
-                  <span className="text-blue-500 cursor-pointer">✏ Edit</span>
-                </td>
-
-                {/* Invoice Icon */}
-                <td className="border p-2 text-center">
-                  <span className="text-red-500 cursor-pointer">
-                    <IoMdPrint />
-                  </span>
-                </td>
-              </tr>
+                {/* Expandable Item Details */}
+                {expandedRow === index && (
+                  <tr className="bg-gray-200">
+                    <td colSpan="10" className="border p-4">
+                      <table className="table-auto w-full border-collapse border border-gray-400">
+                        <thead>
+                          <tr className="bg-gray-300">
+                            <th className="border p-2">Product</th>
+                            <th className="border p-2">Quantity</th>
+                            <th className="border p-2">Unit Price</th>
+                            <th className="border p-2">Total</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {purchase.items.map((item, i) => (
+                            <tr key={i}>
+                              <td className="border p-2">{products.find((p) => p.id === item.product)?.name || "N/A"}</td>
+                              <td className="border p-2">{item.quantity}</td>
+                              <td className="border p-2">{item.unit_price}</td>
+                              <td className="border p-2">{item.total_price}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </td>
+                  </tr>
+                )}
+              </React.Fragment>
             ))}
           </tbody>
         </table>

@@ -171,25 +171,35 @@ function PurchaseReceiveForm() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-
-    setFormData((prevData) => ({
-      ...prevData, // ✅ Keep existing data
-      [name]: value,
-    }));
-    
-    // Enable/Disable fields based on payment type selection
-    if (name === "payment_type") {
-      setIsBankPayment(value === "Bank");
-      setIsChequePayment(value === "Cheque");
-    }
-
-    console.log(`handleChange called for ${name} with value: ${value}`);
+    const numericValue = value === "" ? "" : parseFloat(value) || 0;
   
-    // Check if the target is the invoice_challan_no field
-    if (name === "invoice_challan_no") {
-      console.log("Updating invoice_challan_no to:", value);
-    }
+    setFormData((prevData) => {
+      let updatedData = { ...prevData, [name]: value };
+  
+      // ✅ Handle dynamic field enabling/disabling based on payment type
+      if (name === "payment_type") {
+        setIsBankPayment(value === "Bank");
+        setIsChequePayment(value === "Cheque");
+      }
+  
+      // ✅ Log invoice challan number updates
+      if (name === "invoice_challan_no") {
+        console.log("Updating invoice_challan_no to:", value);
+      }
+  
+      // ✅ Recalculate `balance_amount` when `today_paid_amount` changes
+      if (name === "today_paid_amount") {
+        const previousDue = parseFloat(prevData.previous_due) || 0;
+        const invoiceAmount = parseFloat(prevData.invoice_challan_amount) || 0;
+        updatedData.balance_amount = invoiceAmount - numericValue + previousDue;
+      }
+  
+      return updatedData;
+    });
+  
+    console.log(`handleChange called for ${name} with value: ${value}`);
   };
+  
 
   const handleItemChange = (e) => {
     const { name, value } = e.target;
@@ -434,56 +444,89 @@ function PurchaseReceiveForm() {
   };
   
   const handleSaveItem = (e) => {
-    e.preventDefault(); // Prevent any form submission behavior
-
-
+    e.preventDefault(); // Prevent form submission
+  
+    if (!newItem.product || !newItem.product_name) {
+      alert("Please enter a valid product and product name.");
+      return;
+    }
+  
     setFormData((prevData) => {
+      // ✅ Add new item to the list
       const updatedPurchaseItems = [...prevData.PurchaseItem, newItem];
-
+  
+      // ✅ Calculate new `invoice_challan_amount`
+      const newInvoiceAmount = updatedPurchaseItems.reduce(
+        (total, item) => total + (parseFloat(item.purchase_price) || 0),
+        0
+      );
+  
+      // ✅ Calculate new `balance_amount`
+      const previousDue = parseFloat(prevData.previous_due) || 0;
+      const paidAmount = parseFloat(prevData.today_paid_amount) || 0;
+      const newBalanceAmount = newInvoiceAmount - paidAmount + previousDue;
+  
       return {
         ...prevData,
-        PurchaseItem: updatedPurchaseItems, // ✅ Properly update state
+        PurchaseItem: updatedPurchaseItems,
+        invoice_challan_amount: newInvoiceAmount,
+        balance_amount: newBalanceAmount,
       };
     });
-
-    // Clear the input form
+  
+    // ✅ Clear the product name input properly
+    setSearchQuery(""); // Reset the search input field
+  
+    // ✅ Clear the input form
     setNewItem({
       product: "",
-      product_name: "",
+      product_name: "", // Ensure product_name is reset
       purchase_price: "",
       rim: "",
       dozen: "",
       only_sheet_piece: "",
       total_sheet_piece: "",
-      per_rim_price: "",
       per_dozen_price: "",
+      per_rim_price: "",
       per_sheet_or_piece_price: "",
       additional_cost: "",
       profit: "",
       per_rim_sale_price: "",
       per_dozen_sale_price: "",
-      per_sheet_or_piece_sell_price: "",
+      per_piece_or_sheet_sale_price: "",
     });
-
-    setShowInputForm(false); // Hide the form after saving
+  
+    setShowInputForm(false); // Hide form after saving
   };
+  
+  
 
   const handleRemoveRow = (indexToRemove) => {
-    // Filter out the row to be removed
-    const updatedTables = tables.filter((_, index) => index !== indexToRemove);
-    setTables(updatedTables);
-
-    // Update the PurchaseItem array to remove the corresponding item
-    const updatedPurchaseItems = formData.PurchaseItem.filter(
-      (_, index) => index !== indexToRemove
-    );
-
-    // Update the formData state
-    setFormData({
-      ...formData,
-      PurchaseItem: updatedPurchaseItems,
+    setFormData((prevData) => {
+      const updatedPurchaseItems = prevData.PurchaseItem.filter(
+        (_, index) => index !== indexToRemove
+      );
+  
+      // ✅ Recalculate `invoice_challan_amount`
+      const newInvoiceAmount = updatedPurchaseItems.reduce(
+        (total, item) => total + (parseFloat(item.purchase_price) || 0),
+        0
+      );
+  
+      // ✅ Recalculate `balance_amount`
+      const previousDue = parseFloat(prevData.previous_due) || 0;
+      const paidAmount = parseFloat(prevData.today_paid_amount) || 0;
+      const newBalanceAmount = newInvoiceAmount - paidAmount + previousDue;
+  
+      return {
+        ...prevData,
+        PurchaseItem: updatedPurchaseItems,
+        invoice_challan_amount: newInvoiceAmount,
+        balance_amount: newBalanceAmount,
+      };
     });
   };
+  
 
   const formatDate = (date) => {
     if (!date) return ""; // Handle empty date
