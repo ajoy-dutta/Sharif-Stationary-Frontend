@@ -33,6 +33,7 @@ import Dashboard from "../Pages/DashboardPage/Dashboard.jsx"
 import CompanyProducts from "../Pages/Master/CompanyProducts.jsx";
 import PurchaseList from "../Pages/Purchase/PurchaseList.jsx";
 import AddEditPurchase from "../Pages/Purchase/AddEditPurchase.jsx";
+import SaleList from "../Pages/Sales/SaleList.jsx";
 
 
 export const router = createBrowserRouter([
@@ -104,6 +105,10 @@ export const router = createBrowserRouter([
       {
         path: "/sales",
         element: <Sales></Sales>,
+      },
+      {
+        path: "/sale-list",
+        element: <SaleList></SaleList>,
       },
       {
         path: "/salesNew",
