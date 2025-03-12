@@ -1,156 +1,169 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import AxiosInstance from "../../Components/AxiosInstance";
 
 const Report = () => {
-  // Empty transactions list (starts with no data)
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState(new Date().toISOString().split("T")[0]); // Default to Today
+  const [reportData, setReportData] = useState([]);
+  const [filteredData, setFilteredData] = useState([]);
+  const [salesData, setSalesData] = useState([]);
 
-  const [transactions, setTransactions] = useState([]);
-  const [customerName, setCustomerName] = useState([]);
 
-  const [customerId, setCustomerId] = useState([]);
-  const [address, setAddress] = useState([]);
-  const [contactNo, setContactNo] = useState([]);
-  const [email, setEmail] = useState([]);
-  const [accountLedgerPeriod, setAccountLedgerPeriod] = useState([]);
+  // Fetch data when the component loads
+  useEffect(() => {
+    fetchReportData();
+  }, []);
+  
+  // Fetch data when the component loads
+  useEffect(() => {
+    fetchSalesData();
+  }, []);
 
-  // Default column fields
-  const defaultFields = [
-    "id",
-    "date",
-    "voucherNo",
-    "type",
-    "debit",
-    "credit",
-    "balance",
-  ];
-
-  // Button Click Handler
-  const handleReportClick = () => {
-    alert("Submitted Successfully"); // You can replace this with your actual logic
+  // Fetch purchase data from API
+  const fetchReportData = async () => {
+    try {
+      const response = await AxiosInstance.get(`/purchases/`);
+      console.log("API Response:", response.data); // Debugging purpose
+      setReportData(response.data);
+      setFilteredData(response.data); // Initially set filteredData to all data
+    } catch (error) {
+      console.error("Error fetching report data:", error);
+      setReportData([]);
+      setFilteredData([]);
+    }
+  };
+   // Fetch sales data from API
+   const fetchSalesData = async () => {
+    try {
+      const response = await AxiosInstance.get(`/sales/`);
+      console.log("API Response:", response.data); // Debugging purpose
+      setSalesData(response.data);
+      setFilteredData(response.data); // Initially set filteredData to all data
+    } catch (error) {
+      console.error("Error fetching sales data:", error);
+      setSalesData([]);
+      setFilteredData([]);
+    }
   };
 
+  // Function to filter data based on selected date range
+  const filterData = () => {
+    if (!fromDate || !toDate) return;
+
+    const filtered = reportData.filter((item) => {
+      return item.delivery_date >= fromDate && item.delivery_date <= toDate;
+    });
+
+    setFilteredData(filtered);
+  };
+
+  // Update data when dates change (onChange)
+  useEffect(() => {
+    filterData();
+  }, [fromDate, toDate]); // Automatically update when dates change
+
   return (
-    <div className="flex flex-col items-center justify-center space-y-1 bg-blue-50 ">
-    {/* Header */}
-    <header className="text-center text-red-800 space-y-1 ">
-      <h1 className="text-2xl font-bold text-red-600 leading-tight">
-        Sharif Stationary
-      </h1>
-      <p className="text-sm text-blue-700 leading-tight">
-        36, Gohata Road, Lohapotty, Jashore
-      </p>
-      <p className="text-sm text-red-600 leading-tight">
-        Cell: 01854-341463, 01707-341463, 01711-334408
-      </p>
-      <p className="text-sm text-gray-800 leading-tight">
-        Nagad & Bkash: 01707-341463 (Personal)
-      </p>
-    </header>
-  
-    {/* Table Container */}
-    <div className="container mx-auto p-4 bg-white shadow-md rounded-md">
-      <h2 className="text-xl font-bold text-center text-blue-700 mb-1 -mt-2">
-        Customer Ledger
-      </h2>
-  {/* Container for both sections */}
-<div className="w-full flex flex-col items-center">
-  {/* Customer Details Section */}
-  <div className="w-full max-w-4xl bg-white shadow-md rounded-lg overflow-hidden mx-auto">
-    <div className="bg-gray-100 p-1 rounded-lg shadow-md w-full mt-0">
-      <h3 className="text-md text-green-700 font-bold text-center  mb-2">
-        Customer Information
-      </h3>
-
-      <div className="grid grid-cols-3 gap-8 w-full px-4">
-        {/* Column 1 */}
-        <div className="flex flex-col text-sm">
-          <div className="flex justify-between">
-            <span className="font-semibold text-gray-700">Customer Name&nbsp;:</span>
-            <span className="text-gray-900">{customerName || "N/A"}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="font-semibold text-gray-700">Ledger Period&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:</span>
-            <span className="text-gray-900">{accountLedgerPeriod || "N/A"}</span>
-          </div>
+    <div className="p-4">
+      <h2 className="text-xl font-semibold mb-4">Purchase Report</h2>
+      
+      {/* Date Filters */}
+      <div className="flex gap-4 mb-4">
+        <div>
+          <label className="block text-sm font-medium">From Date:</label>
+          <input
+            type="date"
+            value={fromDate}
+            onChange={(e) => setFromDate(e.target.value)}
+            className="border rounded p-2"
+          />
         </div>
-
-        {/* Column 2 */}
-        <div className="flex flex-col text-sm">
-        <div className="flex justify-between">
-            <span className="font-semibold text-gray-700">Customer ID&nbsp;:</span>
-            <span className="text-gray-900">{customerId || "N/A"}</span>
-          </div>
-         
-          <div className="flex justify-between">
-            <span className="font-semibold text-gray-700">Contact No&nbsp;&nbsp;&nbsp;:</span>
-            <span className="text-gray-900">{contactNo || "N/A"}</span>
-          </div>
-        </div>
-
-        {/* Column 3 */}
-        <div className="flex flex-col text-sm">
-          <div className="flex justify-between">
-            <span className="font-semibold text-gray-700">Address&nbsp;:</span>
-            <span className="text-gray-900">{address || "N/A"}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="font-semibold text-gray-700">Email&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:</span>
-            <span className="text-gray-900">{email || "N/A"}</span>
-          </div>
+        <div>
+          <label className="block text-sm font-medium">To Date:</label>
+          <input
+            type="date"
+            value={toDate}
+            onChange={(e) => setToDate(e.target.value)}
+            className="border rounded p-2"
+          />
         </div>
       </div>
-    </div>
-  </div>
 
-  {/* Transactions Table */}
-  <div className="w-full max-w-4xl overflow-x-auto mt-6 mb-20 mx-auto">
-    <table className="min-w-full bg-white shadow-md rounded-lg overflow-hidden table-fixed">
-      <thead>
-        <tr className="bg-gray-200 text-gray-700 text-sm">
-          {defaultFields.map((field, index) => (
-            <th key={index} className="px-4 py-2 border text-center capitalize">
-              {field.replace(/([A-Z])/g, " $1")}
-            </th>
-          ))}
-        </tr>
-      </thead>
-      <tbody>
-        {transactions.length > 0 ? (
-          transactions.map((transaction, index) => (
-            <tr key={index} className={index % 2 === 0 ? "bg-gray-100" : "bg-white"}>
-              {defaultFields.map((field, idx) => (
-                <td key={idx} className="border px-4 py-2 text-center">
-                  {transaction[field]}
-                </td>
-              ))}
+      {/* Data Table */}
+      <table className="w-full border-collapse border border-gray-300">
+        <thead>
+          <tr className="bg-gray-200">
+            <th className="border border-gray-300 p-2">#</th>
+            <th className="border border-gray-300 p-2">Date</th>
+            <th className="border border-gray-300 p-2">Purchase Amount</th>
+          </tr>
+        </thead>
+        <tbody>
+          {filteredData.length > 0 ? (
+            filteredData.map((item, index) => (
+              <tr key={index} className="text-center">
+                <td className="border border-gray-300 p-2">{index + 1}</td>
+                <td className="border border-gray-300 p-2">{item.delivery_date || "N/A"}</td>
+                <td className="border border-gray-300 p-2">{parseFloat(item.invoice_challan_amount).toFixed(2)}</td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan="3" className="p-4 text-center text-gray-500">No data available</td>
             </tr>
-          ))
-        ) : (
-          <tr>
-            <td colSpan={defaultFields.length} className="text-center p-4 text-gray-500">
-              No transactions available.
+          )}
+          {/* Total Row ONLY under "Purchase Amount" column */}
+          <tr className="bg-gray-300 font-semibold">
+            <td className="border border-gray-300 p-2 text-center"></td> {/* Empty for Serial */}
+            <td className="border border-gray-300 p-2 text-center"></td> {/* Empty for Date */}
+            <td className="border border-gray-300 p-2 text-center">
+              <span className="font-bold">Total:</span> {filteredData.reduce((sum, item) => sum + parseFloat(item.invoice_challan_amount || 0), 0).toFixed(2)}
             </td>
           </tr>
-        )}
-      </tbody>
-    </table>
+        </tbody>
+      </table>
+      <div className="p-4">
+      <h2 className="text-xl font-semibold mb-4 text-center">Sales Report</h2> {/* Heading added */}
 
-    {/* Right-side Report Button */}
-    <div className="flex justify-end mt-4">
-      <button
-        className="bg-red-500 text-white px-4 py-2 rounded-lg shadow-md hover:bg-red-600 transition-all"
-        onClick={handleReportClick}
-      >
-        Submit
-      </button>
+ 
+      {/* Data Table */}
+      <table className="w-full border-collapse border border-gray-300">
+        <thead>
+          <tr className="bg-gray-200">
+            <th className="border border-gray-300 p-2">#</th>
+            <th className="border border-gray-300 p-2">Date</th>
+            <th className="border border-gray-300 p-2">Sales Amount</th>
+          </tr>
+        </thead>
+        <tbody>
+          {filteredData.length > 0 ? (
+            filteredData.map((item, index) => (
+              <tr key={index} className="text-center">
+                <td className="border border-gray-300 p-2">{index + 1}</td>
+                <td className="border border-gray-300 p-2">{item.delivery_date || "N/A"}</td>
+                <td className="border border-gray-300 p-2">
+                  {isNaN(parseFloat(item.invoice_challan_number_value))
+                    ? "0.00"
+                    : parseFloat(item.invoice_challan_number_value).toFixed(2)}
+                </td>              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan="3" className="p-4 text-center text-gray-500">No data available</td>
+            </tr>
+          )}
+          {/* Total Row ONLY under "Sales Amount" column */}
+          <tr className="bg-gray-300 font-semibold">
+            <td className="border border-gray-300 p-2 text-center"></td> {/* Empty for Serial */}
+            <td className="border border-gray-300 p-2 text-center"></td> {/* Empty for Date */}
+            <td className="border border-gray-300 p-2 text-center">
+              <span className="font-bold">Total:</span> {filteredData.reduce((sum, item) => sum + parseFloat(item.invoice_challan_number_value || 0), 0).toFixed(2)}
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
-  </div>
-</div>
-
-
-
     </div>
-  </div>
-  
+    
   );
 };
 

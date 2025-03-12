@@ -258,66 +258,63 @@ const Sales = () => {
             />
           </div>
           <div>
-  <label className="block text-center ">Customer Name</label>
-  <select
-    className="mt-1 p-2 w-full border border-gray-300 rounded h-9"
-    value={customerName}
-    onChange={(e) => {
-      const selectedCustomer = customers.find(
-        (c) => c.customer_name === e.target.value
-      );
-      if (selectedCustomer) {
-        setCustomerID(selectedCustomer.id); // Auto-generate Customer ID
-        setCustomerName(selectedCustomer.customer_name);
-        setCustomerAddress(selectedCustomer.customer_address); // Auto-fill Address
-        setCustomerPhone(selectedCustomer.customer_phone_no); // Auto-fill Phone No
-      }
-    }}
-  >
-    <option value="">Select Customer</option>
-    {customers.map((customer) => (
-      <option key={customer.id} value={customer.customer_name}>
-        {customer.customer_name}
-      </option>
-    ))}
-  </select>
-</div>
-
-<div>
-  <label className="block text-center">Customer ID</label>
-  <input
-    type="text"
-    className="mt-1 p-2 w-full border border-gray-300 rounded h-7 bg-gray-200"
-    value={customerID || ""}
-    readOnly
-    placeholder="Auto-generated"
-  />
-</div>
-
-<div>
-  <label className="block text-center">Customer Address</label>
-  <input
-    type="text"
-    className="mt-1 p-2 w-full border border-gray-300 rounded h-7 bg-gray-200"
-    value={customerAddress || ""}
-    readOnly
-    placeholder="Auto-filled"
-  />
-</div>
-
-<div>
-  <label className="block text-center">Phone No</label>
-  <input
-    type="text"
-    className="mt-1 p-2 w-full border border-gray-300 rounded h-7 bg-gray-200"
-    value={customerPhone || ""}
-    readOnly
-    placeholder="Auto-filled"
-  />
-</div>
+            <label className="block text-center">Customer ID</label>
+            <input
+              type="text"
+              className="mt-1 p-2 w-full border border-gray-300 rounded h-7 bg-gray-200"
+              value={customerID || ""}
+              readOnly
+              placeholder="Auto-generated"
+            />
+          </div>
 
 
+          <div>
+            <label className="block text-center ">Customer Name</label>
+            <select
+              className="mt-1 p-2 w-full border border-gray-300 rounded h-9"
+              value={customerName}
+              onChange={(e) => {
+                const selectedCustomer = customers.find(
+                  (c) => c.customer_name === e.target.value
+                );
+                if (selectedCustomer) {
+                  setCustomerID(selectedCustomer.id); // Auto-generate Customer ID
+                  setCustomerName(selectedCustomer.customer_name);
+                  setCustomerAddress(selectedCustomer.customer_address); // Auto-fill Address
+                  setCustomerPhone(selectedCustomer.customer_phone_no); // Auto-fill Phone No
+                }
+              }}
+            >
+              <option value="">Select Customer</option>
+              {customers.map((customer) => (
+                <option key={customer.id} value={customer.customer_name}>
+                  {customer.customer_name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block text-center">Customer Address</label>
+            <input
+              type="text"
+              className="mt-1 p-2 w-full border border-gray-300 rounded h-7 bg-gray-200"
+              value={customerAddress || ""}
+              readOnly
+              placeholder="Auto-filled"
+            />
+          </div>
 
+          <div>
+            <label className="block text-center">Phone No</label>
+            <input
+              type="text"
+              className="mt-1 p-2 w-full border border-gray-300 rounded h-7 bg-gray-200"
+              value={customerPhone || ""}
+              readOnly
+              placeholder="Auto-filled"
+            />
+          </div>
 
           <div>
             <label className="block text-center">Remarks</label>
