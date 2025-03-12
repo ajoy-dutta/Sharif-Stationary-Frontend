@@ -3,6 +3,8 @@ import jsPDF from "jspdf";
 import "jspdf-autotable";
 import AxiosInstance from "../../Components/AxiosInstance";
 
+import { Link } from "react-router-dom";
+
 const Sales = () => {
   const [customers, setCustomers] = useState([]); // Store all customers
   const [filteredCustomers, setFilteredCustomers] = useState([]); // Filtered customer list
@@ -320,8 +322,17 @@ const Sales = () => {
   };
 
   return (
-    <div className="my-8 mb-0 mx-6">
-      <h2 className="text-xl font-semibold mb-2 -mt-4 text-center">Sale</h2>
+    <div className="m-8 mb-0 mx-12">
+     <div className="flex justify-between items-center mb-6">
+  <h2 className="text-xl font-semibold mb-2 -mt-4 text-center flex-grow text-center">
+    Sale
+  </h2>
+  <Link to="/sale-list" className="btn bg-blue-950 text-white px-4 py-2 rounded-md text-sm">
+    Sale List
+  </Link>
+</div>
+
+      
       <form onSubmit={handleSubmit}>
         <div className="p-4 rounded-xl grid grid-cols-8 gap-2 text-sm bg-white  shadow-[0px_0px_30px_rgba(0,0,0,0.1)]">
        
