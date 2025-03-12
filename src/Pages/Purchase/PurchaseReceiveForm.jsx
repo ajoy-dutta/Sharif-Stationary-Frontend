@@ -172,13 +172,22 @@ function PurchaseReceiveForm() {
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    // Update formData state
-    setFormData({ ...formData, [name]: value });
-
+    setFormData((prevData) => ({
+      ...prevData, // ✅ Keep existing data
+      [name]: value,
+    }));
+    
     // Enable/Disable fields based on payment type selection
     if (name === "payment_type") {
       setIsBankPayment(value === "Bank");
       setIsChequePayment(value === "Cheque");
+    }
+
+    console.log(`handleChange called for ${name} with value: ${value}`);
+  
+    // Check if the target is the invoice_challan_no field
+    if (name === "invoice_challan_no") {
+      console.log("Updating invoice_challan_no to:", value);
     }
   };
 
@@ -390,7 +399,10 @@ function PurchaseReceiveForm() {
   };
 
   const handleKeyDown = (e) => {
-    e.preventDefault(); // Prevent default scrolling behavior
+    // Only prevent default for arrow keys and Enter
+    if (e.key === "ArrowDown" || e.key === "ArrowUp" || e.key === "Enter") {
+      e.preventDefault(); // Prevent default only for navigation keys
+    }
   
     if (e.key === "Enter") {
       if (e.target.name === "product_name" && filteredProducts.length > 0) {
@@ -400,21 +412,21 @@ function PurchaseReceiveForm() {
       }
     } else if (e.key === "ArrowDown") {
       if (e.target.name === "product_name" && filteredProducts.length > 0) {
-        const newIndex = (selectedIndex + 1) % filteredProducts.length; // ✅ Correct index cycling
+        const newIndex = (selectedIndex + 1) % filteredProducts.length;
         setSelectedIndex(newIndex);
         highlightDropdownItem("product-item", newIndex);
       } else if (e.target.name === "company_name" && filteredCompanies.length > 0) {
-        const newIndex = (selectedCompanyIndex + 1) % filteredCompanies.length; // ✅ Correct index cycling
+        const newIndex = (selectedCompanyIndex + 1) % filteredCompanies.length;
         setSelectedCompanyIndex(newIndex);
         highlightDropdownItem("company-item", newIndex);
       }
     } else if (e.key === "ArrowUp") {
       if (e.target.name === "product_name" && filteredProducts.length > 0) {
-        const newIndex = selectedIndex > 0 ? selectedIndex - 1 : filteredProducts.length - 1; // ✅ Prevent skipping
+        const newIndex = selectedIndex > 0 ? selectedIndex - 1 : filteredProducts.length - 1;
         setSelectedIndex(newIndex);
         highlightDropdownItem("product-item", newIndex);
       } else if (e.target.name === "company_name" && filteredCompanies.length > 0) {
-        const newIndex = selectedCompanyIndex > 0 ? selectedCompanyIndex - 1 : filteredCompanies.length - 1; // ✅ Prevent skipping
+        const newIndex = selectedCompanyIndex > 0 ? selectedCompanyIndex - 1 : filteredCompanies.length - 1;
         setSelectedCompanyIndex(newIndex);
         highlightDropdownItem("company-item", newIndex);
       }
@@ -424,10 +436,6 @@ function PurchaseReceiveForm() {
   const handleSaveItem = (e) => {
     e.preventDefault(); // Prevent any form submission behavior
 
-    if (!newItem.product || !newItem.product_name) {
-      alert("Please enter a valid product and product name.");
-      return; // Prevent adding incomplete items
-    }
 
     setFormData((prevData) => {
       const updatedPurchaseItems = [...prevData.PurchaseItem, newItem];
@@ -666,6 +674,8 @@ function PurchaseReceiveForm() {
                 placeholder="Enter Invoice/Challan No"
                 value={formData.invoice_challan_no}
                 onChange={handleChange}
+                onKeyDown={handleKeyDown}
+                required
               />
             </div>
 
