@@ -474,10 +474,13 @@ function PurchaseReceiveForm() {
       };
     });
   
+    // ✅ Clear the product name input properly
+    setSearchQuery(""); // Reset the search input field
+  
     // ✅ Clear the input form
     setNewItem({
       product: "",
-      product_name: "",
+      product_name: "", // Ensure product_name is reset
       purchase_price: "",
       rim: "",
       dozen: "",
@@ -495,6 +498,7 @@ function PurchaseReceiveForm() {
   
     setShowInputForm(false); // Hide form after saving
   };
+  
   
 
   const handleRemoveRow = (indexToRemove) => {
