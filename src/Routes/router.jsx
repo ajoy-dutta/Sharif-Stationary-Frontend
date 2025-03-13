@@ -21,7 +21,6 @@ import SalesNew from "../Pages/Sales/SalesNew.jsx";
 import ForgotPassword from "../Authentication/ForgotPassword.jsx";
 import Stock from "../Pages/Stock/Stock.jsx";
 import Bill from "../Pages/Bill/Bill.jsx";
-import Report from "../Pages/Report/Report.jsx";
 import Invoice from "../Pages/Invoice/Invoice.jsx";
 import Products from "../Pages/Master/Products.jsx";
 import Warehouse from "../Pages/Master/Warehouse.jsx";
@@ -29,9 +28,12 @@ import PaymentType from "../Pages/Master/PaymentType.jsx";
 import Company from "../Pages/Master/Company.jsx";
 import ProtectedRoute from "../Provider/ProtectedRoute.jsx"
 import Customer from "../Pages/Master/Customer.jsx";
-// import ProtectedRoute from "../Provider/ProtectedRoute.jsx"
 import Dashboard from "../Pages/DashboardPage/Dashboard.jsx"
 import CompanyProducts from "../Pages/Master/CompanyProducts.jsx";
+import PurchaseList from "../Pages/Purchase/PurchaseList.jsx";
+import AddEditPurchase from "../Pages/Purchase/AddEditPurchase.jsx";
+import PurchasesReport from "../Pages/Report/PurchasesReport.jsx";
+import SalesReport from "../Pages/Report/SalesReport.jsx";
 
 
 export const router = createBrowserRouter([
@@ -66,7 +68,7 @@ export const router = createBrowserRouter([
       },
 
       {
-        path:"/products/:companyId",
+        path:"/company/:companyId",
         element: <CompanyProducts></CompanyProducts>,
       },
       
@@ -79,6 +81,14 @@ export const router = createBrowserRouter([
       {
         path: "/purchase",
         element: <PurchaseReceiveForm></PurchaseReceiveForm>,
+      },
+      {
+        path: "/purchase-list",
+        element: <PurchaseList></PurchaseList>,
+      },
+      {
+        path: "/add-purchase",
+        element: <AddEditPurchase></AddEditPurchase>,
       },
       {
         path: "/transfer",
@@ -109,10 +119,7 @@ export const router = createBrowserRouter([
         element: <Posting></Posting>,
       },
 
-      {
-        path: "/report",
-        element: <Report></Report>,
-      },
+      
       {
         path: "/invoice",
         element: <Invoice></Invoice>,
@@ -138,6 +145,7 @@ export const router = createBrowserRouter([
         path: "/admin",
         element:<AdminDashboard></AdminDashboard>,
       },
+    
       {
         path: "/products",
         element: <Products></Products>,
@@ -155,11 +163,15 @@ export const router = createBrowserRouter([
         path: "/payment-types",
         element:<PaymentType></PaymentType>,
       },
+      {
+        path: "/purchasesReport",
+        element:<PurchasesReport></PurchasesReport>,
+      },
+      {
+        path: "/salesReport",
+        element:<SalesReport></SalesReport>,
+      },
   
-      // {
-      //   path: "/signup",
-      //   element: <SignUp></SignUp>,
-      // },
     ],
   },
 ]);

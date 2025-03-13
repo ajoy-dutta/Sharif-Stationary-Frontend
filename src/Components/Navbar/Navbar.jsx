@@ -7,10 +7,20 @@ const Navbar = () => {
   const { user, signOut } = useUser(); // Get user context
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
+  const [isReportOpen, setIsReportOpen] = useState(false);
+  const reportDropdownRef = useRef(null);
+
 
   // Toggle dropdown when clicking on the "Master" button
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
+    setIsReportOpen(false); // Close Report dropdown when Master opens
+
+  };
+  // Toggle Report Dropdown
+  const toggleReportDropdown = () => {
+    setIsReportOpen(!isReportOpen);
+    setIsOpen(false); // Close Master dropdown when Report opens
   };
 
   // Close dropdown when clicking outside
@@ -19,8 +29,14 @@ const Navbar = () => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setIsOpen(false);
       }
+      if (reportDropdownRef.current && !reportDropdownRef.current.contains(event.target)) {
+        setIsReportOpen(false);
+      }
     };
-
+    
+  
+      
+  
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
@@ -145,11 +161,29 @@ const Navbar = () => {
           <li>
             <NavLink to="/salesNew">Retail Sale</NavLink>
           </li>
-          <li>
-            <NavLink to="/report">Report</NavLink>
-          </li>
+              
           <li>
             <NavLink to="/stock">Stock</NavLink>
+          </li>
+           {/* Report Dropdown (Independent) */}
+           <li ref={reportDropdownRef} className="relative">
+            <button onClick={toggleReportDropdown} className="px-4 py-2">
+              Report
+            </button>
+            {isReportOpen && (
+              <ul className="absolute top-10 left-0 mt-2 bg-white shadow-lg rounded p-2 w-48 z-50">
+                <li>
+                  <NavLink to="/purchasesReport" onClick={() => setIsReportOpen(false)}>
+                    Purchase
+                  </NavLink>
+                </li>
+                <li>
+                  <NavLink to="/salesReport" onClick={() => setIsReportOpen(false)}>
+                    Sales
+                  </NavLink>
+                </li>
+              </ul>
+            )}
           </li>
         </ul>
       </div>

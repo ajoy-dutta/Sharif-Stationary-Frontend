@@ -1,329 +1,283 @@
 import { useState, useEffect } from "react";
-import React from "react";
-import axios from "axios";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
-import axiosInstance from "../../Components/AxiosInstance";
+import AxiosInstance from "../../Components/AxiosInstance";
 
-import { ChevronDown } from "lucide-react";
 
 const Sales = () => {
-  // State Variables
-  const [companyName, setCompanyName] = useState("");
-  const [orderNo, setOrderNo] = useState("");
-  const [invoiceNo, setInvoiceNo] = useState("");
-  const [remarks, setRemarks] = useState("");
-  const [customerID, setCustomerID] = useState("");
-  const [customers, setCustomers] = useState([]);
-  const [customerAddress, setCustomerAddress] = useState("");
-  const [customerName, setCustomerName] = useState("");
-  const [customerPhone, setCustomerPhone] = useState("");
-  const [chequeNo, setChequeNo] = useState("");
-  const [chequeDate, setChequeDate] = useState("");
-  const [orderDate, setOrderDate] = useState("");
-  const [driverMobile, setDriverMobile] = useState("");
-  const [reference, setReference] = useState("");
-  const [previousDue, setPreviousDue] = useState(0);
-  const [todayBill, setTodayBill] = useState(0);
-  const [todayPaid, setTodayPaid] = useState(0);
-  const [paidBy, setPaidBy] = useState("Cash");
-  const [bankName, setBankName] = useState("");
-  const [accountNo, setAccountNo] = useState("");
-  const [balanceAmount, setBalanceAmount] = useState("");
-  const [showDropdown, setShowDropdown] = useState(false);
-  const [showTable, setshowTable] = useState(false);
+const [stockData, setStockData] = useState([]);
 
-  const [items, setItems] = useState([
-    {
-      no: 1,
-      productDescription: "",
-      productCode: "",
-      stockRim: "",
-      stockDozen: "",
-      stockSheetPiece: "",
-      rimDozenPrice: "",
-      sheetPiecePrice: "",
-      inputRimDozenQty: "",
-      inputSheetPieceQty: "",
-      inputRimDozenPrice: "",
-      inputSheetPiecePrice: "",
-      totalPrice: "",
-    },
+const [formData, setFormData] = useState({
+  orderDate: "",
+  customerID: "",
+  customerAddress: "",
+  customerName: "",
+  mobile: "",
+  reference: "",
+  remarks: "",
+  todayBill: 0,
+  todayPaid: 0,
+  paidBy: "Cash",
+  bankName: "",
+  accountNo: "",
+  chequeNo: "",
+  chequeDate: "",
+  balanceAmount: 0,
+  product_info:[]
+});
+
+// Handle manual input changes
+const handleChange = (e) => {
+  const { name, value } = e.target;
+
+  setFormData((prev) => ({ ...prev, [name]: value })); 
+};
+
+
+
+
+// ✅ Dynamic Item List
+const [items, setItems] = useState({
+  product: "",
+  stock: 0,
+  rim: 0,
+  sheet: 0,
+  rim_sold: "",
+  dozen_sold: "",
+  sheet_or_piece_sold: "",
+  per_rim_sell_price: "",
+  per_dozen_sell_price: "",
+  per_sheet_or_piece_sell_price: "",
+  total_price: "",
+});
+
+
+useEffect(() => {
+  AxiosInstance.get("/stock/")
+    .then((response) => {
+      setStockData(response.data);
+    })
+    .catch((err) => {
+      console.error("Error fetching stock:", err);
+    });
+}, []); 
+
+
+
+
+// Handle product selection & fetch stock data
+const handleProductChange = async (e) => {
+  const stock = e.target.value;
+  setItems((prev) => ({ ...prev, stock }));
+
+  const selectedStock = stockData.find((stockitem) => stockitem.id === parseInt(stock)); 
+  console.log("stock", stock)
+  console.log("stockData", stockData)
+  console.log("selectedStock",selectedStock.rim)
+
+  if (selectedStock) {
+    setItems((prev) => ({
+      ...prev,
+      rim: selectedStock.rim,
+      sheet: selectedStock.sheet_or_piece,
+      dozen: selectedStock.dozen,
+      per_rim_sell_price: selectedStock.last_per_rim_price,
+      per_dozen_sell_price: selectedStock.last_per_dozen_price,
+      per_sheet_or_piece_sell_price: selectedStock.last_per_sheet_or_piece_price
+    }));
+  }
+
+};
+
+// Handle manual input changes
+const handleItemChange = (e) => {
+  const { name, value } = e.target;
+
+  setItems((prev) => ({ ...prev, [name]: value })); 
+};
+
+
+const handleItemAdd = () => {
+ 
+    setFormData((prev) => ({
+      ...prev,
+      product_info: [
+        ...prev.product_info,
+        {
+          product: items.product,
+          rim_sold: items.rim_sold,
+          dozen_sold: items.dozen_sold,
+          sheet_or_piece_sold: items.sheet_or_piece_sold,
+          per_rim_sell_price: items.per_rim_sell_price,
+          per_dozen_sell_price: items.per_dozen_sell_price,
+          per_sheet_or_piece_sell_price: items.per_sheet_or_piece_sell_price,
+        },
+      ],
+    }));
+
+    // Reset the items state after adding to formData
+    setItems({
+      product: "",
+      stock: 0,
+      rim: 0,
+      sheet: 0,
+      rim_sold: "",
+      dozen_sold: "",
+      sheet_or_piece_sold: "",
+      per_rim_sell_price: "",
+      per_dozen_sell_price: "",
+      per_sheet_or_piece_sell_price: "",
+      total_price: "",
+    });
+ 
+  
+};
+
+
+const handleDeleteItem = (index) => {
+  
+  const updatedProductSellInfo = formData.product_info.filter((_, i) => i !== index);
+
+  setFormData((prev) => ({
+    ...prev,
+    product_info: updatedProductSellInfo,
+  }));
+};
+
+
+
+
+
+// ✅ Generate PDF Export
+const handlePDFExport = () => {
+  const doc = new jsPDF();
+  const tableColumn = [
+    "No",
+    "Item/Product Code",
+    "Rim Quantity",
+    "Sheet/Piece Quantity",
+    "Rim/Dozen Price",
+    "Sheet/Piece Price",
+    "Total Amount",
+    "Remarks",
+  ];
+
+  const tableRows = items.map((item) => [
+    item.no, 
+    item.productDescription, 
+    item.productCode, 
+    item.rim_sold, 
+    item.sheet_or_piece_sold, 
+    item.per_rim_or_dozen_sell_price, 
+    item.per_sheet_or_piece_sell_price, 
+    item.total_price, 
+    item.remarks, 
   ]);
 
-  const handleChange = (e, index, field) => {
-    const updatedItems = [...items];
-    updatedItems[index][field] = e.target.value;
-    setItems(updatedItems);
-  };
+  doc.text("Purchase Items Report", 14, 15);
+  doc.autoTable({ head: [tableColumn], body: tableRows, startY: 20 });
+  doc.save("purchase_items.pdf");
+};
 
-  const addRow = () => {
-    setItems([
-      ...items,
-      {
-        no: items.length + 1,
-        productDescription: "",
-        productCode: "",
-        stockRim: "",
-        stockDozen: "",
-        stockSheetPiece: "",
-        rimDozenPrice: "",
-        sheetPiecePrice: "",
-        inputRimDozenQty: "",
-        inputSheetPieceQty: "",
-        inputRimDozenPrice: "",
-        inputSheetPiecePrice: "",
-        totalPrice: "",
-      },
-    ]);
-  };
+// ✅ Form Submission
+const handleSubmit = async (e) => {
+  e.preventDefault(); 
 
-  const removeRow = (index) => {
-    setItems(items.filter((_, i) => i !== index));
-  };
+  try {
 
-  const handlePDFExport = () => {
-    const invoiceWindow = window.open("", "_blank"); // Open new window
-
-    invoiceWindow.document.write(`
-      <html>
-        <head>
-          <title>Sales Invoice</title>
-          <style>
-            body { font-family: Arial, sans-serif; padding: 20px; }
-            .container { width: 80%; margin: auto; border: 1px solid #ddd; padding: 20px; }
-            .header { text-align: center; }
-            .title { font-size: 20px; font-weight: bold; }
-            .details { margin-top: 20px; }
-            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-            th, td { border: 1px solid #ddd; padding: 10px; text-align: center; }
-            .total { font-size: 16px; font-weight: bold; margin-top: 20px; text-align: right; }
-            .buttons { text-align: center; margin-top: 20px; }
-            .buttons button { padding: 10px 15px; margin: 5px; cursor: pointer; }
-            .total-row td { font-weight: bold; background-color: #f2f2f2; }
-            .total-text { text-align: center; } /* Total text alignment */
-          </style>
-        </head>
-        <body>
-          <div class="container">
-            <div class="header">
-              <h2>SHARIF PAPER & STATIONARY</h2>
-              <p>36-GOHATA ROAD, LOHAPOTTY, JASHORE</p>
-              <p>Shop Contact: 01854-341463</p>
-            </div>
-  
-            <div class="title">SALES INVOICE</div>
-  
-            <div class="details">
-              <p><strong>Served By:</strong> YEASIN ARAFAT</p>
-              <p><strong>Date & Time:</strong> 29/01/25 10:35 PM</p>
-              <p><strong>Invoice No:</strong> SSP.INV.00003210.25</p>
-              <p><strong>Pay Method:</strong> Cash</p>
-            </div>
-  
-            <div class="details">
-              <p><strong>Customer:</strong> Likhoni</p>
-              <p><strong>Address:</strong> RAZGONG-AMINUR</p>
-              <p><strong>Phone No:</strong> 01545545555</p>
-            </div>
-  
-            <table id="invoiceTable">
-              <thead>
-                <tr>
-                  <th>Sl. No</th>
-                  <th>Item Code</th>
-                  <th>Title</th>
-                  <th>Unit Qty</th>
-                  <th>Name</th>
-                  <th>Discount %</th>
-                  <th>Conversion Qty</th>
-                  <th>Rim Rate</th>
-                  <th>Sheet Rate</th>
-                  <th>Amount</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>1</td>
-                  <td>00000368</td>
-                  <td>16 OFFSET REGISTER</td>
-                  <td>2</td>
-                  <td>Dz</td>
-                  <td>Dz</td>
-                  <td>Dz</td>
-                  <td>Dz</td>
-                  <td>624.00</td>
-                  <td class="amount">1248.00</td>
-                </tr>
-                <!-- Additional rows can be added dynamically -->
-              </tbody>
-              <tfoot>
-                <tr class="total-row">
-                  <td colspan="9" class="total-text">Total</td>
-                  <td id="totalAmount">0.00</td>
-                </tr>
-              </tfoot>
-            </table>
-  
-            <div class="total">
-              <p>Net Amount: <span id="netAmount">1248.00</span></p>
-              <p>Due Amount: 1248.00</p>
-              <p>Previous Due: 0.00</p>
-              <p>Current Due: 1248.00</p>
-            </div>
-  
-            <div class="buttons">
-              <button onclick="window.print()">Print</button>
-              <button onclick="downloadPDF()">Download PDF</button>
-            </div>
-  
-            <script>
-              function calculateTotal() {
-                let total = 0;
-                document.querySelectorAll(".amount").forEach(cell => {
-                  total += parseFloat(cell.innerText) || 0;
-                });
-                document.getElementById("totalAmount").innerText = total.toFixed(2);
-                document.getElementById("netAmount").innerText = total.toFixed(2);
-              }
-  
-              function downloadPDF() {
-                const { jsPDF } = window.jspdf;
-                const doc = new jsPDF();
-                doc.text("Sales Invoice", 14, 15);
-                doc.autoTable({ html: "#invoiceTable" });
-                doc.save("invoice.pdf");
-              }
-  
-              calculateTotal(); // Call function to calculate total
-            </script>
-          </div>
-        </body>
-      </html>
-    `);
-
-    invoiceWindow.document.close();
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
     alert("Purchase, Items, and Payment Information Saved Successfully!");
-  };
+  } catch (error) {
+    console.error("Error submitting form", error);
+    alert("Error while saving data. Please try again.");
+  }
+};
 
-  useEffect(() => {
-    setOrderDate(new Date().toISOString().split("T")[0]);
-  }, []);
 
-  const handleKeyDown = (e) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      const formElements = Array.from(
-        document.querySelectorAll("input, select")
-      );
-      const index = formElements.indexOf(e.target);
-      if (index >= 0 && index < formElements.length - 1) {
-        formElements[index + 1].focus();
-      }
-    }
-  };
-
-  // Fetch customers from API using axiosInstance
-  useEffect(() => {
-    const fetchCustomers = async () => {
-      try {
-        const response = await axiosInstance.get("/customers/");
-        setCustomers(response.data); // Store customer list in state
-      } catch (error) {
-        console.error("Error fetching customers:", error);
-      }
-    };
-
-    fetchCustomers();
-  }, []);
 
   return (
     <div className="m-8 mb-0 mx-12">
       <h2 className="text-xl font-semibold mb-2 -mt-4 text-center">Sale</h2>
-      <form onSubmit={handleSubmit} onKeyDown={handleKeyDown}>
-        {/* sale */}
-        <div className="p-4 rounded-xl grid grid-cols-8 gap-2 text-sm ]">
+      <form onSubmit={handleSubmit}>
+        <div className="p-4 rounded-xl grid grid-cols-8 gap-2 text-sm bg-white  shadow-[0px_0px_30px_rgba(0,0,0,0.1)]">
+          {/*1. Date */}
           <div>
             <label className="block text-center">Date</label>
             <input
+              name="orderDate"
               type="date"
               className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
-              value={orderDate}
-              onChange={(e) => setOrderDate(e.target.value)}
-              onKeyDown={handleKeyDown}
+              value={formData.orderDate}
+              onChange={handleChange}
+              // onKeyDown={handleKeyDown}
             />
           </div>
+          {/*2. Customer Id*/}
           <div>
             <label className="block text-center">Customer ID</label>
             <input
+              name="customerID"
               type="text"
-              className="mt-1 p-2 w-full border border-gray-300 rounded h-7 bg-gray-200"
-              value={customerID || ""}
-              readOnly
-              placeholder="Auto-generated"
+              className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
+              value={formData.customerID}
+              onChange={handleChange}
+            />
+          </div>
+          {/*3. Customer Name */}
+          <div>
+            <label className="block text-center">Customer Name</label>
+            <input
+              name="customerName"
+              type="text"
+              className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
+              value={formData.customerName}
+              onChange={handleChange}
             />
           </div>
 
-
-          <div>
-            <label className="block text-center ">Customer Name</label>
-            <select
-              className="mt-1 p-2 w-full border border-gray-300 rounded h-9"
-              value={customerName}
-              onChange={(e) => {
-                const selectedCustomer = customers.find(
-                  (c) => c.customer_name === e.target.value
-                );
-                if (selectedCustomer) {
-                  setCustomerID(selectedCustomer.id); // Auto-generate Customer ID
-                  setCustomerName(selectedCustomer.customer_name);
-                  setCustomerAddress(selectedCustomer.customer_address); // Auto-fill Address
-                  setCustomerPhone(selectedCustomer.customer_phone_no); // Auto-fill Phone No
-                }
-              }}
-            >
-              <option value="">Select Customer</option>
-              {customers.map((customer) => (
-                <option key={customer.id} value={customer.customer_name}>
-                  {customer.customer_name}
-                </option>
-              ))}
-            </select>
-          </div>
+          {/** 4. Customer Address */}
           <div>
             <label className="block text-center">Customer Address</label>
             <input
+              name="customerAddress"
               type="text"
-              className="mt-1 p-2 w-full border border-gray-300 rounded h-7 bg-gray-200"
-              value={customerAddress || ""}
-              readOnly
-              placeholder="Auto-filled"
+              className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
+              value={formData.customerAddress}
+              onChange={handleChange}
             />
           </div>
 
+          {/* 5. Mobile No */}
           <div>
             <label className="block text-center">Phone No</label>
             <input
+              name="mobile"
+              type="number"
+              className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
+              value={formData.mobile}
+              onChange={handleChange}
+            />
+          </div>
+          {/*6. Reference */}
+          <div>
+            <label className="block text-center">Reference</label>
+            <input
+              name="reference"
               type="text"
-              className="mt-1 p-2 w-full border border-gray-300 rounded h-7 bg-gray-200"
-              value={customerPhone || ""}
-              readOnly
-              placeholder="Auto-filled"
+              className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
+              value={formData.reference}
+              onChange={handleChange}
             />
           </div>
 
+          {/* 7. Remarks */}
           <div>
             <label className="block text-center">Remarks</label>
             <input
+              name="remarks"
               type="text"
               className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
-              value={remarks}
-              onChange={(e) => setRemarks(e.target.value)}
-              onKeyDown={handleKeyDown}
+              value={formData.remarks}
+              onChange={handleChange}
             />
           </div>
         </div>
@@ -338,11 +292,8 @@ const Sales = () => {
                 <tbody>
                   {/* First Row: Column Headings */}
                   <tr className="bg-gray-200 text-gray-700 text-sm">
-                    <td className="p-2 text-center border">No</td>
-                    <td className="p-2 text-center border">
-                      Product Description
-                    </td>
-                    <td className="p-2 text-center border">Product Code</td>
+
+                    <td className="p-2 text-center border">Product</td>
 
                     <td className="p-2 text-center border">Stock(Rim)</td>
                     <td className="p-2 text-center border">Stock(Dozen)</td>
@@ -350,7 +301,10 @@ const Sales = () => {
                       Stock(Sheet/Piece)
                     </td>
                     <td className="p-2 text-center border">
-                      Rim/Dozen Purchase Price with Additional Cost
+                      Rim Purchase Price with Additional Cost
+                    </td>
+                    <td className="p-2 text-center border">
+                      Dozen Purchase Price with Additional Cost
                     </td>
                     <td className="p-2 text-center border">
                       Sheet/Piece Purchase Price with Additional Cost
@@ -364,198 +318,183 @@ const Sales = () => {
                     <td className="p-2 text-center border">
                       Input Rim/Dozen Price
                     </td>
-                    <td className="p-2 text-center border">
-                      Input only sheet/piece Price
-                    </td>
                     <td className="p-2 text-center border">Total Price</td>
                   </tr>
-                  {items.map((item, index) => (
-                    <React.Fragment key={index}>
-                      {/* Second Row: Input Fields */}
                       <tr className="border">
-                        <td className="border text-center">{index + 1}</td>
+                        {/* Row Number */}
 
+                        {/* Product Select Dropdown */}
                         <td className="border">
                           <select
+                            name="product"
                             className="p-1 border border-gray-300 rounded w-full h-8"
-                            value={item.productDescription}
-                            onChange={(e) =>
-                              handleChange(e, index, "productDescription")
-                            }
+                            value={items.product}
+                            onChange={(e) => {
+                              handleProductChange(e);  
+                              handleItemChange(e);    
+                            }}
                           >
-                            <option value="">Select</option>
-                            <option value="Other">Other</option>
+                            <option value="">Select a product</option>
+                            {stockData.map((stock) => (
+                              <option key={stock.id} value={stock.id}>
+                                 {stock.product_name} {/* Adjust this if you have a name */}
+                              </option>
+                            ))}
                           </select>
-                          {item.productDescription === "Other" && (
-                            <input
-                              type="text"
-                              className="p-1 border border-gray-300 rounded w-full h-8 mt-1"
-                              placeholder="Enter custom description"
-                              value={item.customProductDescription || ""}
-                              onChange={(e) =>
-                                handleChange(
-                                  e,
-                                  index,
-                                  "customProductDescription"
-                                )
-                              }
-                            />
-                          )}
-                        </td>
-                        <td className="border">
-                          <select
-                            className="p-1 border border-gray-300 rounded w-full h-8"
-                            value={item.productCode}
-                            onChange={(e) =>
-                              handleChange(e, index, "productCode")
-                            }
-                          >
-                            <option value="">Select</option>
-                            <option value="Other">Other</option>
-                          </select>
-                          {item.productCode === "Other" && (
-                            <input
-                              type="text"
-                              className="p-1 border border-gray-300 rounded w-full h-8 mt-1"
-                              placeholder="Enter custom product code"
-                              value={item.customProductCode || ""}
-                              onChange={(e) =>
-                                handleChange(e, index, "customProductCode")
-                              }
-                            />
-                          )}
                         </td>
 
+                        {/* Stock (Fetched from API) */}
+                        <td className="border text-center">{items.rim}</td>
+
+                        {/* Rim Stock (Fetched from API) */}
+                        <td className="border text-center">{items.dozen}</td>
+
+                        {/* Sheet Stock (Fetched from API) */}
+                        <td className="border text-center">{items.sheet}</td>
+                        
+
+                        {/* Per Rim Sell Price */}
                         <td className="border">
                           <input
+                            name="per_rim_sell_price"
                             type="number"
                             className="p-1 border border-gray-300 rounded w-full h-8 text-center"
-                            value={item.stockRim}
-                            onChange={(e) => handleChange(e, index, "stockRim")}
+                            value={items.per_rim_sell_price}
+                            onChange={handleItemChange}
                           />
                         </td>
 
+                        {/* Per Dozen Sell Price */}
                         <td className="border">
                           <input
+                            name="per_dozen_sell_price"
                             type="number"
                             className="p-1 border border-gray-300 rounded w-full h-8 text-center"
-                            value={item.stockDozen}
-                            onChange={(e) =>
-                              handleChange(e, index, "stockDozen")
-                            }
+                            value={items.per_dozen_sell_price}
+                            onChange={handleItemChange}
                           />
                         </td>
 
+                        {/* Per Sheet or Piece Sell Price */}
                         <td className="border">
                           <input
+                            name="per_sheet_or_piece_sell_price"
                             type="number"
                             className="p-1 border border-gray-300 rounded w-full h-8 text-center"
-                            value={item.stockSheetPiece}
-                            onChange={(e) =>
-                              handleChange(e, index, "stockSheetPiece")
-                            }
+                            value={items.per_sheet_or_piece_sell_price}
+                            onChange={handleItemChange}
                           />
                         </td>
 
+                        
+                        {/* Rim Sold (Manual Input) */}
                         <td className="border">
                           <input
+                            name="rim_sold"
                             type="number"
                             className="p-1 border border-gray-300 rounded w-full h-8 text-center"
-                            value={item.rimDozenPrice}
-                            onChange={(e) =>
-                              handleChange(e, index, "rimDozenPrice")
-                            }
+                            value={items.rim_sold} // Corrected `itemss.rim_sold` to `items.rim_sold`
+                            onChange={handleItemChange}
                           />
                         </td>
 
+                        {/* Dozen Sold (Manual Input) */}
                         <td className="border">
                           <input
+                            name="dozen_sold"
                             type="number"
                             className="p-1 border border-gray-300 rounded w-full h-8 text-center"
-                            value={item.sheetPiecePrice}
-                            onChange={(e) =>
-                              handleChange(e, index, "sheetPiecePrice")
-                            }
+                            value={items.dozen_sold}
+                            onChange={handleItemChange}
                           />
                         </td>
 
+                        {/* Sheet or Piece Sold (Manual Input) */}
                         <td className="border">
                           <input
+                            name="sheet_or_piece_sold"
                             type="number"
                             className="p-1 border border-gray-300 rounded w-full h-8 text-center"
-                            value={item.inputRimDozenQty}
-                            onChange={(e) =>
-                              handleChange(e, index, "inputRimDozenQty")
-                            }
+                            value={items.sheet_or_piece_sold}
+                            onChange={handleItemChange}
                           />
                         </td>
 
+                        {/* Total Price */}
                         <td className="border">
                           <input
+                            name="total_price"
                             type="number"
                             className="p-1 border border-gray-300 rounded w-full h-8 text-center"
-                            value={item.inputSheetPieceQty}
-                            onChange={(e) =>
-                              handleChange(e, index, "inputSheetPieceQty")
-                            }
-                          />
-                        </td>
-
-                        <td className="border">
-                          <input
-                            type="number"
-                            className="p-1 border border-gray-300 rounded w-full h-8 text-center"
-                            value={item.inputRimDozenPrice}
-                            onChange={(e) =>
-                              handleChange(e, index, "inputRimDozenPrice")
-                            }
-                          />
-                        </td>
-
-                        <td className="border">
-                          <input
-                            type="number"
-                            className="p-1 border border-gray-300 rounded w-full h-8 text-center"
-                            value={item.inputSheetPiecePrice}
-                            onChange={(e) =>
-                              handleChange(e, index, "inputSheetPiecePrice")
-                            }
-                          />
-                        </td>
-
-                        <td className="border">
-                          <input
-                            type="number"
-                            className="p-1 w-full h-8 border border-gray-300 rounded text-center"
-                            value={item.totalPrice}
+                            value={items.total_price}
+                            onChange={handleItemChange}
+                            readOnly
                           />
                         </td>
                       </tr>
-                    </React.Fragment>
-                  ))}
                 </tbody>
               </table>
 
               <div className="flex justify-between items-center w-full mt-4">
-                {/* Remove Button - Left Side */}
-                <button
-                  type="button"
-                  onClick={() => removeRow(index)}
-                  className="bg-red-500 text-white px-4 rounded hover:bg-red-600 text-xs w-24 h-6"
-                >
-                  Remove
-                </button>
 
                 {/* Add Button - Right Side */}
                 <button
                   type="button"
-                  onClick={addRow}
-                  className="bg-blue-500 text-white px-4 rounded bg-blue-900 text-xs w-24 h-6"
+                  onClick={handleItemAdd}
+                  className=" text-white px-4 rounded bg-blue-900 text-xs w-24 h-6"
                 >
                   Add
                 </button>
               </div>
+
+              {formData.product_info && formData.product_info.length > 0 ? (
+                <table className="w-full text-sm font-medium border-collapse border border-gray-300 mt-4">
+                  <thead>
+                    <tr className="bg-gray-200">
+                      <th className="border p-2">SL</th>
+                      <th className="border p-2">Product</th>
+                      <th className="border p-2">Rim Sold</th>
+                      <th className="border p-2">Dozen Sold</th>
+                      <th className="border p-2">Sheet/Piece Sold</th>
+                      <th className="border p-2">Price (Rim)</th>
+                      <th className="border p-2">Price (Dozen)</th>
+                      <th className="border p-2">Price (Sheet/Piece)</th>
+                      <th className="border p-2">Total</th>
+                      <th className="border p-2">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {formData.product_info.map((item, index) => (
+                      <tr key={index}>
+                        <td className="border p-2 text-center">{index + 1}</td>
+                        <td className="border p-2">
+                          {stockData.find((stock) => stock.id === parseInt(item.product, 10))?.product_name || "Unknown"}
+                        </td>
+                        <td className="border p-2 text-center">{item.rim_sold}</td>
+                        <td className="border p-2 text-center">{item.dozen_sold}</td>
+                        <td className="border p-2 text-center">{item.sheet_or_piece_sold}</td>
+                        <td className="border p-2 text-center">{item.per_rim_sell_price}</td>
+                        <td className="border p-2 text-center">{item.per_dozen_sell_price}</td>
+                        <td className="border p-2 text-center">{item.per_sheet_or_piece_sell_price}</td>
+                        <td className="border p-2 text-center">{item.total_price}</td>
+                        <td className="border p-2 text-center">
+                          <button
+                            onClick={() => handleDeleteItem(index)}
+                            className="bg-red-500 text-white px-2 py-1 rounded"
+                          >
+                            Delete
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
+                <p className="text-gray-500 text-center mt-4">No products added yet.</p>
+              )}
+
             </div>
+
           </div>
         </div>
 
@@ -573,7 +512,7 @@ const Sales = () => {
               <input
                 type="number"
                 className="mt-1 p-2 w-full border border-gray-300 rounded h-7 bg-gray-100"
-                value={previousDue}
+                // value={previousDue}
                 readOnly
               />
             </div>
@@ -584,10 +523,11 @@ const Sales = () => {
                 Today Invoice/Challan Amount
               </label>
               <input
+                name="todayBill"
                 type="number"
                 className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
-                value={todayBill}
-                onChange={(e) => setTodayBill(e.target.value)}
+                value={formData.todayBill}
+                onChange={handleChange}
               />
             </div>
 
@@ -595,10 +535,11 @@ const Sales = () => {
             <div>
               <label className="block  text-center">Total Due Amount</label>
               <input
+                name="todayPaid"
                 type="number"
                 className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
-                value={todayPaid}
-                onChange={(e) => setTodayPaid(e.target.value)}
+                value={formData.todayPaid}
+                onChange={handleChange}
               />
             </div>
 
@@ -606,10 +547,11 @@ const Sales = () => {
             <div>
               <label className="block  text-center">Today Paid Amount</label>
               <input
+                name="todayPaid"
                 type="number"
                 className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
-                value={todayPaid}
-                onChange={(e) => setTodayPaid(e.target.value)}
+                value={formData.todayPaid}
+                onChange={handleChange}
               />
             </div>
 
@@ -617,9 +559,10 @@ const Sales = () => {
             <div>
               <label className="block text-center">Paid By</label>
               <select
+                name="paidBy"
                 className="mt-1 p-2 w-full border border-gray-300 rounded h-9 focus:ring-2 focus:ring-blue-500"
-                value={paidBy}
-                onChange={(e) => setPaidBy(e.target.value)}
+                value={formData.paidBy}
+                onChange={handleChange}
               >
                 <option value="Cash">Cash</option>
                 <option value="Bank">Bank</option>
@@ -630,10 +573,11 @@ const Sales = () => {
             <div>
               <label className="block  text-center">Bank Name</label>
               <input
+                name="bankName"
                 type="text"
                 className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
-                value={bankName}
-                onChange={(e) => setBankName(e.target.value)}
+                value={formData.bankName}
+                onChange={handleChange}
               />
             </div>
 
@@ -641,10 +585,11 @@ const Sales = () => {
             <div>
               <label className="block  text-center">Account No.</label>
               <input
+                name="accountNo"
                 type="text"
                 className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
-                value={accountNo}
-                onChange={(e) => setAccountNo(e.target.value)}
+                value={formData.accountNo}
+                onChange={handleChange}
               />
             </div>
 
@@ -652,10 +597,11 @@ const Sales = () => {
             <div>
               <label className="block  text-center">Cheque No</label>
               <input
+                name="chequeNo"
                 type="text"
                 className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
-                value={chequeNo}
-                onChange={(e) => setChequeNo(e.target.value)}
+                value={formData.chequeNo}
+                onChange={handleChange}
               />
             </div>
 
@@ -663,10 +609,11 @@ const Sales = () => {
             <div>
               <label className="block text-center">Cheque Date</label>
               <input
+                name="chequeDate"
                 type="date"
                 className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
-                value={chequeDate}
-                onChange={(e) => setChequeDate(e.target.value)}
+                value={formData.chequeDate}
+                onChange={handleChange}
               />
             </div>
 
@@ -674,10 +621,11 @@ const Sales = () => {
             <div>
               <label className="block  text-center">Balance Amount</label>
               <input
+                name="balanceAmount"
                 type="text"
                 className="mt-1 p-2 w-full border border-gray-300 rounded h-7"
-                value={balanceAmount}
-                onChange={(e) => setBalanceAmount(e.target.value)}
+                value={formData.balanceAmount}
+                onChange={handleChange}
               />
             </div>
           </div>

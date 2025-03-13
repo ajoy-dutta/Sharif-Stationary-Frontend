@@ -35,8 +35,8 @@ const Warehouse = () => {
   const handleAddGodown = async () => {
     const { shop_name, godown_name, address } = newGodown;
 
-    if (!shop_name.trim() || !godown_name.trim() || !address.trim()) {
-      toast.error("⚠️ All fields are required!");
+    if (!godown_name.trim()) {
+      toast.error("⚠️ Warehouse Name is required!");
       return;
     }
 
@@ -64,8 +64,8 @@ const Warehouse = () => {
 
     const { shop_name, godown_name, address, id } = editableGodown;
 
-    if (!shop_name.trim() || !godown_name.trim() || !address.trim()) {
-      toast.error("⚠️ All fields are required!");
+    if (!godown_name.trim()) {
+      toast.error("⚠️Warehouse Name is required!");
       return;
     }
 
@@ -92,7 +92,7 @@ const Warehouse = () => {
         setGodown((prev) =>
           prev.map((item) => (item.id === id ? response.data : item))
         );
-        toast.success("✅ Warehouse updated successfully!");
+        toast.success(" Warehouse updated successfully!");
 
         // ✅ Reset state after successful edit
         setEditableGodown(null);
@@ -100,11 +100,11 @@ const Warehouse = () => {
         // ✅ Close the modal
         document.getElementById("my_modal_5").close();
       } else {
-        toast.error("❌ Failed to update warehouse!");
+        toast.error(" Failed to update warehouse!");
       }
     } catch (error) {
       console.error("Error updating godown:", error);
-      toast.error("❌ Failed to update warehouse!");
+      toast.error(" Failed to update warehouse!");
     }
   };
 
@@ -192,7 +192,7 @@ const Warehouse = () => {
                 <th className="px-4 py-2">Warehouse Name</th>
                 <th className="px-4 py-2">Warehouse Address</th>
                 <th className="px-4 py-2">Edit</th>
-                <th className="px-4 py-2">Delete</th>
+                {/* <th className="px-4 py-2">Delete</th> */}
               </tr>
             </thead>
             <tbody className="text-center">
@@ -214,19 +214,19 @@ const Warehouse = () => {
                         <FaEdit />
                       </button>
                     </td>
-                    <td className="px-4 py-2 text-center">
+                    {/* <td className="px-4 py-2 text-center">
                       <button
                         className="text-red-500 hover:underline"
                         onClick={() => handleDeleteGodown(item.id)}
                       >
                         <ImCross />
                       </button>
-                    </td>
+                    </td> */}
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan="6" className="px-4 py-6 text-gray-500">
+                  <td colSpan="5" className="px-4 py-6 text-gray-500">
                     No warehouse found!
                   </td>
                 </tr>
@@ -237,99 +237,105 @@ const Warehouse = () => {
       </div>
 
       {/* Add/Edit Godown Modal */}
-      <dialog id="my_modal_5" className="modal modal-bottom sm:modal-middle">
-        <div className="modal-box relative">
-          <button
-            className="absolute top-2 right-2 text-lg"
-            onClick={() => document.getElementById("my_modal_5").close()} // Close modal
-          >
-            <ImCross />
-          </button>
+      <dialog id="my_modal_5" className="modal modal-bottom modal-sm sm:modal-middle">
+  <div className="modal-box relative p-4">
+    <button
+      className="absolute top-2 right-2 text-lg"
+      onClick={() => document.getElementById("my_modal_5").close()} // Close modal
+    >
+      <ImCross />
+    </button>
 
-          <h3 className="font-bold text-lg my-5 text-center">
-            {editableGodown ? "Edit Godown" : "Add Godown"}
-          </h3>
+    <h3 className="font-bold text-lg my-3 text-center">
+      {editableGodown ? "Edit Warehouse" : "Add Warehouse"}
+    </h3>
 
-          {/* Shop Name Input */}
-          <div className="flex justify-center">
-            <input
-              className="input input-bordered w-80 mx-auto mb-4"
-              placeholder="Enter Shop Name"
-              value={
-                editableGodown ? editableGodown.shop_name : newGodown.shop_name
-              } // Use editableGodown if editing
-              onChange={(e) =>
-                editableGodown
-                  ? setEditableGodown((prev) => ({
-                      ...prev,
-                      shop_name: e.target.value,
-                    }))
-                  : setNewGodown((prev) => ({
-                      ...prev,
-                      shop_name: e.target.value,
-                    }))
-              }
-            />
-          </div>
+    {/* Form Fields using Grid Layout */}
+    <div className="flex flex-col gap-4 mb-2">
+      {/* Shop Name Input */}
+      <div className="flex items-center">
+        <label className="text-sm font-medium text-gray-700 w-full">
+          Shop Name :
+        </label>
+        <input
+          className="input input-bordered w-full p-2 text-sm"
+          placeholder="Enter Shop Name"
+          value={editableGodown ? editableGodown.shop_name : newGodown.shop_name}
+          onChange={(e) =>
+            editableGodown
+              ? setEditableGodown((prev) => ({
+                  ...prev,
+                  shop_name: e.target.value,
+                }))
+              : setNewGodown((prev) => ({
+                  ...prev,
+                  shop_name: e.target.value,
+                }))
+          }
+        />
+      </div>
 
-          {/* Godown Name Input */}
-          <div className="flex justify-center">
-            <input
-              className="input input-bordered w-80 mx-auto mb-4"
-              placeholder="Enter Godown Name"
-              value={
-                editableGodown
-                  ? editableGodown.godown_name
-                  : newGodown.godown_name
-              } // Use editableGodown if editing
-              onChange={(e) =>
-                editableGodown
-                  ? setEditableGodown((prev) => ({
-                      ...prev,
-                      godown_name: e.target.value,
-                    }))
-                  : setNewGodown((prev) => ({
-                      ...prev,
-                      godown_name: e.target.value,
-                    }))
-              }
-            />
-          </div>
+      {/* Godown Name Input */}
+      <div className="flex items-center">
+        <label className="text-sm font-medium text-gray-700 w-full">
+          Warehouse Name :
+        </label>
+        <input
+          className="input input-bordered w-full p-2 text-sm"
+          placeholder="Enter Warehouse Name"
+          value={editableGodown ? editableGodown.godown_name : newGodown.godown_name}
+          onChange={(e) =>
+            editableGodown
+              ? setEditableGodown((prev) => ({
+                  ...prev,
+                  godown_name: e.target.value,
+                }))
+              : setNewGodown((prev) => ({
+                  ...prev,
+                  godown_name: e.target.value,
+                }))
+          }
+        />
+      </div>
 
-          {/* Godown Address Input */}
-          <div className="flex justify-center">
-            <input
-              className="input input-bordered w-80 mx-auto mb-4"
-              placeholder="Enter Godown Address"
-              value={
-                editableGodown ? editableGodown.address : newGodown.address
-              } // Use editableGodown if editing
-              onChange={(e) =>
-                editableGodown
-                  ? setEditableGodown((prev) => ({
-                      ...prev,
-                      address: e.target.value,
-                    }))
-                  : setNewGodown((prev) => ({
-                      ...prev,
-                      address: e.target.value,
-                    }))
-              }
-            />
-          </div>
+      {/* Godown Address Input */}
+      <div className="flex items-center">
+        <label className="text-sm font-medium text-gray-700 w-full">
+          Warehouse Address :
+        </label>
+        <input
+          className="input input-bordered w-full p-2 text-sm"
+          placeholder="Enter Warehouse Address"
+          value={editableGodown ? editableGodown.address : newGodown.address}
+          onChange={(e) =>
+            editableGodown
+              ? setEditableGodown((prev) => ({
+                  ...prev,
+                  address: e.target.value,
+                }))
+              : setNewGodown((prev) => ({
+                  ...prev,
+                  address: e.target.value,
+                }))
+          }
+        />
+      </div>
+    </div>
 
-          {/* Modal Action */}
-          <div className="modal-action justify-center">
-            <button
-              className="btn bg-blue-950 text-white mx-auto"
-              onClick={editableGodown ? handleEditGodown : handleAddGodown} // Trigger appropriate action
-            >
-              {editableGodown ? "Update Godown" : "Add Godown"}
-            </button>
-          </div>
-        </div>
-        <Toaster position="top-center" reverseOrder={false} />
-      </dialog>
+    {/* Modal Action */}
+    <div className="modal-action justify-center mt-4">
+      <button
+        className="btn bg-blue-950 text-white mx-auto"
+        onClick={editableGodown ? handleEditGodown : handleAddGodown} // Trigger appropriate action
+      >
+        {editableGodown ? "Update Warehouse" : "Add Warehouse"}
+      </button>
+    </div>
+  </div>
+  <Toaster position="top-center" reverseOrder={false} />
+</dialog>
+
+
       <Toaster position="top-center" reverseOrder={false} />
     </div>
   );
