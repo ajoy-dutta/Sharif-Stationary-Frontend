@@ -34,6 +34,7 @@ import CompanyProducts from "../Pages/Master/CompanyProducts.jsx";
 import PurchaseList from "../Pages/Purchase/PurchaseList.jsx";
 import AddEditPurchase from "../Pages/Purchase/AddEditPurchase.jsx";
 import SaleList from "../Pages/Sales/SaleList.jsx";
+import EditPurchase from "../Pages/Purchase/EditPurchase.jsx";
 
 
 export const router = createBrowserRouter([
@@ -90,6 +91,11 @@ export const router = createBrowserRouter([
         path: "/add-purchase",
         element: <AddEditPurchase></AddEditPurchase>,
       },
+      {
+        path: "/edit-purchase",
+        element: <EditPurchase></EditPurchase>,
+      },
+
       {
         path: "/transfer",
         element: <Transfer></Transfer>,
