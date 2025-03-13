@@ -32,8 +32,13 @@ import Dashboard from "../Pages/DashboardPage/Dashboard.jsx"
 import CompanyProducts from "../Pages/Master/CompanyProducts.jsx";
 import PurchaseList from "../Pages/Purchase/PurchaseList.jsx";
 import AddEditPurchase from "../Pages/Purchase/AddEditPurchase.jsx";
+<<<<<<< HEAD
 import PurchasesReport from "../Pages/Report/PurchasesReport.jsx";
 import SalesReport from "../Pages/Report/SalesReport.jsx";
+=======
+import SaleList from "../Pages/Sales/SaleList.jsx";
+import EditPurchase from "../Pages/Purchase/EditPurchase.jsx";
+>>>>>>> 1d6196f774532671fdf4ad02aed75ac2d7457e2e
 
 
 export const router = createBrowserRouter([
@@ -91,6 +96,11 @@ export const router = createBrowserRouter([
         element: <AddEditPurchase></AddEditPurchase>,
       },
       {
+        path: "/edit-purchase",
+        element: <EditPurchase></EditPurchase>,
+      },
+
+      {
         path: "/transfer",
         element: <Transfer></Transfer>,
       },
@@ -105,6 +115,10 @@ export const router = createBrowserRouter([
       {
         path: "/sales",
         element: <Sales></Sales>,
+      },
+      {
+        path: "/sale-list",
+        element: <SaleList></SaleList>,
       },
       {
         path: "/salesNew",

@@ -92,8 +92,6 @@ function PurchaseReceiveForm() {
 
   console.log(formData);
 
- 
-
   const handleCompanySearch = (e) => {
     const query = e.target.value.toLowerCase();
     setCompanyQuery(query);
@@ -122,24 +120,23 @@ function PurchaseReceiveForm() {
       }));
       return;
     }
-  
+
     setFormData((prev) => ({
       ...prev,
       company: company.id, // ✅ Store company ID
       company_name: company.company_name, // ✅ Store company name
       previous_due: parseFloat(company.previous_due) || 0, // ✅ Store previous due or default to 0
     }));
-  
+
     setCompanyQuery(company.company_name); // ✅ Update input field
     setFilteredCompanies([]); // ✅ Hide dropdown
-  
+
     // ✅ Filter products related to selected company
     const companyProducts = products.filter(
       (product) => product.company && product.company.id === company.id
     );
     setFilteredProducts(companyProducts);
   };
-  
 
   // 🔹 Handle Change for Godown
   const handleGodownChange = (e) => {
@@ -171,24 +168,33 @@ function PurchaseReceiveForm() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+    const numericValue = value === "" ? "" : parseFloat(value) || 0;
 
-    setFormData((prevData) => ({
-      ...prevData, // ✅ Keep existing data
-      [name]: value,
-    }));
-    
-    // Enable/Disable fields based on payment type selection
-    if (name === "payment_type") {
-      setIsBankPayment(value === "Bank");
-      setIsChequePayment(value === "Cheque");
-    }
+    setFormData((prevData) => {
+      let updatedData = { ...prevData, [name]: value };
+
+      // ✅ Handle dynamic field enabling/disabling based on payment type
+      if (name === "payment_type") {
+        setIsBankPayment(value === "Bank");
+        setIsChequePayment(value === "Cheque");
+      }
+
+      // ✅ Log invoice challan number updates
+      if (name === "invoice_challan_no") {
+        console.log("Updating invoice_challan_no to:", value);
+      }
+
+      // ✅ Recalculate `balance_amount` when `today_paid_amount` changes
+      if (name === "today_paid_amount") {
+        const previousDue = parseFloat(prevData.previous_due) || 0;
+        const invoiceAmount = parseFloat(prevData.invoice_challan_amount) || 0;
+        updatedData.balance_amount = invoiceAmount - numericValue + previousDue;
+      }
+
+      return updatedData;
+    });
 
     console.log(`handleChange called for ${name} with value: ${value}`);
-  
-    // Check if the target is the invoice_challan_no field
-    if (name === "invoice_challan_no") {
-      console.log("Updating invoice_challan_no to:", value);
-    }
   };
 
   const handleItemChange = (e) => {
@@ -403,11 +409,14 @@ function PurchaseReceiveForm() {
     if (e.key === "ArrowDown" || e.key === "ArrowUp" || e.key === "Enter") {
       e.preventDefault(); // Prevent default only for navigation keys
     }
-  
+
     if (e.key === "Enter") {
       if (e.target.name === "product_name" && filteredProducts.length > 0) {
         selectProduct(filteredProducts[selectedIndex]);
-      } else if (e.target.name === "company_name" && filteredCompanies.length > 0) {
+      } else if (
+        e.target.name === "company_name" &&
+        filteredCompanies.length > 0
+      ) {
         selectCompany(filteredCompanies[selectedCompanyIndex]);
       }
     } else if (e.key === "ArrowDown") {
@@ -415,80 +424,117 @@ function PurchaseReceiveForm() {
         const newIndex = (selectedIndex + 1) % filteredProducts.length;
         setSelectedIndex(newIndex);
         highlightDropdownItem("product-item", newIndex);
-      } else if (e.target.name === "company_name" && filteredCompanies.length > 0) {
+      } else if (
+        e.target.name === "company_name" &&
+        filteredCompanies.length > 0
+      ) {
         const newIndex = (selectedCompanyIndex + 1) % filteredCompanies.length;
         setSelectedCompanyIndex(newIndex);
         highlightDropdownItem("company-item", newIndex);
       }
     } else if (e.key === "ArrowUp") {
       if (e.target.name === "product_name" && filteredProducts.length > 0) {
-        const newIndex = selectedIndex > 0 ? selectedIndex - 1 : filteredProducts.length - 1;
+        const newIndex =
+          selectedIndex > 0 ? selectedIndex - 1 : filteredProducts.length - 1;
         setSelectedIndex(newIndex);
         highlightDropdownItem("product-item", newIndex);
-      } else if (e.target.name === "company_name" && filteredCompanies.length > 0) {
-        const newIndex = selectedCompanyIndex > 0 ? selectedCompanyIndex - 1 : filteredCompanies.length - 1;
+      } else if (
+        e.target.name === "company_name" &&
+        filteredCompanies.length > 0
+      ) {
+        const newIndex =
+          selectedCompanyIndex > 0
+            ? selectedCompanyIndex - 1
+            : filteredCompanies.length - 1;
         setSelectedCompanyIndex(newIndex);
         highlightDropdownItem("company-item", newIndex);
       }
     }
   };
-  
-  const handleSaveItem = (e) => {
-    e.preventDefault(); // Prevent any form submission behavior
 
+  const handleSaveItem = (e) => {
+    e.preventDefault(); // Prevent form submission
+
+    if (!newItem.product || !newItem.product_name) {
+      alert("Please enter a valid product and product name.");
+      return;
+    }
 
     setFormData((prevData) => {
+      // ✅ Add new item to the list
       const updatedPurchaseItems = [...prevData.PurchaseItem, newItem];
+
+      // ✅ Calculate new `invoice_challan_amount`
+      const newInvoiceAmount = updatedPurchaseItems.reduce(
+        (total, item) => total + (parseFloat(item.purchase_price) || 0),
+        0
+      );
+
+      // ✅ Calculate new `balance_amount`
+      const previousDue = parseFloat(prevData.previous_due) || 0;
+      const paidAmount = parseFloat(prevData.today_paid_amount) || 0;
+      const newBalanceAmount = newInvoiceAmount - paidAmount + previousDue;
 
       return {
         ...prevData,
-        PurchaseItem: updatedPurchaseItems, // ✅ Properly update state
+        PurchaseItem: updatedPurchaseItems,
+        invoice_challan_amount: newInvoiceAmount,
+        balance_amount: newBalanceAmount,
       };
     });
 
-    // Clear the input form
+    // ✅ Clear the product name input properly
+    setSearchQuery(""); // Reset the search input field
+
+    // ✅ Clear the input form
     setNewItem({
       product: "",
-      product_name: "",
+      product_name: "", // Ensure product_name is reset
       purchase_price: "",
       rim: "",
       dozen: "",
       only_sheet_piece: "",
       total_sheet_piece: "",
-      per_rim_price: "",
       per_dozen_price: "",
+      per_rim_price: "",
       per_sheet_or_piece_price: "",
       additional_cost: "",
       profit: "",
       per_rim_sale_price: "",
       per_dozen_sale_price: "",
-      per_sheet_or_piece_sell_price: "",
+      per_piece_or_sheet_sale_price: "",
     });
 
-    setShowInputForm(false); // Hide the form after saving
+    setShowInputForm(false); // Hide form after saving
   };
 
   const handleRemoveRow = (indexToRemove) => {
-    // Filter out the row to be removed
-    const updatedTables = tables.filter((_, index) => index !== indexToRemove);
-    setTables(updatedTables);
+    setFormData((prevData) => {
+      const updatedPurchaseItems = prevData.PurchaseItem.filter(
+        (_, index) => index !== indexToRemove
+      );
 
-    // Update the PurchaseItem array to remove the corresponding item
-    const updatedPurchaseItems = formData.PurchaseItem.filter(
-      (_, index) => index !== indexToRemove
-    );
+      // ✅ Recalculate `invoice_challan_amount`
+      const newInvoiceAmount = updatedPurchaseItems.reduce(
+        (total, item) => total + (parseFloat(item.purchase_price) || 0),
+        0
+      );
 
-    // Update the formData state
-    setFormData({
-      ...formData,
-      PurchaseItem: updatedPurchaseItems,
+      // ✅ Recalculate `balance_amount`
+      const previousDue = parseFloat(prevData.previous_due) || 0;
+      const paidAmount = parseFloat(prevData.today_paid_amount) || 0;
+      const newBalanceAmount = newInvoiceAmount - paidAmount + previousDue;
+
+      return {
+        ...prevData,
+        PurchaseItem: updatedPurchaseItems,
+        invoice_challan_amount: newInvoiceAmount,
+        balance_amount: newBalanceAmount,
+      };
     });
   };
 
-  const formatDate = (date) => {
-    if (!date) return ""; // Handle empty date
-    return new Date(date).toISOString().split("T")[0];
-  };
+  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -522,11 +568,11 @@ function PurchaseReceiveForm() {
 
       const requestData = {
         ...formData,
-        previous_due: formData.previous_due || 0, 
+        previous_due: formData.previous_due || 0,
         order_date: formatDate(formData.order_date),
         invoice_challan_date: formatDate(formData.invoice_challan_date),
         delivery_date: formatDate(formData.delivery_date),
-        
+
         cheque_date:
           formData.payment_type === "Cheque"
             ? formatDate(formData.cheque_date)
@@ -648,19 +694,21 @@ function PurchaseReceiveForm() {
                 placeholder="Search Company..."
               />
               {filteredCompanies.length > 0 && (
-              <ul className="absolute left-0 mt-1 w-full bg-white border border-gray-300 rounded shadow-lg max-h-48 overflow-y-auto z-10">
-              {filteredCompanies.map((company, index) => (
-                <li
-                  key={company.id}
-                  className={`p-2 cursor-pointer transition-all ${
-                    selectedCompanyIndex === index ? "bg-blue-200 font-semibold" : "hover:bg-blue-100"
-                  }`}
-                  onMouseDown={() => selectCompany(company)}
-                >
-                  {company.company_name}
-                </li>
-              ))}
-            </ul>
+                <ul className="absolute left-0 mt-1 w-full bg-white border border-gray-300 rounded shadow-lg max-h-48 overflow-y-auto z-10">
+                  {filteredCompanies.map((company, index) => (
+                    <li
+                      key={company.id}
+                      className={`p-2 cursor-pointer transition-all ${
+                        selectedCompanyIndex === index
+                          ? "bg-blue-200 font-semibold"
+                          : "hover:bg-blue-100"
+                      }`}
+                      onMouseDown={() => selectCompany(company)}
+                    >
+                      {company.company_name}
+                    </li>
+                  ))}
+                </ul>
               )}
             </div>
 
@@ -922,19 +970,21 @@ function PurchaseReceiveForm() {
                         placeholder="Search Product..."
                       />
                       {filteredProducts.length > 0 && (
-                       <ul className="absolute left-0 mt-1 w-full bg-white border border-gray-300 rounded shadow-lg max-h-48 overflow-y-auto z-10">
-                       {filteredProducts.map((product, index) => (
-                         <li
-                           key={product.id}
-                           className={`p-2 cursor-pointer transition-all ${
-                             selectedIndex === index ? "bg-blue-200 font-semibold" : "hover:bg-blue-100"
-                           }`}
-                           onMouseDown={() => selectProduct(product)}
-                         >
-                           {product.product_name}
-                         </li>
-                       ))}
-                     </ul>
+                        <ul className="absolute left-0 mt-1 w-full bg-white border border-gray-300 rounded shadow-lg max-h-48 overflow-y-auto z-10">
+                          {filteredProducts.map((product, index) => (
+                            <li
+                              key={product.id}
+                              className={`p-2 cursor-pointer transition-all ${
+                                selectedIndex === index
+                                  ? "bg-blue-200 font-semibold"
+                                  : "hover:bg-blue-100"
+                              }`}
+                              onMouseDown={() => selectProduct(product)}
+                            >
+                              {product.product_name}
+                            </li>
+                          ))}
+                        </ul>
                       )}
                     </div>
                   </td>
