@@ -1290,7 +1290,7 @@ function PurchaseReceiveForm() {
             {/* Invoice/Challan Amount */}
             <div>
               <label className="block text-sm text-center whitespace-nowrap">
-                Invoice/Challan Amount
+                Invoice
               </label>
               <input
                 type="number"
