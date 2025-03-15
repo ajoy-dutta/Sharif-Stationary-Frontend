@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 import AxiosInstance from "../../Components/AxiosInstance";
-
+import { useLocation } from "react-router-dom";
 import { useUser } from "../../Provider/UserProvider";
 import { Link } from "react-router-dom";
 
@@ -27,6 +27,8 @@ function PurchaseReceiveForm() {
 
   const handleOpenModal = () => setIsModalOpen(true); // ✅ Open modal
   const handleCloseModal = () => setIsModalOpen(false); // ✅ Close modal
+  const location = useLocation();
+
 
   const handleProductSelection = (product) => {
     setSelectedProduct(product); // ✅ Store selected product
@@ -259,17 +261,17 @@ function PurchaseReceiveForm() {
 
       updatedItem.per_piece_or_sheet_sale_price = purchasePrice
         ? parseFloat(
-            (
-              (purchasePrice + additionalCost + profit) /
-              updatedItem.total_sheet_piece
-            ).toFixed(2)
-          )
+          (
+            (purchasePrice + additionalCost + profit) /
+            updatedItem.total_sheet_piece
+          ).toFixed(2)
+        )
         : "";
 
       updatedItem.per_rim_sale_price = updatedItem.per_piece_or_sheet_sale_price
         ? parseFloat(
-            (updatedItem.per_piece_or_sheet_sale_price * 500).toFixed(2)
-          )
+          (updatedItem.per_piece_or_sheet_sale_price * 500).toFixed(2)
+        )
         : "";
 
       updatedItem.per_dozen_price = "";
@@ -284,8 +286,8 @@ function PurchaseReceiveForm() {
 
       updatedItem.per_rim_sale_price = purchasePrice
         ? parseFloat(
-            ((purchasePrice + additionalCost + profit) / (rim || 1)).toFixed(2)
-          )
+          ((purchasePrice + additionalCost + profit) / (rim || 1)).toFixed(2)
+        )
         : "";
 
       updatedItem.per_sheet_or_piece_price = "";
@@ -309,19 +311,19 @@ function PurchaseReceiveForm() {
       // ✅ Per Sheet/Piece Sale Price
       updatedItem.per_piece_or_sheet_sale_price = purchasePrice
         ? parseFloat(
-            (
-              (purchasePrice + additionalCost + profit) /
-              updatedItem.total_sheet_piece
-            ).toFixed(2)
-          )
+          (
+            (purchasePrice + additionalCost + profit) /
+            updatedItem.total_sheet_piece
+          ).toFixed(2)
+        )
         : "";
 
       // ✅ Per Dozen Sale Price
       updatedItem.per_dozen_sale_price =
         updatedItem.per_piece_or_sheet_sale_price
           ? parseFloat(
-              (updatedItem.per_piece_or_sheet_sale_price * 12).toFixed(2)
-            )
+            (updatedItem.per_piece_or_sheet_sale_price * 12).toFixed(2)
+          )
           : "";
 
       updatedItem.per_rim_price = "";
@@ -346,10 +348,10 @@ function PurchaseReceiveForm() {
     // ✅ Base list of products should respect selected company
     const baseProducts = formData.company
       ? products.filter(
-          (product) =>
-            product.company &&
-            product.company.id.toString() === formData.company
-        )
+        (product) =>
+          product.company &&
+          product.company.id.toString() === formData.company
+      )
       : products;
 
     if (!query.trim()) {
@@ -534,7 +536,7 @@ function PurchaseReceiveForm() {
     });
   };
 
-  
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -698,11 +700,10 @@ function PurchaseReceiveForm() {
                   {filteredCompanies.map((company, index) => (
                     <li
                       key={company.id}
-                      className={`p-2 cursor-pointer transition-all ${
-                        selectedCompanyIndex === index
+                      className={`p-2 cursor-pointer transition-all ${selectedCompanyIndex === index
                           ? "bg-blue-200 font-semibold"
                           : "hover:bg-blue-100"
-                      }`}
+                        }`}
                       onMouseDown={() => selectCompany(company)}
                     >
                       {company.company_name}
@@ -959,11 +960,11 @@ function PurchaseReceiveForm() {
                           // When focused, show products for current company selection
                           const companyProducts = formData.company
                             ? products.filter(
-                                (product) =>
-                                  product.company &&
-                                  product.company.id.toString() ===
-                                    formData.company
-                              )
+                              (product) =>
+                                product.company &&
+                                product.company.id.toString() ===
+                                formData.company
+                            )
                             : products;
                           setFilteredProducts(companyProducts);
                         }}
@@ -974,11 +975,10 @@ function PurchaseReceiveForm() {
                           {filteredProducts.map((product, index) => (
                             <li
                               key={product.id}
-                              className={`p-2 cursor-pointer transition-all ${
-                                selectedIndex === index
+                              className={`p-2 cursor-pointer transition-all ${selectedIndex === index
                                   ? "bg-blue-200 font-semibold"
                                   : "hover:bg-blue-100"
-                              }`}
+                                }`}
                               onMouseDown={() => selectProduct(product)}
                             >
                               {product.product_name}
@@ -1009,9 +1009,8 @@ function PurchaseReceiveForm() {
                       value={newItem.rim}
                       onChange={handleItemChange}
                       onKeyDown={handleKeyDown}
-                      className={`mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs p-1 form-input ${
-                        newItem.product_type === "DOZEN" ? "bg-gray-200" : ""
-                      }`}
+                      className={`mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs p-1 form-input ${newItem.product_type === "DOZEN" ? "bg-gray-200" : ""
+                        }`}
                       placeholder="Enter rim quantity"
                       disabled={newItem.product_type === "DOZEN"}
                     />
@@ -1025,12 +1024,11 @@ function PurchaseReceiveForm() {
                       value={newItem.dozen}
                       onChange={handleItemChange}
                       onKeyDown={handleKeyDown}
-                      className={`mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs p-1 form-input ${
-                        newItem.product_type === "RIM-A4" ||
-                        newItem.product_type === "RIM-LEGAL"
+                      className={`mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs p-1 form-input ${newItem.product_type === "RIM-A4" ||
+                          newItem.product_type === "RIM-LEGAL"
                           ? "bg-gray-200"
                           : ""
-                      }`}
+                        }`}
                       placeholder="Enter dozen quantity"
                       disabled={
                         newItem.product_type === "RIM-A4" ||
@@ -1047,9 +1045,8 @@ function PurchaseReceiveForm() {
                       value={newItem.only_sheet_piece}
                       onChange={handleItemChange}
                       onKeyDown={handleKeyDown}
-                      className={`mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs p-1 form-input ${
-                        newItem.product_type === "RIM-A4" ? "bg-gray-200" : ""
-                      }`}
+                      className={`mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs p-1 form-input ${newItem.product_type === "RIM-A4" ? "bg-gray-200" : ""
+                        }`}
                       placeholder="Enter sheet/piece quantity"
                       disabled={newItem.product_type === "RIM-A4"}
                     />
@@ -1062,9 +1059,8 @@ function PurchaseReceiveForm() {
                       name="total_sheet_piece"
                       value={newItem.total_sheet_piece}
                       onChange={handleItemChange}
-                      className={`mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs p-1 form-input ${
-                        newItem.product_type === "RIM-A4" ? "bg-gray-200" : ""
-                      }`}
+                      className={`mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs p-1 form-input ${newItem.product_type === "RIM-A4" ? "bg-gray-200" : ""
+                        }`}
                       placeholder="Enter total sheet piece"
                       readOnly
                     />
@@ -1089,9 +1085,8 @@ function PurchaseReceiveForm() {
                       value={newItem.per_rim_price}
                       onChange={handleItemChange}
                       onKeyDown={handleKeyDown}
-                      className={`mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs p-1 form-input ${
-                        newItem.product_type === "DOZEN" ? "bg-gray-200" : ""
-                      }`}
+                      className={`mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs p-1 form-input ${newItem.product_type === "DOZEN" ? "bg-gray-200" : ""
+                        }`}
                       placeholder="Enter rim per price"
                       readOnly
                     />
@@ -1103,12 +1098,11 @@ function PurchaseReceiveForm() {
                       value={newItem.per_dozen_price}
                       onChange={handleItemChange}
                       onKeyDown={handleKeyDown}
-                      className={`mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs p-1 form-input ${
-                        newItem.product_type === "RIM-A4" ||
-                        newItem.product_type === "RIM-LEGAL"
+                      className={`mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs p-1 form-input ${newItem.product_type === "RIM-A4" ||
+                          newItem.product_type === "RIM-LEGAL"
                           ? "bg-gray-200"
                           : ""
-                      }`}
+                        }`}
                       placeholder="Enter per dozen price"
                       disabled={
                         newItem.product_type === "RIM-A4" ||
@@ -1124,9 +1118,8 @@ function PurchaseReceiveForm() {
                       value={newItem.per_sheet_or_piece_price}
                       onChange={handleItemChange}
                       onKeyDown={handleKeyDown}
-                      className={`mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs p-1 form-input ${
-                        newItem.product_type === "RIM-A4" ? "bg-gray-200" : ""
-                      }`}
+                      className={`mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs p-1 form-input ${newItem.product_type === "RIM-A4" ? "bg-gray-200" : ""
+                        }`}
                       placeholder="Enter sheet/piece per price"
                       readOnly
                     />
@@ -1160,9 +1153,8 @@ function PurchaseReceiveForm() {
                       value={newItem.per_rim_sale_price}
                       onChange={handleItemChange}
                       onKeyDown={handleKeyDown}
-                      className={`mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs p-1 form-input ${
-                        newItem.product_type === "DOZEN" ? "bg-gray-200" : ""
-                      }`}
+                      className={`mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs p-1 form-input ${newItem.product_type === "DOZEN" ? "bg-gray-200" : ""
+                        }`}
                       placeholder="Per rim sale price"
                     />
                   </td>
@@ -1173,9 +1165,8 @@ function PurchaseReceiveForm() {
                       value={newItem.per_dozen_sale_price}
                       onChange={handleItemChange}
                       onKeyDown={handleKeyDown}
-                      className={`mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs p-1 form-input ${
-                        newItem.product_type === "RIM-A4" ? "bg-gray-200" : ""
-                      }`}
+                      className={`mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs p-1 form-input ${newItem.product_type === "RIM-A4" ? "bg-gray-200" : ""
+                        }`}
                       placeholder="Per dozen sale price"
                     />
                   </td>
@@ -1186,9 +1177,8 @@ function PurchaseReceiveForm() {
                       value={newItem.per_piece_or_sheet_sale_price}
                       onChange={handleItemChange}
                       onKeyDown={handleKeyDown}
-                      className={`mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs p-1 form-input ${
-                        newItem.product_type === "RIM-A4" ? "bg-gray-200" : ""
-                      }`}
+                      className={`mt-1 input-sm w-full border border-gray-300 rounded h-7 placeholder:text-xs p-1 form-input ${newItem.product_type === "RIM-A4" ? "bg-gray-200" : ""
+                        }`}
                       placeholder="Per sheet/piece sale price"
                     />
                   </td>
@@ -1438,13 +1428,7 @@ function PurchaseReceiveForm() {
 
         {/* Submit Buttons */}
         <div className="mt-6 flex justify-between space-x-4">
-          <button
-            type="button"
-            onClick={handlePDFExport}
-            className="bg-blue-500 text-white p-2 rounded flex-1"
-          >
-            Export to PDF
-          </button>
+   
           <button
             type="submit"
             onClick={handleSubmit}
@@ -1452,13 +1436,7 @@ function PurchaseReceiveForm() {
           >
             Submit
           </button>
-          <button
-            type="button"
-            onClick={() => alert("Form Cancelled")}
-            className="bg-red-500 text-white p-2 rounded hover:bg-red-600 flex-1"
-          >
-            Cancel
-          </button>
+      
         </div>
       </form>
     </div>
